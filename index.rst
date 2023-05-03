@@ -23,9 +23,5 @@ Welcome to ONETEP's documentation!
    index_geoopt.rst
    index_dftb.rst
 
-Indices and tables
-==================
+**Note:** A pdf version of the documentation can be downloaded :download:`here <_static/ONETEP_Documentation.pdf>`
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
