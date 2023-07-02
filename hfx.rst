@@ -1214,7 +1214,8 @@ MPI ranks, allowing you to give much more memory to each of them.
 Increase ``hfx_memory_limit`` from the default value of 4096 to however
 much you can spare. This is the maximum RAM consumption of HFx (on top
 of the rest of ONETEP) per MPI rank. Here it is always the higher the
-better, except you don’t want to run out of memory. Use  or for a slight
+better, except you don’t want to run out of memory. Use 
+``ppd_npoints 5 5 5`` or ``ppd_npoints 7 7 7`` for a slight
 efficiency gain.
 
 I’m running out of memory

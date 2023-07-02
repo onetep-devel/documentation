@@ -11,6 +11,7 @@ Welcome to ONETEP's documentation!
    :caption: Contents:
 
    starting_with_onetep.rst
+   working_with_github.rst
    index_ground_state.rst
    index_correlation_constrained.rst
    index_dynamics.rst
@@ -22,6 +23,7 @@ Welcome to ONETEP's documentation!
    index_properties.rst
    index_geoopt.rst
    index_dftb.rst
+   developer_area.rst
 
 **Note:** A pdf version of the documentation can be downloaded :download:`here <_static/ONETEP_Documentation.pdf>`
 

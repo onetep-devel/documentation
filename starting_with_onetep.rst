@@ -6,98 +6,85 @@ Starting with ONETEP
 :Author: Rebecca J. Clements, University of Southampton
 :Author: Jacek Dziedzic, University of Southampton
 
-:Date: April 2022
+:Date: April 2022 (revised July 2023)
+
+.. _starting_obtaining:
 
 Obtaining a copy of ONETEP
 ==========================
 
-If you are a collaborator of one of the members of the onetep Developers
-Group (ODG), you should have received a tarball of a personalised onetep
-copy once you have signed an academic licence agreement. Create a new
-directory, unpack the tarball there, and you’re done.
+If you are an academic license user, you should have received a tarball of a
+personalised ONETEP copy once you have signed an academic licence agreement.
+Create a new directory, unpack the tarball there
+(``tar -xfz your_tarball_name.tar.gz``), and you’re done. You can now go
+straight to :ref:`starting_compiling`.
 
-If you plan to be a onetep contributor, you will be using the official
-onetep Bitbucket repository, located at
-https://bitbucket.org/onetep/onetep. Create a Bitbucket account with
-your university email address. Contact your supervisor and ask to be
-added to the ``Contributors`` group in the onetep project to get access
-to the repository. Read the relevant sections of the ``contributing``
-document, found at
-https://bitbucket.org/onetep/onetep/src/master/CONTRIBUTING.markdown.
-Follow the instructions there to create your own private fork of the
-main onetep repository. There you will also find details of how to
-contribute any developments you make to the onetep code in the future.
+If you plan to have continuous access to the current ONETEP source code, likely
+because you are a ONETEP developer or contributor, or collaborate with one, you
+will want to have access to the official ONETEP GitHub repository.
 
-| Once you have a private fork of onetep on Bitbucket, you can make a
-  copy of your onetep repository on your local machine, using
-  ``git clone``. Make sure you have ``git`` installed on your computer.
-  From your chosen directory, use one of the following commands, which
-  can also be copied from the Bitbucket website, by clicking *clone* at
-  the top of your repository webpage:
-| ``git clone https://<username>@bitbucket.org/<username>/<repo-name>.git``
-|  or
-| ``git clone git@bitbucket.org:<username>/<repo-name>.git``
-| and type in your Bitbucket (app) password (see next section for more
-  detail on app passwords). Substitute ``<username>`` and
-  ``<repo-name>`` in the above commands with your username and the name
-  of your private fork, respectively.
+ 1. Take a look at :ref:`github_location` and :ref:`github_setup` to get
+    acquainted with the overall set-up.
+ 2. If you don't have a GitHub account yet, follow the steps at
+    :ref:`github_create` to create one.
+ 3. Then, create a GitHub *personal access token* by following the steps at
+    :ref:`github_pat`. Without it you will not be able to access the repository
+    due to GitHub policies (unless you already have a *PAT*).
+ 4. Follow :ref:`github_access` to get access. Be sure to follow
+    further instuctions there, depending on whether you plan to be a *User*
+    or a *Contributor*. Congratulations, you have your own copy of ONETEP!
 
-Bitbucket app password
-======================
+Continue along to :ref:`starting_compiling`.
 
-Starting March 2022 Bitbucket will require you to create an *app
-password* for accessing the repository through ``git``. This is a
-distinct password from the one you use to access the Bitbucket web
-interface, it will only be used for accessing the repository through
-``git`` – the two passwords are not interchangeable.
 
-If you haven’t generated an app password for ``git`` yet, follow the
-instructions at
-https://support.atlassian.com/bitbucket-cloud/docs/app-passwords, and
-the *Create an app password* section specifically. Read the instructions
-carefully. Copy the generated password to a safe place.
-
-Once the password has been generated, use it every time ``git`` prompts
-you for a password when you are accessing the onetep Bitbucket
-repository. If you find typing or pasting the password cumbersome, go to
-your local repository clone and, from the command line, issue the
-following command:
-| ``git config credential.helper store``
-| The next time you are prompted for a password will be the last time – ``git`` will store it for you.
-
-Changes to your copy of ONETEP
-==============================
-
-Any changes to the code should be made in your local clone. Once you are
-satisfied with them, you can commit them, and push them to your private
-fork. If you want them to become a part of official onetep, you should
-then create a pull request from your private fork to the official
-respository. Details are described in the *contributing* document, under
-*Creating a pull request*.
-
-Whether you are a contributor or a user, you might want to update your
-repository with any latest changes that might have occurred in the
-official repository. Users might be interested in recent bug fixes or
-new functionality, contributors will want to update their copy before
-committing any changes of their own. The procedure for keeping your
-repository up to date with the official repository is described under
-*Development within a fork* in the *contributing* document.
+.. _starting_compiling:
 
 Compiling, testing and running ONETEP
 =====================================
 
-Instructions for setting the environment prior to compiling onetep,
-instructions on how to compile onetep, how to run quality-check (“QC”)
-tests that will give you confidence in the robustness of your
-installation are provided separately – look in the ``hpc_resources``
-directory of your onetep installation. There you will also find
-instructions on how to submit jobs on specific HPC facilities.
+These are the instructions for setting the environment prior to compiling ONETEP,
+for how to compile ONETEP, and how to run quality-check (“QC”)
+tests that will give you confidence in the robustness of your installation.
+There are also instructions on how to actually submit (start) your jobs.
+
+These instructions differ depending on your environment (the machine on which
+you will run ONETEP and the installed software, such as compilers or external
+libraries). **They are provided separately**.
+
+  1. Go to the directory with your ONETEP installation.
+  2. Change to the ``hpc_resources`` directory. There you will see a number of
+     well-supported systems, such as ``Archer2`` or ``Young`` (and more).
+  3. If your machine is well-supported by ONETEP, just follow the compilation,
+     testing and running instructions there. For instance, instructions for
+     Iridis5 would be found at hpc_resources/Iridis5/instructions_iridis5.pdf.
+
+     If your machine is not in the list of well-supported systems, you will need
+     to adapt one of the existing configs. Look into the subdirectories under
+     ``hpc_resources`` and also in the ``config`` directory in your ONETEP
+     installation.
+
+**Important point about running QC tests**:
+
+.. warning:: Never run the QC tests in the actual repository. Create a copy of your
+    ONETEP installation directory (e.g. ``cp -a onetep_jd onetep_jd_qc``) and
+    run the tests in the directory of the copy. Much of the stuff in the install
+    is not needed to run the tests (e.g. all of ``src/``), but it's just less
+    hassle to copy the entire thing than pick out the necessary subdirectories.
+
+    Why not run the QC tests in the actual repository? Because they produce
+    outputs, which can become messy to clean up back to pristine state,
+    polluting your repository with spurious changes. This becomes more
+    problematic because symbolic links are used in the QC test suite. Trying
+    to update your repository via ``git pull`` or ``git fetch`` may be
+    tricky when you have unfinished or improperly cleaned up QC tests. Just
+    don't run them straight in the repository.
+
 
 Creating input files
 ====================
 
-Go to onetep\ ’s website, `onetep.org <onetep.org>`__. Here you will
-find the *Tutorials* section, which introduces running various kinds of
+Go to the ONETEP website, `onetep.org <onetep.org>`__. There, under *Resources*
+you will find the *Tutorials* section, which introduces running various kinds of
 onetep calculations. Take a look at some of the input files at the
 bottom of the page. Input files in onetep have the ``.dat`` file
 extension. Should any files get downloaded having a ``.txt`` extension,
@@ -110,16 +97,17 @@ keywords on the webpage
 mean. If not specified, most of them have default settings, as listed on
 the webpage.
 
-| The keywords come in different types: ``logical``, ``integer``,
-  ``real``, ``text``, ``physical`` and ``block``. Keywords of the type
-  ``logical`` can have a value of ``T`` (true) or ``F`` (false).
-  Keywords that are ``integer`` and ``real`` are numbers. Keywords of
-  type ``text`` are a string of characters (for example a filename).
-  Keywords of the type ``physical`` refer to physical variables, which
-  come with units such as angstroem, bohr, joule, hartree, etc. A
-  ``block`` indicates more than one line of input, these are often used
-  for specifying coordinates.
-| Some of the important keywords to get started are:
+The keywords come in different types: ``logical``, ``integer``,
+``real``, ``text``, ``physical`` and ``block``. Keywords of the type
+``logical`` can have a value of ``T`` (true) or ``F`` (false).
+Keywords that are ``integer`` and ``real`` are numbers. Keywords of
+type ``text`` are a string of characters (for example a filename).
+Keywords of the type ``physical`` refer to physical variables, which
+come with units such as angstroem, bohr, joule, hartree, etc. A
+``block`` indicates more than one line of input, these are often used
+for specifying coordinates.
+
+Some of the important keywords to get started are:
 
 -  ``task`` – to choose what main calculation you would like onetep to
    perform, e.g. a single point energy calculation or geometry
@@ -167,7 +155,9 @@ electrons are included in ``.paw`` files. Some of these can be found in
 your repository’s ``pseudo`` directory. A complete database of all
 pseudopotentials for all elements in the ``.paw`` format can be
 downloaded from
-https://www.physics.rutgers.edu/gbrv/all_pbe_paw_v1.5.tar.gz
+https://www.physics.rutgers.edu/gbrv/all_pbe_paw_v1.5.tar.gz. There are also
+PAWs and pseudopotential (``.recpot``) files in the ``utils-devel``
+repository at https://github.com/onetep-devel/utils-devel.
 
 | To continue a calculation if it has run out of computation time, use
   the keywords below. The original input must have the ``write``
@@ -189,7 +179,7 @@ https://www.physics.rutgers.edu/gbrv/all_pbe_paw_v1.5.tar.gz
 Running ONETEP in parallel environments
 =======================================
 
-onetep is typically run on more than one CPU core – whether on a desktop
+ONETEP is typically run on more than one CPU core – whether on a desktop
 computer, or at a high-performance computing (HPC) facility. This is
 termed *parallel operation*. There are two main modes of parallel
 operation – *distributed-memory* computing (sometimes termed simply
