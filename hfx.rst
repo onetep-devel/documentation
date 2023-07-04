@@ -97,7 +97,7 @@ possible by expressing metric matrix elements for each atom pair in a
 vector between atomic centres and with a set of SWs aligned in this
 coordinate system. When expressed in spherical polar coordinates, the
 1-D integration (over the azimuthal angle, :math:`\phi`) is simple to
-evaluate analytically. The integration over :math:`(r,\theta)` can be
+evaluate analytically. The 2-D integration over :math:`(r,\theta)` can be
 performed by the same approach used in the 3Dc method, i.e. evaluating
 integrals over piecewise expansions of the :math:`(r,\theta)`-dependent
 parts of the SWs and SWpots in Chebyshev polynomials.
@@ -134,7 +134,7 @@ use it later to tell HFx or DMA which SWRI to use (as you can have more
 than one SWRI).
 
 [lmax] :math:`l_{\textrm{max}}` is the maximum angular momentum in the
-SW basis. Supported values are 0 (s-like SWs only), 1 (s- and SWs),
+SW basis. Supported values are 0 (s-like SWs only), 1 (s- and p-like SWs),
 2 (s-, p- and d-like SWs), 3 (s-, p-, d- and f-like SWs) and 4 (you get
 the idea). For HFx choose 2 for a crude calculation, 3 for good quality,
 and 4 for extreme quality. 0 and 1 will likely be too crude to fully
@@ -575,7 +575,7 @@ DMA
 ===
 
 DMA (Distributed Multipole Analysis) is a technique for partitioning
-charge density into single 10000 atom contributions and finding a set of
+charge density into single-atom contributions and finding a set of
 point multipoles that most accurately represent this charge density. The
 point multipoles are usually, although not universally, atom-centered –
 this is the case in ONETEP. DMA was proposed by Rein
@@ -604,7 +604,7 @@ Apart from calculating electronic multipoles, ONETEP's DMA also
 calculates total (electronic + ionic core) atom-centered multipoles.
 Also calculated are the total multipoles of the system (e.g.. the
 molecular dipole or quadrupole), suitably averaged over all the atoms
-that were part of the SWRI. For non 10000 neutral molecules the value of
+that were part of the SWRI. For non-neutral molecules the value of
 the dipole depends on the point where it is calculated (similarly for
 higher multipoles), and so the total multipoles are calculated *at a
 reference point* of your choosing.
@@ -723,7 +723,7 @@ on by default), but care must be taken when using it with polemb-DMA
 limitations arise. (1) In polemb-DMA the DMA multipoles enter LNV and
 NGWF gradient expressions. The quantity
 :math:`\textrm{Tr}\left[\mathbb{KS}\right]` is not strictly a constant,
-and has non 10000 zero DKN and NGWF derivatives, leading to additional
+and has non-zero DKN and NGWF derivatives, leading to additional
 terms in LNV and NGWF gradients when charge-scaling is used. These extra
 terms have been implemented for LNV gradients, but *not* for NGWF
 gradients, where they become really hairy (these are under development).
@@ -751,7 +751,7 @@ polemb-DMA.
 (in bohr) at which total DMA multipoles are calculated. This is mostly
 useful if your system (strictly speaking: your DMA subsystem) is not
 charge-neutral and you are interested in the value of the total dipole.
-When the system is non 10000 neutral, the total dipole is not
+When the system is non-neutral, the total dipole is not
 translation invariant, and a reference point for calculating it needs to
 be specified. This keyword specifies this reference. Also note that when
 a simcell full-density polarisation calculation is performed (via

@@ -49,7 +49,7 @@ MPSM offers a very accurate treatment of the polar (electrostatic)
 solvation contribution, and a rather simple, yet still accurate,
 treatment of the apolar terms: cavitation, dispersion and repulsion.
 MPSM is based on the Fattebert and Gygi model (later extended by
-Scherlis) [Scherlis2006]_.
+Scherlis *et al.*) [Scherlis2006]_.
 
 Two other models are available – Fisicaro’s soft-sphere model (SSM)
 [Fisicaro2017]_, and Andreussi’s Self-Consistent Continuum
@@ -552,7 +552,7 @@ Manual solvation and restarts
 Occasionally you might want to run a calculation in solvent without
 automatically running a calculation in vacuum first. Perhaps you already
 have the calculation in vacuum and you prefer to manually restart it in
-solvent. This is known as “manual solvation”. To activate it, use (the
+solvent. This is known as “manual solvation”. To activate it, use ``is_implicit_solvent T`` (the
 default is ``F``), and make sure to have ``is_auto_solvation F`` (which
 is the default).
 
@@ -733,7 +733,7 @@ The key takeaway message here is that you need to use smeared ions in
 **both** the in-vacuum calculation and the in-solvent calculation to
 ensure the energy expressions are comparable. To do that, add
 ``is_smeared_ion_rep T`` to your input file(s). If you forget about this
-in a solvation calculation () or if you do auto solvation
+in a solvation calculation (``is_implicit_solvent T``) or if you do auto solvation
 (``is_auto_solvation T``) it will be added automatically for you, but a
 warning will be produced. However, if you run manual solvation, you need
 to remember to include ``is_smeared_ion_rep T`` in the in-vacuum
