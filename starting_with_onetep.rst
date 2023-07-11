@@ -85,12 +85,12 @@ Creating input files
 
 Go to the ONETEP website, `onetep.org <onetep.org>`__. There, under *Resources*
 you will find the *Tutorials* section, which introduces running various kinds of
-onetep calculations. Take a look at some of the input files at the
-bottom of the page. Input files in onetep have the ``.dat`` file
+ONETEP calculations. Take a look at some of the input files at the
+bottom of the page. Input files in ONETEP have the ``.dat`` file
 extension. Should any files get downloaded having a ``.txt`` extension,
 you will need to rename them to end with ``.dat``.
 
-Input files contain keywords, instructing onetep on what calculations to
+Input files contain keywords, instructing ONETEP on what calculations to
 run, and to set the parameters needed to run them. Check out the
 keywords on the webpage
 `onetep.org/Main/Keywords <onetep.org/Main/Keywords>`__ to see what they
@@ -109,7 +109,7 @@ for specifying coordinates.
 
 Some of the important keywords to get started are:
 
--  ``task`` – to choose what main calculation you would like onetep to
+-  ``task`` – to choose what main calculation you would like ONETEP to
    perform, e.g. a single point energy calculation or geometry
    optimisation. You can run a properties calculation this way, using
    output files generated from a single point energy calculation or
@@ -149,7 +149,7 @@ use:
 ``C C 6 4 8.0``
 
 The ``species_pot`` block specifies the location of the pseudopotential
-used for each element of the system. The standard onetep norm-conserving
+used for each element of the system. The standard ONETEP norm-conserving
 pseudopotentials (``.recpot`` files) exclude core electrons. Core
 electrons are included in ``.paw`` files. Some of these can be found in
 your repository’s ``pseudo`` directory. A complete database of all
@@ -184,7 +184,7 @@ computer, or at a high-performance computing (HPC) facility. This is
 termed *parallel operation*. There are two main modes of parallel
 operation – *distributed-memory* computing (sometimes termed simply
 *parallelism*), and *shared-memory* computing (sometimes termed
-*concurrency*). onetep combines both of them, so it will be crucial to
+*concurrency*). ONETEP combines both of them, so it will be crucial to
 understand how they work.
 
 Distributed-memory parallelism (MPI)
@@ -204,8 +204,8 @@ their chunks. Yes, even when they are on the same machine.
 
 The problem they work on has to be somehow subdivided between them –
 this is known as *parallel decomposition*. One common way of doing that
-– and one that onetep employs – is *data decomposition*, where it’s the
-data in the problem that is subdivided across processes. In onetep the
+– and one that ONETEP employs – is *data decomposition*, where it’s the
+data in the problem that is subdivided across processes. In ONETEP the
 grids on which quantities like electronic density or external potential
 are calculated are divided across processes, with each process “owning”
 a slab of the grid. Similarly, the atoms in the system are divided
@@ -214,9 +214,9 @@ these concepts are illustrated in :numref:`MPI`.
 
 .. _MPI:
 .. figure:: starting_with_onetep_fig1.png
-   :alt: Illustration of parallel data decomposition in onetep. Figure borrowed from J. Chem. Phys. \ **122**, 084119 (2005), https://doi.org/10.1063/1.1839852, which you are well-advised to read.
+   :alt: Illustration of parallel data decomposition in ONETEP. Figure borrowed from J. Chem. Phys. \ **122**, 084119 (2005), https://doi.org/10.1063/1.1839852, which you are well-advised to read.
 
-   Illustration of parallel data decomposition in onetep. Figure borrowed from J. Chem. Phys. \ **122**, 084119 (2005), https://doi.org/10.1063/1.1839852, which you are well-advised to read.
+   Illustration of parallel data decomposition in ONETEP. Figure borrowed from J. Chem. Phys. \ **122**, 084119 (2005), https://doi.org/10.1063/1.1839852, which you are well-advised to read.
 
 From the point of view of the operating system, the processes running on
 a machine are separate entities (see :numref:`processes`), and
@@ -229,9 +229,9 @@ Message Passing Interface (MPI). This is why we often call the processes
 
 .. _processes:
 .. figure:: starting_with_onetep_fig2.png
-   :alt: Four onetep processes running on one machine, each utilising 100% of a CPU core and 0.4% of available memory.
+   :alt: Four ONETEP processes running on one machine, each utilising 100% of a CPU core and 0.4% of available memory.
 
-   Four onetep processes running on one machine, each utilising 100% of a CPU core and 0.4% of available memory.
+   Four ONETEP processes running on one machine, each utilising 100% of a CPU core and 0.4% of available memory.
 
 MPI facilitates starting multiple processes as part of a single
 calculation, which can become slightly tricky when there are multiple
@@ -244,11 +244,11 @@ desktop machine its invocation typically looks like this:
 ``mpirun -np 4 ./onetep_launcher input.dat >input.out 2>input.err``
 
 Here, ``mpirun`` is the name of the command for launching multiple
-processes, asks for four processes, ``onetep_launcher`` is the name of
-the script for launching onetep – it’s the script that will actually be
-run on four CPU cores, and each instance will start one onetep process
+processes, ``-np 4`` asks for four processes, ``onetep_launcher`` is the name of
+the script for launching ONETEP – it’s the script that will actually be
+run on four CPU cores, and each instance will start one ONETEP process
 for you – here we assume it’s in the current directory (``./``),
-``input.dat`` is your onetep input file. Output will be sent
+``input.dat`` is your ONETEP input file. Output will be sent
 (“redirected”) to ``onetep.out``, and error messages (if any), will be
 redirected to ``input.err``. All four processes will be started on the
 same machine.
@@ -260,15 +260,15 @@ number of processes will be automatically inferred by the batch
 
 MPI lets you run your calculation on as many processes as you like –
 even tens of thousands. However, there are practical limitations to how
-far you can go with onetep. Looking at :numref:`MPI` it becomes clear
+far you can go with ONETEP. Looking at :numref:`MPI` it becomes clear
 that you cannot have more MPI processes than atoms – or some processes
 would be left without work to do. In fact this limitation is even
-slightly stricter – to divide work more evenly onetep tries to give each
+slightly stricter – to divide work more evenly ONETEP tries to give each
 processes a similar number of NGWFs, not atoms. For instance, for a
 water molecule run on two processes, it makes sense to assign the O atom
 and its 4 NGWFs to one process, and both H atoms (1 NGWF each) to the
-second process. If you try to run a calculation on on *three* processes,
-it’s very likely that onetep will do the same thing – assign O to one
+second process. If you try to run a calculation on H:sub:`2`O on *three* processes,
+it’s very likely that ONETEP will do the same thing – assign O to one
 processes, both H’s to another process and the third process will wind
 up with no atoms. This will cause the calculation to abort. So, one
 limitation is **you will not be able to use more MPI processes that you
@@ -296,7 +296,7 @@ synchronisation – e.g. so that thread 1 knows thread 2 finished writing
 something to memory and it’s safe to try to read it. These mechanisms
 are described by a standard known as ``OpenMP``, or ``OMP`` for short.
 
-In onetep threads are most conveniently handled using the launcher’s
+In ONETEP threads are most conveniently handled using the launcher’s
 ``-t`` option, which instructs it how many threads each process should
 spawn. For instance the command
 
@@ -306,9 +306,9 @@ runs one process (note the absence of ``mpirun``), which spawns eight
 threads. This is what it looks like to the operating system:
 
 .. figure:: starting_with_onetep_fig3.png
-   :alt: One onetep process that spawned eight threads, running on one machine, utilising almost 800% of a CPU core and 1.3% of available memory – this is for the entire process encompassing eight threads.
+   :alt: One ONETEP process that spawned eight threads, running on one machine, utilising almost 800% of a CPU core and 1.3% of available memory – this is for the entire process encompassing eight threads.
 
-   One onetep process that spawned eight threads, running on one machine, utilising almost 800% of a CPU core and 1.3% of available memory – this is for the entire process encompassing eight threads.
+   One ONETEP process that spawned eight threads, running on one machine, utilising almost 800% of a CPU core and 1.3% of available memory – this is for the entire process encompassing eight threads.
 
 Thread-based processing has a number of limitations. As threads reside
 within a process, you cannot feasibly run more threads than you have CPU
@@ -319,16 +319,16 @@ any advantage, because the additional threads will not have anything to
 work with (fortunately, this does not lead to the calculation aborting,
 only to some threads idling). Even with four threads you will lose some
 efficiency, because some threads will get 3 atoms and some only 2.
-onetep works best with about 4-6 threads, unless you are using
+ONETEP works best with about 4-6 threads, unless you are using
 Hartree-Fock exchange (HFx), which is the most efficient on large thread
 counts.
 
 Threads are easiest to control via ``onetep_launcher``, which you are
-advised to use, but onetep also provides keywords for controlling them
+advised to use, but ONETEP also provides keywords for controlling them
 manually – these are ``threads_max``, ``threads_per_fftbox``,
 ``threads_num_fftboxes``, ``threads_per_cellfft`` and
 ``threads_num_mkl``. Each of these sets the number of threads spawned
-from a single process for some part of onetep\ ’s functionality. This is
+from a single process for some part of ONETEP\ ’s functionality. This is
 advanced stuff and will not be covered in this beginners’ document.
 
 Another point to note is that each thread requires its own *stack* (a
@@ -346,7 +346,7 @@ Hybrid (combined MPI+OMP) parallelism
 
 For anything but the smallest of systems, combining MPI processes with
 OMP threads is the most efficient approach. This is known as *hybrid
-parallelism*. In onetep this is realised simply by combining ``mpirun``
+parallelism*. In ONETEP this is realised simply by combining ``mpirun``
 (or equivalent) with ``onetep_launcher``\ ’s ``-t`` option, like this:
 
 ``mpirun -np 4 ./onetep_launcher -t 8 input.dat >input.out 2>input.err``
@@ -357,7 +357,7 @@ set-up would fully saturate a large, 32-core desktop machine.
 Setting up processes and threads looks slightly different in HPC
 systems, where you need to start them on separate nodes. Your submission
 script (you will find ones for common architectures in the
-``hpc_resources`` directory of your onetep installation) defines all the
+``hpc_resources`` directory of your ONETEP installation) defines all the
 parameters at the top of the script and then accordingly invokes
 ``mpirun`` (or equivalent) and ``onetep_launcher``. Look at the
 beginning of the script to see what I mean.

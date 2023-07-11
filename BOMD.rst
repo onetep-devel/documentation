@@ -422,8 +422,8 @@ both the density kernel and the support functions. Here below, we
 briefly review various algorithms that allows to initialise the density
 kernel and NGWFs by extrapolation from previous time steps.
 
-Hereafter, :math:`\chi{^{\mbox{\tiny{init}}}}_i` and
-:math:`\chi{^{\mbox{\tiny{scf}}}}_i` are used to represent respectively
+Hereafter, :math:`\chi^{\text{init}}_i` and
+:math:`\chi^{\text{scf}}_i` are used to represent respectively
 the initial guess and SCF solution for either the density kernel or a
 given NGWF at time :math:`t=i\Delta t`.
 
@@ -435,7 +435,7 @@ One-dimensional linear extrapolation
       .. math::
 	 :label: linxtpol1
 
-         \chi{^{\mbox{\tiny{init}}}}_{(i+1)} = 2\chi{^{\mbox{\tiny{scf}}}}_{i}-\chi{^{\mbox{\tiny{scf}}}}_{(i-1)}.
+         \chi^{\text{init}}_{(i+1)} = 2\chi^{\text{scf}}_{i}-\chi^{\text{scf}}_{(i-1)}.
 
 Multi-dimensional linear extrapolation
     
@@ -452,7 +452,7 @@ Multi-dimensional linear extrapolation
       .. math::
 	 :label: multixtpol1
 
-         \chi{^{\mbox{\tiny{init}}}}_{(i+1)} = \chi{^{\mbox{\tiny{scf}}}}_{i} + \sum_{n=0}^{N} c_n \left(\chi{^{\mbox{\tiny{scf}}}}_{(i-n)}  - \chi{^{\mbox{\tiny{scf}}}}_{(i-(n+1))} \right)
+         \chi^{\text{init}}_{(i+1)} = \chi^{\text{scf}}_{i} + \sum_{n=0}^{N} c_n \left(\chi^{\text{scf}}_{(i-n)}  - \chi^{\text{scf}}_{(i-(n+1))} \right)
 
       where the :math:`N+1` coefficients :math:`\{c_n\}` are chosen by
       minimizing the norm,
@@ -535,7 +535,7 @@ Projection of the density kernel
       to adapt it to the new support functions is to project the density
       kernel onto the extrapolated NGWFs. This transformation reads,
 
-      .. math:: \mathbf{K}{^{\mbox{\tiny{init}}}}_{(i+1)} = \left(\mathbf{S}{^{\mbox{\tiny{init}}}}_{i+1}\right)^{-1} \mathbf{T}_{(i+1),i} \ \mathbf{K}{^{\mbox{\tiny{scf}}}}_{i} \ \mathbf{T}_{i,(i+1)} \left(\mathbf{S}{^{\mbox{\tiny{init}}}}_{i+1}\right)^{-1} \ ,
+      .. math:: \mathbf{K}^{\text{init}}_{(i+1)} = \left(\mathbf{S}^{\text{init}}_{i+1}\right)^{-1} \mathbf{T}_{(i+1),i} \ \mathbf{K}^{\text{scf}}_{i} \ \mathbf{T}_{i,(i+1)} \left(\mathbf{S}^{\text{init}}_{i+1}\right)^{-1} \ ,
 
       where :math:`\mathbf{K}_i` and :math:`\mathbf{S}_i` stand for the
       density kernel and overlap matrix at MD step :math:`i`; and
@@ -555,11 +555,11 @@ Christoffel correction to the density kernel
       symbols should be accounted for in the transformation of the
       density kernel. The correction to the density kernel then reads,
 
-      .. math:: \Delta \mathbf{K}{^{\mbox{\tiny{init}}}}_{(i+1)} = -\left(\mathbf{S}{^{\mbox{\tiny{scf}}}}_{i} \right)^{-1}\  \mathbf{D}_{(i+1),i}\ \mathbf{K}_{i} \ - \mathbf{K}_{i}\ \mathbf{D}_{i,(i+1)}\ \left(\mathbf{S}{^{\mbox{\tiny{scf}}}}_{i} \right)^{-1}
+      .. math:: \Delta \mathbf{K}^{\text{init}}_{(i+1)} = -\left(\mathbf{S}^{\text{scf}}_{i} \right)^{-1}\  \mathbf{D}_{(i+1),i}\ \mathbf{K}_{i} \ - \mathbf{K}_{i}\ \mathbf{D}_{i,(i+1)}\ \left(\mathbf{S}^{\text{scf}}_{i} \right)^{-1}
 
       with
 
-      .. math:: \left(\mathbf{D}_{(i+1),i}\right)_{\alpha \beta} = \left \langle (\phi{^{\mbox{\tiny{init}}}}_{(i+1)})_{\alpha} - (\phi{^{\mbox{\tiny{scf}}}}_{i})_{\alpha} \ \bigg| \  (\phi{^{\mbox{\tiny{scf}}}}_{i})_{\beta} \right \rangle \ .
+      .. math:: \left(\mathbf{D}_{(i+1),i}\right)_{\alpha \beta} = \left \langle (\phi^{\text{init}}_{(i+1)})_{\alpha} - (\phi^{\text{scf}}_{i})_{\alpha} \ \bigg| \  (\phi^{\text{scf}}_{i})_{\beta} \right \rangle \ .
 
 Extended Lagrangian propagation of density kernel schemes
 ---------------------------------------------------------
@@ -609,7 +609,7 @@ Extended Lagrangian with dissipation, dEL/SCF
       .. math::
 
          \begin{aligned}
-         \mathbf{P}_{i+1} &= 2\mathbf{P}_{i} - \mathbf{P}_{i - 1} + \kappa[(\mathbf{KS}{^{\mbox{\tiny{scf}}}})_i - \mathbf{P}_{i}] \nonumber \\
+         \mathbf{P}_{i+1} &= 2\mathbf{P}_{i} - \mathbf{P}_{i - 1} + \kappa[(\mathbf{KS}^{\text{scf}})_i - \mathbf{P}_{i}] \nonumber \\
           &&+ \,\alpha\sum_{m=0}^M c_m \mathbf{P}_{i-m}. \end{aligned}
 
       where :math:`\kappa`, :math:`\alpha` and :math:`c_m`\ ’s are
@@ -617,7 +617,7 @@ Extended Lagrangian with dissipation, dEL/SCF
       Ref. [Niklasson2009]_. The initial guess for the
       density kernel is given by
 
-      .. math:: \mathbf{K}{^{\mbox{\tiny{init}}}}_{i+1} = \mbox{sym}(\mathbf{PS}^{-1}_{i+1}) = \frac{1}{2}[(\mathbf{PS}^{-1})_{i+1} + (\mathbf{S}^{-1}\mathbf{P})_{i+1}]
+      .. math:: \mathbf{K}^{\text{init}}_{i+1} = \mbox{sym}(\mathbf{PS}^{-1}_{i+1}) = \frac{1}{2}[(\mathbf{PS}^{-1})_{i+1} + (\mathbf{S}^{-1}\mathbf{P})_{i+1}]
 
       The problem with the above mentioned scheme lays in the use of a
       dissipative term that unavoidably breaks the time-reversibility,
@@ -640,17 +640,17 @@ Extended Lagrangian with thermostat, inertial iEL/SCF
       .. math::
 
          \begin{aligned}
-         \mathbf{P}_{i + 1} &= \mathbf{P}_{i} + \dot{\mathbf{P}}_{i}\Delta t + \omega^2{\Delta t}^2[(\mathbf{KS}){^{\mbox{\tiny{scf}}}}_i - \mathbf{P}_{i}]  \\
+         \mathbf{P}_{i + 1} &= \mathbf{P}_{i} + \dot{\mathbf{P}}_{i}\Delta t + \omega^2{\Delta t}^2[(\mathbf{KS})^{\text{scf}}_i - \mathbf{P}_{i}]  \\
          \dot{\mathbf{P}}_{i + 1} &= \gamma_i\dot{\widetilde{\mathbf{P}}}_{i + 1} \nonumber \\ 
-          &= \gamma_i \{ \dot{\mathbf{P}}_{i} + \omega^2{\Delta t}/2[((\mathbf{KS}){^{\mbox{\tiny{scf}}}}_{i+1} - \mathbf{P}_{i + 1}) +  \nonumber \\
-          &  ((\mathbf{KS}){^{\mbox{\tiny{scf}}}}_i - \mathbf{P}_i)] \} 
+          &= \gamma_i \{ \dot{\mathbf{P}}_{i} + \omega^2{\Delta t}/2[((\mathbf{KS})^{\text{scf}}_{i+1} - \mathbf{P}_{i + 1}) +  \nonumber \\
+          &  ((\mathbf{KS})^{\text{scf}}_i - \mathbf{P}_i)] \} 
           \end{aligned}
 
       with :math:`\gamma_i` given by
 
-      .. math:: \gamma_i = \sqrt{1+\frac{\tau}{\Delta t}\left(\frac{T{_{\mbox{\tiny{K}}}}}{ \langle\dot{\mathbf{P}_{i}}^2}\rangle - 1\right)}
+      .. math:: \gamma_i = \sqrt{1+\frac{\tau}{\Delta t}\left(\frac{T_{\text{K}}}{ \langle\dot{\mathbf{P}_{i}}^2}\rangle - 1\right)}
 
-      where :math:`T{_{\mbox{\tiny{K}}}}` is the target temperature,
+      where :math:`T_{\text{K}}` is the target temperature,
       :math:`\tau` is the characteristic time of the thermostat, and
       :math:`\langle\dot{\mathbf{P}_{i}}^2\rangle` is the instantaneous
       temperature of the auxiliary degrees of freedom. The key parameter
