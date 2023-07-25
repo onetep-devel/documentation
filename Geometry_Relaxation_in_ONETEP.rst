@@ -1,6 +1,6 @@
-=============================
-Geometry Relaxation in ONETEP
-=============================
+===================
+Geometry Relaxation
+===================
 
 :Author: Loukas Kollias, University of Southampton, United Kingdom
 :Author: Chris-Kriton Skylaris, University of Southampton, United Kingdom
