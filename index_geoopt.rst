@@ -3,7 +3,7 @@
    contain the root `toctree` directive.
 
 Relaxation
-==========
+================================================
 
 .. toctree::
    :maxdepth: 1
