@@ -173,6 +173,66 @@ do so will finish with:
   remote: Write access to repository not granted.
 
 
+.. _github_clone_notcode:
+
+Cloning the ``documentation``, ``tutorials`` or ``utils-devel`` repositories
+============================================================================
+
+This procedure is only meant for *Users*. *Contributors* should go to
+:ref:`github_fork_notcode` instead, then to :ref:`github_clone_fork_notcode`.
+
+These repositories are public.
+
+Cloning the ``documentation`` repository lets you get a copy of the *source* of
+the ONETEP documentation (so, ``.rst`` files). If you are just interested in the
+compiled documentation (``.pdf`` or ``.html``), you might be better off just
+visiting https://onetep.org/resources/documentation.
+
+Cloning the ``tutorials`` repository lets you get a copy of the *source* of
+the ONETEP tutorials (so, ``.rst`` files). If you are just interested in the
+compiled tutorials (``.pdf`` or ``.html``), you might be better off just
+visiting https://onetep.org/resources/tutorials.
+
+Cloning the ``utils-devel`` repository lets you get a copy of the additional
+utilities useful mostly for developers, but ONETEP users may benefit from
+having a copy too. ONETEP will offer to clone this repository for you after
+you compile it, so perhaps it's not worth it to clone it manually.
+
+Think of the above clones as of your personal copies of, respectively, the
+documentation source, the source for the tutorials and the utilities. This
+copy/copies will reside locally, on your disk.
+See also :numref:`Figure fig:github_setup`, the left-hand side.
+
+To clone the documentation repository, go to your terminal and issue:
+::
+
+  git clone https://github.com/onetep-devel/documentation.git
+
+To clone the tutorials repository, go to your terminal and issue:
+::
+
+  git clone https://github.com/onetep-devel/tutorials.git
+
+To clone the utils-devel repository, go to your terminal and issue:
+::
+
+  git clone https://github.com/onetep-devel/utils-devel.git
+
+When prompted for username, enter your GitHub username. When prompted for
+password, type in (or preferably paste) your *GitHub personal access token*,
+**not** your GitHub password.
+
+See :ref:`github_pat_store` for instructions on how to have ``git`` store your
+credentials so that you don't have to type or paste them each time you want
+to perform an action on your repository.
+
+As a *User* you don't have permissions to write to the repository. Attempts to
+do so will finish with:
+::
+
+  remote: Write access to repository not granted.
+
+
 .. _github_fork:
 
 Forking the official ONETEP repository
@@ -203,6 +263,15 @@ To fork the official repository, assuming you have been given access
 
 You now have your private fork, accessible via something like
 https://github.com/JaneDoe/onetep_jd.
+
+
+.. _github_fork_notcode:
+
+Forking the ``documentation``, ``tutorials`` or ``utils-devel`` repositories
+============================================================================
+
+The procedure is the same as :ref:`github_fork`, except ``onetep`` should be
+replaced with ``documentation``, ``tutorials`` or ``utils-devel``.
 
 
 .. _github_clone_fork:
@@ -256,6 +325,15 @@ them to the official ONETEP repository, follow the steps in
 :ref:`github_pull_request`.
 
 
+.. _github_clone_fork_notcode:
+
+Cloning your private ``documentation``, ``tutorials`` or ``utils-devel`` fork
+=============================================================================
+
+The procedure is the same as :ref:`github_clone_fork`, except ``onetep`` should
+be replaced with ``documentation``, ``tutorials`` or ``utils-devel``.
+
+
 .. _github_development_in_fork:
 
 Development within a fork
@@ -280,6 +358,9 @@ the official repository by regularly merging with the official repository, i.e.
   ::
 
     git remote add github_official https://github.com/onetep-devel/onetep.git
+
+  If you are developing documentation, tutorials or the utilities, replace
+  ``onetep`` with ``documentation``, ``tutorials`` or ``utils-devel`` in the above.
 
 * Fetch changes from the official repository (each time):
   ::
@@ -353,7 +434,7 @@ with the official repository, follow these steps.
   2. Click ``Contribute`` below and to the left of the green ``<> Code`` button.
   3. Click ``Open pull request``.
   4. Edit the title and description of what you want to commit.
-  5. Choose Reviewer(s) on the right.
+  5. Choose Reviewer(s) on the right. Read the two **notes** below.
   6. Click ``Create pull request``.
 
 Your pull request has now been created. You should wait for the Reviewer(s).
@@ -370,6 +451,21 @@ Your pull request has now been created. You should wait for the Reviewer(s).
 .. note::  It looks like at our settings it is not possible to have more than one
   reviewer, unless we upgrade to `Pro`, `Team` or `Enterprise` plan, see:
   https://github.com/orgs/community/discussions/23978
+
+.. note::  Also, unless you are one of the repository Owners, you will simply not see
+  the option to select a Reviewer. This is a GitHub feature meant to prevent
+  any spamming from people who forked public repositories. Intead of adding a
+  Reviewer, *tag* the person or people you'd like to review your change in the
+  text that you enter in the *Leave a comment* box. For instance, type
+  ``@JacekDziedzic`` to add Jacek as a reviewer -- he will then get a notification
+  once you submit the pull request.
+
+If the pull request is for the documentation or tutorials, once it is merged,
+the changes will be deployed automatically to the ONETEP website
+(a ``documentation-deploy`` or ``tutorials-deploy`` **GitHub Action**). When
+the pull request is submitted, this step will be skipped (because you have not
+been authorised to make the changes at this point yet). It will only be run
+following the merge.
 
 
 .. _github_review_and_merge:
@@ -396,6 +492,18 @@ steps.
      ``Squash and merge``), and choose ``Squash and merge``.
   8. Click ``Squash and merge``.
   9. Click ``Confirm squash and merge``.
+
+
+.. _github_gui_update:
+
+Simple changes to ``documentation`` or ``tutorials``
+====================================================
+
+If you have a small change to the documentation or tutorials, for instance you
+want to add or change a single file or several files, *and* you're an Owner,
+you can just upload the new/updated files straight from the GUI. Make sure
+you are logged in, then choose ``Add File`` (to the left of the green button).
+Follow the instructions on screen. Once you're done, this will create a commit.
 
 
 .. _github_pat_store:
@@ -425,7 +533,8 @@ This section is meant for *Owners*. It explains how to add users to the ONETEP
 GitHub repository.
 
 Note that only the ``onetep`` repository is private. Anyone can access the
-public repositories of the organisation ``onetep-devel``. To add a user to
+public repositories of the organisation ``onetep-devel`` (which are
+``documentation``, ``tutorials`` and ``utils-defvel``). To add a user to
 the ``onetep`` repository, you yourself must be a user in the ``Owner`` role.
 
 To add a new user, follow these steps:
