@@ -176,6 +176,8 @@ repository at https://github.com/onetep-devel/utils-devel.
 | ``read_hamiltonian T``
 | to the above list.
 
+.. _running_parallel:
+
 Running ONETEP in parallel environments
 =======================================
 

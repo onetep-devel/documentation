@@ -23,6 +23,7 @@ Welcome to ONETEP's documentation!
    index_properties.rst
    index_geoopt.rst
    index_dftb.rst
+   performance.rst
    developer_area.rst
 
 **Note:** A pdf version of the documentation can be downloaded :download:`here <_static/ONETEP_Documentation.pdf>`
