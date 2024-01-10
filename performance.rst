@@ -104,6 +104,18 @@ not sufficient, you can reduce the memory load by using more nodes, but this is 
 *not* reduce the load by a factor of two if you add twice as many nodes. Finally, note that what is printed out is the
 amount of memory consumed by the fast density approach, not by all of ONETEP.
 
+When is fast density used?
+--------------------------
+
+Fast density is only used for energy evaluations done from ``hamiltonian_mod`` -- via ``hamiltonian_lhxc_calculate()``
+and ``hamiltonian_energy_components()``. These are the costly density calculations, because they are done hundreds
+of times in the course of a calculation. All other density calculations (done in forces, properties, eigenstates, 
+linear response, lr_tddft, population, dma, dmft, EDA, implicit solvent restarts) are always done using the exact
+(slow) method. The rationale is that these are done much less often and possibly require more accuracy.
+
+If you want to know when the fast and slow routines are called, specify ``fast_density_output_detail PROLIX``
+or higher.
+
 More accuracy
 -------------
 
@@ -122,7 +134,12 @@ the final energy evaluation. You will know this happened by examining the output
   ! The fast density calculation will now be disabled in the interest of accuracy.
 
 Note that this will not be printed if ``fast_density_output_detail`` is ``BRIEF`` or if fast density would already
-have been switched off by ``fast_density_elec_energy_tol`` (see below).
+have been switched off by ``fast_density_elec_energy_tol`` (see below). This setting resets any time you start a new
+NGWF convergence loop -- that means that in auto solvation, geometry optimisation, MD, etc. each optimisation will
+start with fast density turned on.
+
+Also note that this switching is done in the NGWF convergence loop. If you are working with fixed NGWFs
+(``maxit_ngwf_cg 0`` (or negative)), this switching will not take place.
 
 Furthermore, particularly if your calculation struggles to converge to the default
 NGWF threshold, you can set ``fast_density_elec_energy_tol``. This is the energy change per atom between NGWF steps
@@ -137,15 +154,19 @@ You will know if and when this happened by examining the output file and looking
   ! Energy change per atom: 0.30287E-07 Eh < 0.10000E-06.``
   ! The fast density calculation will now be disabled in the interest of accuracy.``
 
-Note that this will not be printed if ``fast_density_output_detail`` is ``BRIEF``.
+Note that this will not be printed if ``fast_density_output_detail`` is ``BRIEF``. This setting resets any time 
+you start a new NGWF convergence loop -- that means that in auto solvation, geometry optimisation, MD, etc. each 
+optimisation will start with fast density turned on.
+
+Note that you need at least two NGWF iterations to have a meaningful energy change to examine, so this setting
+has no effect if you take fewer than two NGWF iterations.
 
 Remaining options
 -----------------
 
 The default output detail of fast density is the same as specified for ``output_detail``. You can set it separately
 by specifying ``fast_density_output_detail``. The available options are the same as for all ONETEP output details:
-``BRIEF``, ``NORMAL``, ``VERBOSE``, ``PROLIX`` and ``MAXIMUM``. Currently there is no difference in this setting
-between ``VERBOSE`` and the higher settings.
+``BRIEF``, ``NORMAL``, ``VERBOSE``, ``PROLIX`` and ``MAXIMUM``.
 
 If, in the future, other methods of trimming NGWFs than by using a fixed threshold become available, you will be
 able to use ``fast_density_trim_by`` to control these. Currently the only supported option is ``VALUE``.
@@ -194,9 +215,6 @@ Fast density is known to work (to the best of our knowledge) with the following 
 Fast density is known *not* to work (this we know with certainty) with the following additional functionalities:
   - complex NGWFs,
   - TD-DFT (mixed bases are not supported at this point).
-ONETEP will stop with an error if either of these is used with `fast_density T`.
-  
-
-Fast density probably does *not* work with the following additional functionalities:
   - EMFT (regions).
-ONETEP will try its best, but caveat emptor applies.
+
+ONETEP will stop with an error if either of these is used with `fast_density T`.
