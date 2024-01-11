@@ -274,6 +274,272 @@ Preventing accidental pushes to the official repository
     git remote set-url --push github_official DISABLE
 
 
+.. _dev_fast_density:
+
+Fast density calculation (for developers)
+=========================================
+
+This section describes the "fast density" approach introduced in ONETEP 7.1.8 in January 2024.
+This is developer-oriented material -- for a user manual, see :ref:`user_fast_density`.
+
+We focus on the calculation on the double grid. If ``fine_grid_scale`` is different from 2.0,
+the density gets interpolated from the double to the fine grid, regardless of the approach
+for calculating the density on the double grid.
+
+*A* denotes atoms local to a process. *B* denotes atoms that S-overlap with atoms *A*, they
+are, in general, not local. NGWFs on *A* are indexed with *a*, NGWFs on *B* are indexed with *b*,
+and so *Aa* and *Bb* can be used to index NGWFs globally. NGWFs *Aa* are local, NGWFs *Bb* are,
+in general, not. Depending on who you ask, *Aa* NGWFs are sometimes termed "col", "ket" or "right";
+*Bb* NGWFs are sometimes termed "row", "bra" or "left".
+
+The usual ("slow") method for calculating electronic density in ONETEP proceeds as follows:
+
+::
+
+  // slow density
+  for all local atoms A {
+    dens_A = 0
+    for all NGWFs a on A {
+      (1) Transfer \phi_Aa to FFT-box.
+      (2) Calculate \rowsum_Aa = sum_\Bb K^Aa,Bb \phi_Bb in FFT-box.
+      (3) FFT-interpolate \phi_Aa and \rowsum_Aa to a double FFT-box.
+      (4) Multiply dens_Aa = \phi_Aa * \rowsum_Aa in double FFT-box.
+      (5) dens_A += dens_Aa.
+    }
+    (6) Deposit box containing dens_A to double grid.
+  }
+
+All ``\phi_Aa`` are local, so are ``K^Aa,Bb``. Stage (2) involves comms of ``\phi_Bb`` in PPDs via ``function_ops``.
+Stage (6) involves comms of atom-densities ``dens_A`` via ``cell_grid_deposit_box()``. The algorithm proceeds in
+batches (to conserve memory), and is OMP-parallelised. Comms must those be perofmed carefully, are done from ``$OMP MASTER`` regions in 
+``function_ops_sum_fftbox_batch()`` and ``$OMP CRITICAL`` in ``density_batch_interp_deposit()``.
+
+The number of FFTs done is :math:`2 N_{\textrm{NGWF}} N_{\textrm{outer}} N_{\textrm{inner}}`, where :math:`N_{\textrm{NGWF}}` is the
+number of NGWFs in the system, :math:`N_{\textrm{outer}}` is the number of outer (NGWF) loop iterations, :math:`N_{\textrm{inner}}`
+is the number of inner (LNV, EDFT) iterations. We ignore line searches in this estimate for simplicity. In practice real FFTs are done in pairs
+throught a complex FFT, but we ignore this for simplicity.
+
+The main drawbacks of this approach are:
+  1. Having to repeat FFTs on ``\phi_Aa`` in the inner loop, even though they do not change.
+  2. Having to repeat FFTs on ``\rowsum_Aa`` in the inner loop, because ``K^Aa,Bb`` changes.
+  3. Interspersing comms with calculation in ``function_ops_sum_fftbox_batch()``, which makes GPU-porting difficult, and comms tricky.
+  4. Having to calculate products of ``\phi_Aa`` and ``\phi_Bb`` in double FFT-boxes, even though "what matters" is 
+     almost exclusively contained in the double tight-box of ``\phi_Aa``. We need to do the whole double FFT-boxes 
+     because of Fourier ringing from the interpolation.
+  5. Multiple depositions (and comms) to the same points in (6), because boxes of nearby *A* overlap.
+
+(1) cannot be addressed directly by storing the interpolated ``\phi_Aa`` for the duration of the inner loop, because we
+cannot afford to store full double FFT-boxes.
+
+The fast density approach hinges on the fact that we can get sufficient accuracy even if we restrict ourselves to a subset
+of the interpolated points in the double FFT-boxes. It turns out that only ~1-5% of the points in the double FFT-box are
+needed to recover 99.9999-99.999999% of the charge of the NGWF (which is one electron). This approach is, thus, an
+approximation, but it is well-controllable.
+
+By using only a fraction of the points in the double FFT-boxes, we are able to store the interpolated NGWFs. This lets
+us address (1) directly -- we only interpolate ``\phi_Aa`` at the beginning of the inner loop, and can now afford to
+store the interpolated versions.
+
+We address (2) and (3) by first interpolating only ``\phi_Aa``, and then communicating them to where they are needed
+(and where they become ``\phi_Bb``). We use ``remote_mod`` for that, which separates the comms from the FFTs. Of course
+we only communicate the relevant points, not the entire double FFT-boxes. Thus, we longer have to interpolate
+``sum_\Bb K^Aa, \phi_Bb``, and we avoid doing FFTs in the
+inner loop entirely. The number of FFTs is now :math:`N_{\textrm{NGWF}} N_{\textrm{outer}}` (we interpolate all NGWFs
+every time they change), which saves 1-2 orders of magnitude in the number of FFTs. There is a price to pay, though:
+we need memory to store the interpolated NGWFs, we have to communicate interpolated NGWFs rather than coarse-grid PPDs, 
+and we need to do \sum_\Bb K^Aa,B \phi_Bb on the new representation somehow. If the latter can be done efficiently,
+we are addressing (4) above, too.
+
+.. _Figure fig:fast_density_spill:
+.. figure:: _static/resources/fast_density_spill.png
+   :alt: Fast density -- NGWF "spilling" from interpolation.
+   :name: fig:fast_density_spill
+   :width: 75.0%
+   :target: _static/resources/fast_density_spill.png
+
+   "Spilling" of an NGWF due to Fourier interpolation. Left panel -- NGWF (red) in an FFT-box (blue) on the coarse
+   grid in the simulation cell (black). Right panel -- NGWF (red) in a double FFT-box (blue) on the double grid
+   in the simulation cell (black). **The grid on the right is twice as fine** (not shown). The orange dashed line
+   shows the original shape of the NGWF.
+
+The main question is how to store and manipulate interpolated NGWFs accurately and efficiently, that is, how to
+store and manipulate the points encompassed by a chosen isoline (red) in :numref:`Figure fig:fast_density_spill`, right panel.
+The region of interest does not have to be contiguous.
+
+.. _Figure fig:fast_density_tightbox:
+.. figure:: _static/resources/fast_density_tightbox.png
+   :alt: Naive attempt to store only the points in the double tight-box.
+   :name: fig:fast_density_tightbox
+   :width: 75.0%
+   :target: _static/resources/fast_density_tightbox.png
+
+   Storing only the points in the double tight-box (shown in orange) is not sufficiently accurate. Some points
+   that matter are contained in the Fourier ringing that is outside the tight-box.
+   
+The naive approach of storing just the points in the "double tight-box" of the NGWF (as shown :numref:`Figure fig:fast_density_tightbox`)
+turns out to be almost sufficiently accurate, but not quite, to get convergence to default RMS thresholds.
+It's also not controllable.
+
+.. _Figure fig:fast_density_geombox:
+.. figure:: _static/resources/fast_density_geombox.png
+   :alt: Naive attempt to store all the points in a box that encompasses the isoline.
+   :name: fig:fast_density_geombox
+   :width: 75.0%
+   :target: _static/resources/fast_density_geombox.png
+
+   Storing all the points in a box that covers an isoline is impractical, because the Fourier ringing extends far
+   along the box axes, and we wind up storing points that are irrelevant (shown in green and not in red).
+
+An alternative is to choose a threshold for the values of the NGWF and to construct the smallest cuboid 
+(or actually a parallelepiped) that encompasses all those points, as shown :numref:`Figure fig:fast_density_geombox`.
+This is controllable (via the threshold), but not very economical, because we store many more points than are
+necessary. This is because the ringing extends almost exclusively along the axes of the cell, practically to the faces
+of the double FFT-box. We'd like to keep this ringing, but not the points in the bulk of the double FFT-box.
+
+.. _Figure fig:fast_density_trimmed_uncompressed:
+.. figure:: _static/resources/fast_density_trimmed_uncompressed.png
+   :alt: Naive attempt to store "just the points we need".
+   :name: fig:fast_density_trimmed_uncompressed
+   :width: 45.0%
+   :target: _static/resources/fast_density_trimmed_uncompressed.png
+
+   Storing "just the points we need", in a naive fashion, by storing *where* (linear indices on the double grid),
+   and *what* (values). This automatically takes care of the non-contiguity of the data we want to store.
+
+We can find which points we need (all points whose value is below a chosen threshold), and then remember their positions
+and values, like shown in :numref:`Figure fig:fast_density_trimmed_uncompressed`. For positions it is convenient to
+use a linear index on the double grid -- this makes them absolute (rather than relative to the double FFT-box), and
+permits handling PBCs at this stage.
+
+Of course, such indexed approach is inefficient. Manipulating this representation is slow, and it takes more space than
+needed -- we need to store an integer index in addition to every double precision value. However, we can exploit the
+fact that much of the region of interest is contiguous. This lets us proceed with a run-length encoding, as shown
+in :numref:`Figure fig:fast_density_trimmed_compressed` -- we can store *starting positions*, *run lengths* (counts),
+and *values*.
+
+.. _Figure fig:fast_density_trimmed_compressed:
+.. figure:: _static/resources/fast_density_trimmed_compressed.png
+   :alt: An RLE-compressed data structure to store "just the points we need".
+   :name: fig:fast_density_trimmed_compressed
+   :width: 45.0%
+   :target: _static/resources/fast_density_trimmed_compressed.png
+
+   Storing "just the points we need", using RLE compression, by storing *where* (linear indices on the double grid),
+   *how many* (run lengths) and *what* (values). This automatically takes care of the non-contiguity of the data we want to store,
+   but is efficient. Note that there are, in general, multiple values (red) for every *run* (shown in green).
+
+For typical thresholds, the average run length is about 30. That means we only have to store two integers for every 30 double
+precision real values, so the overhead is minimal. Recall that we only keep 1-5% of the points in the double FFT-box, which
+means we can afford storing and communicating such *compressed trimmed NGWFs*. As will be shown later, manipulating them
+can also be done efficiently.
+
+Recall that we are interested in calculating *products* of such NGWFs, and this has to be done in the inner loop, because even
+if we can afford to store interpolated NGWFs, we cannot afford to store entire products, there's just too many of these. However,
+we can store information on which parts of the NGWFs overlap, which boils down to determining which runs in ``\phi_Aa`` overlap
+where with which runs in ``\phi_Bb`` and by how much. These overlaps are the *bursts* in which we will calculate sums and products
+later.
+
+.. _Figure fig:fast_density_trimmed_bursts:
+.. figure:: _static/resources/fast_density_trimmed_bursts.png
+   :alt: Overlaps of runs of two NGWFs give rise to bursts.
+   :name: fig:fast_density_trimmed_bursts
+   :width: 50.0%
+   :target: _static/resources/fast_density_trimmed_bursts.png
+
+   To calculate the product between two compressed trimmed NGWFs, we first determine *bursts*, i.e. the overlaps between runs
+   of NGWF *Aa* (green) and runs of NGWF *Bb* (magenta). Bursts are shown as green-magenta dashes.
+
+The bursts can be determined outside of the inner loop and stored. Bursts do not store any information on the values, only
+start and end indices to the values in ``\phi_Aa`` and ``\phi_Bb``. Using this information we can calculate ``\sum_\Bb K^Aa,B \phi_Bb``
+more efficiently in the inner loop.
+
+The fast density approach thus proceeds in two stages -- one that is performed every time NGWFs change, and one that is performed
+in the inner loop. In pseudocode they look as follows:
+
+::
+
+  // density_fast_new_ngwfs():
+  OMP for all local NGWFs Aa {
+    (1) FFT-interpolate \phi_Aa to a double FFT-box.   } Happens in
+    (2) Trim the data in double FFT-box, RLE-compress. } density_fast_interp_ngwfs().
+    (3) Pack the result in an array of doubles.        }
+  }
+  (4) Communicate the necessary trimmed Bb NGWFs from remote ranks
+      via remote_comm_trimmed_ngwfs_of_neighbours().
+  (5) Determine product bursts via trimmed_ngwfs_prepare_bursts():
+      for all local NGWFs Aa {
+        OMP for all atoms B that overlap with A {
+           for all NGWFs b on B {
+             Determine bursts between Aa and Bb.
+           }
+        }
+      }
+
+Only stage (4) involves MPI comms.
+
+The density-kernel-dependent stage that needs to be done inside the inner loop looks like this:
+
+::
+
+  // density_on_dbl_grid_fast():
+  for all local NGWFs Aa {
+    accum_Aa = 0
+    (1) OMP for all Bb that overlap Aa {
+          (2) Accumulate rowsum_A = K^AaBb \phi_Bb using bursts.
+        }
+    (3) Deposit \phi_Aa * rowsum_A to a proc-local double grid.
+  }
+  (4) Flatten proc-local double grids to usual distributed representation.
+
+Only stage (4) involves MPI comms.
+
+Typical speed-ups obtained using this approach range from 2x to 6x for the total time spent
+calculating the density, and between 10% and 50% can be shaved off the total calculation walltime.
+
+The main drawback of this approach is increased memory consumption. There are two main components:
+  (A) The trimmed NGWF data itself, which is, to a large extent, replicated. A single trimmed 
+      NGWF can be needed on many processes, because it could be a ``\phi_Bb`` to many NGWFs Aa.
+      Moreover, this memory requirement does not scale inverse-linearly with the number of processes.
+      That is, increasing the node count by a factor of two doesn't reduce the memory requirement
+      by a factor of two, because there is more replication.
+  (B) The burst data.
+
+Both (A) and (B) depend on the trimming threshold, and the shape of the NGWFs. Both tend to increase
+during the NGWF optimisation as the NGWFs delocalise somewhat.
+
+A typical plot of the memory used by both approaches is shown in :numref:`Figure fig:fast_density_mem_use`.
+For this calculation the slow approach took 1893s (33.3% of the total walltime), and the fast approach
+took 727s (14.8% of total walltime), for a speed-up of 2.6x. One-eighth of the total walltime was
+shaved off. Of the 727s only 66s were spent doing FFTs.
+
+.. _Figure fig:fast_density_mem_use:
+.. figure:: _static/resources/fast_density_mem_use.png
+   :alt: Typical plot of memory use for fast density and slow density.
+   :name: fig:fast_density_mem_use
+   :width: 75.0%
+   :target: _static/resources/fast_density_mem_use.png
+
+   Memory used by the slow approach (magenta) and the new approach (cyan) for a calculation on
+   ethylene carbonate (4000 atoms) on 32 nodes of Archer2. 9 a0 NGWFs, 829 eV, EDFT. 117x117x117 FFT-box,
+   140x140x140 cell. 16 OMP threads were used.
+
+Directions for improvement
+--------------------------
+
+This approach could be improved in a number of ways:
+  1. Setting up an allowance for used RAM, similarly to what is done in HFx. This would enable
+     graceful performance degradation in low-memory scenarios. This could be achieved by not
+     storing all the bursts, only those that fit within the allowance. The remaining bursts
+     would have to be recalculated on the fly in the inner loop.
+  2. Making it compatible with EMFT, complex NGWFs and mixed bases.
+  3. Adding an ``$OMP SCHEDULE`` toggle between ``STATIC`` and ``DYNAMIC`` in ``density_on_dbl_grid_fast()``
+     for more control over determinism vs efficiency. Currently we use ``SCHEDULE(STATIC)`` to get
+     more deterministic results, but ``SCHEDULE(DYNAMIC)`` offers better efficiency. Toggling this
+     at runtime is not trivial (``omp_set_schedule()``).
+  4. Having a dynamic `fast_density_trim_threshold` -- we could probably start the NGWF optimisation 
+     with a cruder approximation, tightening it as we go along.
+
+
 .. _dev_history:
 
 History

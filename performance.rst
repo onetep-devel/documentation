@@ -9,7 +9,7 @@ Choosing the number of nodes, processes and threads has already been described i
 
 Here we mention techniques that can be used in addition to an efficient parallel decomposition to improve performance.
 
-.. _dev_fast_sparse_to_dense:
+.. _user_fast_sparse_to_dense:
 
 Fast sparse-to-dense and dense-to-sparse conversions
 ====================================================
@@ -37,10 +37,12 @@ use the fast approach with NEB. Please add ``fast_dense_to_sparse F`` and ``fast
 file when using NEB.
 
 
-.. _dev_fast_density:
+.. _user_fast_density:
 
-Fast density calculation
-========================
+Fast density calculation (for users)
+====================================
+
+This is a user-level explanation -- for developer-oriented material, see :ref:`dev_fast_density`.
 
 Calculating the electronic charge density is one of the more time-consuming operations in ONETEP. In a typical
 calculation it has to be performed hundreds of times. There are two ways in which ONETEP can calculate the density
@@ -151,8 +153,8 @@ You will know if and when this happened by examining the output file and looking
 
 ::
 
-  ! Energy change per atom: 0.30287E-07 Eh < 0.10000E-06.``
-  ! The fast density calculation will now be disabled in the interest of accuracy.``
+  ! Energy change per atom: 0.30287E-07 Eh < 0.10000E-06.
+  ! The fast density calculation will now be disabled in the interest of accuracy.
 
 Note that this will not be printed if ``fast_density_output_detail`` is ``BRIEF``. This setting resets any time 
 you start a new NGWF convergence loop -- that means that in auto solvation, geometry optimisation, MD, etc. each 
