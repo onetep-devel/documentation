@@ -538,6 +538,16 @@ This approach could be improved in a number of ways:
      at runtime is not trivial (``omp_set_schedule()``).
   4. Having a dynamic `fast_density_trim_threshold` -- we could probably start the NGWF optimisation 
      with a cruder approximation, tightening it as we go along.
+  5. Dynamically selecting ``MAX_TNGWF_SIZE``. It's currently a constant, and ``persistent_packed_tngwf``
+     is not an allocatable.
+  6. We should also consider a more FFT-heavy approach in which we only FFT-interpolate local (*Aa*)
+     NGWFs, but communicate *Bb* on the coarse grid, in PPDs. Then we'd use the latter to build ``rowsum_Aa`` in FFT-boxes,
+     just like in the old scheme (except with the comms done in advance) in the kernel-dependent
+     stage. These would be then FFT-interpolated like in the old scheme, but then trimmed and the
+     rest would proceed like in the fast scheme. This approach would conserve memory (no storing of individual
+     trimmed Bb's, only ``rowsum_Aa``'s, ditto for bursts), and do fewer comms (communicating NGWFs in
+     PPDs via ``remote_comm_ngwfs_of_neighbours()``). There would fewer burst ops, because we'd be dealing
+     with entire rowsums instead of individual *Bb*. But we would be repeating FFTs in the inner loop.
 
 
 .. _dev_history:
