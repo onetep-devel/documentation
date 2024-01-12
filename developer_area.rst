@@ -523,6 +523,69 @@ shaved off. Of the 727s only 66s were spent doing FFTs.
    ethylene carbonate (4000 atoms) on 32 nodes of Archer2. 9 a0 NGWFs, 829 eV, EDFT. 117x117x117 FFT-box,
    140x140x140 cell. 16 OMP threads were used.
 
+The accuracy of the fast density approach can be demonstrated on an example -- we consider the binding energy
+of mannitol to 300 water molecules. The system is shown in :numref:`Figure fig:fast_density_mannitol`.
+
+.. _Figure fig:fast_density_mannitol:
+.. figure:: _static/resources/fast_density_mannitol.png
+   :alt: Testcase: mannitol bound to 300 water molecules.
+   :name: fig:fast_density_mannitol
+   :width: 45.0%
+   :target: _static/resources/fast_density_mannitol.png
+
+   Our testcase: mannitol bound to 300 water molecules (926 atoms). 811 eV KE cutoff, 9 a0 NGWFs, 8 LNV iterations.
+
+I ran this testcase on 16 nodes of HSUper (8 processes on a node, with 9 threads each, saturating all 
+72 CPU cores on a node) -- both the complex and the water shell. The mannitol itself was ran on 1 node,
+because it's small. I used the default settings, only specifying `fast_density T`.
+
++-------------------------------+--------------+--------------+
+| Quantity                      | Slow density | Fast density |
++===============================+==============+==============+
+| Binding energy (kcal/mol)     | -79.9027     | -79.9014     |
++-------------------------------+--------------+--------------+
+| Total walltime                | 1016s        | 718s (-29%)  |
++-------------------------------+--------------+--------------+
+| Time to calculate density     | 520s         | 239s         |
++-------------------------------+--------------+--------------+
+| Time spent doing FFTs         | 160s         | 23s          |
++-------------------------------+--------------+--------------+
+| High-mem watermark on a node  | 55.6 GiB     | 69.7 GiB     |
++-------------------------------+--------------+--------------+
+
+As seen from the above table, we are accurate to ~0.001 kcal/mol, while shaving off 29%
+from the total walltime. The density calculation itself was faster by a factor of 2.2.
+
+I also performed scaling tests, using a 701-atom protein scoop at 827 eV, 9a0 NGWFs, 8 LNV iterations.
+I only ran it for 4 NGWF iterations because it's not properly terminated, which leads to a zero band-gap,
+meaning it cannot be reliably converged to default thresholds (with either density method). These were
+run on different numbers of nodes of HSUper, with 8 processes and 9 OMP threads per node.
+
+.. _Figure fig:fast_density_scoop_walltime:
+.. figure:: _static/resources/fast_density_scoop_walltime.png
+   :alt: Time to calculate the density for 4 NGWF iterations of a 701-atom protein scoop.
+   :name: fig:fast_density_scoop_walltime
+   :width: 70.0%
+   :target: _static/resources/fast_density_scoop_walltime.png
+
+   Time to calculate density in 4 NGWF iterations of a 701-atom protein scoop.
+
+.. _Figure fig:fast_density_scoop_scaling:
+.. figure:: _static/resources/fast_density_scoop_scaling.png
+   :alt: Strong scaling of the density calculation for a 701-atom protein scoop.
+   :name: fig:fast_density_scoop_scaling
+   :width: 70.0%
+   :target: _static/resources/fast_density_scoop_scaling.png
+
+   Strong parallel scaling of the two methods of calculating the density in for a 701-atom protein scoop.
+
+:numref:`Figure fig:fast_density_scoop_walltime` shows the walltime of the density calculation for the
+slow and fast approaches, while :numref:`Figure fig:fast_density_scoop_scaling` shows the strong scaling
+with respect to one node. It is clear that the fast approach is quite a bit faster than the original
+approach, although it does not scale that well to high core counts. Keep in mind that we pushed this
+system quite far by running 701 atoms on over 1600 CPU cores.
+
+
 Directions for improvement
 --------------------------
 
@@ -540,7 +603,10 @@ This approach could be improved in a number of ways:
      with a cruder approximation, tightening it as we go along.
   5. Dynamically selecting ``MAX_TNGWF_SIZE``. It's currently a constant, and ``persistent_packed_tngwf``
      is not an allocatable.
-  6. We should also consider a more FFT-heavy approach in which we only FFT-interpolate local (*Aa*)
+  6. A smarter way to flatten the computed density. Currently each process has their own density that
+     spans the entire cell and only contains contributions from the *Aa* NGWF it owns. We flatten it
+     by a series of reduce operations over all nodes. This is the main killer of parallel performance.
+  7. We should also consider a more FFT-heavy approach in which we only FFT-interpolate local (*Aa*)
      NGWFs, but communicate *Bb* on the coarse grid, in PPDs. Then we'd use the latter to build ``rowsum_Aa`` in FFT-boxes,
      just like in the old scheme (except with the comms done in advance) in the kernel-dependent
      stage. These would be then FFT-interpolated like in the old scheme, but then trimmed and the
