@@ -87,6 +87,9 @@ Key points about running the QC test suite before creating a pull request:
    * No tests should fail, though warnings are acceptable.
 
 If tests fail, please investigate this further before creating your pull request:
+  * If you updated your local copy (``git merge`` or ``git pull``) rather than
+    cloning it from scratch (``git clone``), did you remember to ``make cleanall``
+    before compiling?
   * Check out the master branch from the official repository (ensuring that it is
     fully updated by fetching from it and merging) and run the failing tests on
     this.

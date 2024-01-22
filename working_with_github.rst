@@ -373,6 +373,10 @@ the official repository by regularly merging with the official repository, i.e.
 
     git merge github_official/master
 
+It is often the case that ``make cleanall`` must be issued after merging,
+the script for cascade avoidance used when making ONETEP can get confused
+as to what needs to be rebuilt after a ``git merge``.
+
 Remember to commit your changes regularly and push these to your fork on
 GitHub so that they are backed up, e.g. ``git push origin <branch_name>``
 where ``<branch_name>`` is the name of the git branch you are working on.

@@ -63,6 +63,16 @@ libraries). **They are provided separately**.
      ``hpc_resources`` and also in the ``config`` directory in your ONETEP
      installation.
 
+**Important point about compiling ONETEP following a git merge**:
+
+.. warning:: If you just updated your ONETEP source via ``git merge`` or ``git pull``
+    (rather than cloning via ``git clone`` or unpacking ONETEP from a tarball),
+    issue a ``make cleanall`` before compiling. The script for cascade avoidance 
+    used when making ONETEP can get confused as to what needs to be rebuilt after a 
+    ``git merge`` or ``git pull``. If you forget about ``make cleanall``, you
+    may get an executable that builds correctly but malfunctions in strange ways
+    (usually producing very unexpected error messages).
+
 **Important point about running QC tests**:
 
 .. warning:: Never run the QC tests in the actual repository. Create a copy of your
