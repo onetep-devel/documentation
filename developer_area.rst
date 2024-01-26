@@ -346,7 +346,7 @@ store the interpolated versions.
 We address (2) and (3) by first interpolating only ``\phi_Aa``, and then communicating them to where they are needed
 (and where they become ``\phi_Bb``). We use ``remote_mod`` for that, which separates the comms from the FFTs. Of course
 we only communicate the relevant points, not the entire double FFT-boxes. Thus, we longer have to interpolate
-``sum_\Bb K^Aa, \phi_Bb``, and we avoid doing FFTs in the
+``sum_\Bb K^Aa,Bb \phi_Bb``, and we avoid doing FFTs in the
 inner loop entirely. The number of FFTs is now :math:`N_{\textrm{NGWF}} N_{\textrm{outer}}` (we interpolate all NGWFs
 every time they change), which saves 1-2 orders of magnitude in the number of FFTs. There is a price to pay, though:
 we need memory to store the interpolated NGWFs, we have to communicate interpolated NGWFs rather than coarse-grid PPDs, 

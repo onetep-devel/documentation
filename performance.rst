@@ -181,20 +181,20 @@ Example settings
 
 For a quick-and-dirty calculation use: 
  - ``fast_density T``
- - ``fast_density_threshold 2E-5``.
+ - ``fast_density_trim_threshold 2E-5``.
 
 For a typical calculation just use: 
- - ``fast_density T`` (which will use the default of ``fast_density_threshold 2E-6``).
+ - ``fast_density T`` (which will use the default of ``fast_density_trim_threshold 2E-6``).
 
 For an accurate, but slower calculation use:
  -  ``fast_density T``
- - ``fast_density_threshold 1E-6``
+ - ``fast_density_trim_threshold 1E-6``
  - ``fast_density_off_for_last T``
  - ``fast_density_elec_energy_tol 1E-7``.
 
 For very safe settings that should provide a modest gain in efficiency, try:
  - ``fast_density T``
- - ``fast_density_threshold 5E-7``
+ - ``fast_density_trim_threshold 5E-7``
  - ``fast_density_off_for_last T``
  - ``fast_density_elec_energy_tol 3E-7``.
  
