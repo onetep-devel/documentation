@@ -82,8 +82,8 @@ If you use ``fast_density_output_detail VERBOSE`` (or higher), ONETEP will print
 of the approximation every time NGWFs change. It will look like something like :numref:`Figure fig:fast_density_info`,
 see the *accuracy of approximation* line. This tells you to how many digits the approximated NGWF charge is equal
 to the exact (double FFT-box) NGWF charge, in the root-mean-square sense over all NGWFs in the system. In this
-example our approximated charge is no further from 1.0 than by 1E-7 (and is slightly closer, because we got 7.3,
-not 7.0).
+example our approximated charge is no further from 1.0 (a correctly normalized NGWF) than by 1E-7 
+(and is slightly closer, because we got 7.16, not 7.0).
 
 As your calculation progresses, this value will fluctuate, and is likely go down slightly, as the NGWFs become
 more diffuse. As a rule of thumb, if it gets below 5.0-6.0, you will have difficulty converging NGWFs to the
@@ -222,4 +222,4 @@ Fast density is known *not* to work (this we know with certainty) with the follo
   - TD-DFT (mixed bases are not supported at this point).
   - EMFT (regions).
 
-ONETEP will stop with an error if either of these is used with `fast_density T`.
+ONETEP will stop with an error if either of these is used with ``fast_density T``.
