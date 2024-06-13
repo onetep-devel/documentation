@@ -6,11 +6,13 @@ Finite-temperature DFT calculations using the Ensemble-DFT method
 :Author: Extended to spin relaxation by Kevin Duff, University of Cambridge
 :Author: Extended to include Grand Canonical Ensemble by Arihant Bhandari, University of Southampton
 :Author: Extended to include Pulay mixing and input trial step by Gabriel Bramley, University of Southampton
+:Author: Extended to include Methfessel-Paxton and Gaussian smearing schemes by Tengxiang Li, University of Southampton
 
 :Date: August 2013
 :Date: Extended by Kevin Duff April 2018
 :Date: Extended by Arihant Bhandari September 2020
 :Date: Extended by Gabriel Bramley November 2020
+:Date: Extended by Tengxiang Li June 2024
 
 Basic principles
 ================
@@ -71,6 +73,61 @@ elements of the NGWF overlap matrix, and
 expansion coefficients of the Kohn-Sham eigenstates in the NGWF basis
 set. At the moment, this is a cubic-scaling operation that requires
 dealing dense matrices, which makes it memory-demanding.
+
+Smearing schemes
+================
+
+The functions implemented in the ONETEP are as below:
+
+Fermi-Dirac distribution:
+-------------------------
+
+-  In default Ensemble DFT, the electrons' occupation numbers obey 
+   the Fermi-Dirac distribution:
+
+   .. math::
+      f(\epsilon)=\frac{1}{e^{(\epsilon-\mu)/\sigma}+1}
+
+-  And the entropy follows the function:
+
+   .. math::
+      S=-[\sum_{i}f(\epsilon_i)\ln f(\epsilon_i) + (1-f(\epsilon_i))\ln(1-f(\epsilon_i))]
+
+-  Where :math:`\{f(\epsilon)\}` is the occupation number of a certain electron 
+   with energy eigenvalue :math:`\{\epsilon\}`, :math:`\{\mu\}` is the chemical potential 
+   and :math:`\{\sigma\}` is the broadening parameter, for finite temperature 
+   calculations :math:`\{\sigma=k_BT\}` with :math:`\{T\}` is the temperature.
+
+Mepa(Methfessel-Paxton) smearing:
+---------------------------------
+
+-  Besides the Fermi-Dirac distributions, 
+   in ONETEP there is also Methfessel-Paxton smearing with occupancies:
+
+   .. math::
+      f(x_i)=\frac{1}{2}(1-\text{erf}(x_i))-x_i\exp(-\frac{x_i^2}{2\sqrt{\pi}})
+
+-  And the entropy follows the function:
+
+   .. math::
+      S=\sum_i-\frac{1}{4\sqrt{\pi}}(2x_i^2-1)\exp(-x_i^2)
+
+Gaussian smearing:
+------------------
+
+-  And we also have Gaussian smearing, 
+   with the occupancies that follow the function:
+
+   .. math::
+      f(x_i)=\frac{1}{2}(1-\text{erf}(x_i))
+
+-  And the entropy:
+
+   .. math::
+      S(x_i)=\sum_i\frac{1}{2\sqrt{\pi}}\exp(-x_i)
+
+In Methfessel-Paxton and Gaussian smearing, where :math:`\{x_i=(\epsilon-\mu)/\sigma\}`, 
+and the arguments :math:`\{\epsilon,\mu,\sigma\}` are the same as the ones in Fermi-Dirac smearing.
 
 Free- and fixed-spin EDFT
 =========================
@@ -214,6 +271,10 @@ Basic setup
    distribution. It takes units of energy (eV, Hartree) or temperature.
    For example, ``edft_smearing_width: 1500 K`` will set
    :math:`{\mathcal{T}}=` 1500 degree Kelvin.
+
+-  ``edft_smearing_scheme: fermidirac/mepa/gaussian`` [Character, 
+   default ``edft_smearing_scheme: fermidirac``]. 
+   Choose the smearing schemes for EDFT in the ONETEP inner loop.
 
 -  ``edft_update_scheme: damp_fixpoint/pulay_mix`` [Character, default
    ``dft_update_scheme: damp_fixpoint``]. Defines the mixing scheme for
