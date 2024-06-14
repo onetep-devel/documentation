@@ -91,14 +91,14 @@ Fermi-Dirac distribution:
 -  And the entropy follows the function:
 
    .. math::
-      S=-[\sum_{i}f(\epsilon_i)\ln f(\epsilon_i) + (1-f(\epsilon_i))\ln(1-f(\epsilon_i))]
+      S=-\sum_{i}f(\epsilon_i)\ln f(\epsilon_i) + (1-f(\epsilon_i))\ln(1-f(\epsilon_i))
 
--  Where :math:`\{f(\epsilon)\}` is the occupation number of a certain electron 
-   with energy eigenvalue :math:`\{\epsilon\}`, :math:`\{\mu\}` is the chemical potential 
-   and :math:`\{\sigma\}` is the broadening parameter, for finite temperature 
-   calculations :math:`\{\sigma=k_BT\}` with :math:`\{T\}` is the temperature.
+-  Where :math:`f(\epsilon)` is the occupation number of a certain electron 
+   with energy eigenvalue :math:`\epsilon`, :math:`\mu` is the chemical potential 
+   and :math:`\sigma` is the broadening parameter, for finite temperature 
+   calculations :math:`\sigma=k_BT` with :math:`T` being the temperature.
 
-Mepa(Methfessel-Paxton) smearing:
+Mepan (Methfessel-Paxton) smearing:
 ---------------------------------
 
 -  Besides the Fermi-Dirac distributions, 
@@ -126,8 +126,8 @@ Gaussian smearing:
    .. math::
       S(x_i)=\sum_i\frac{1}{2\sqrt{\pi}}\exp(-x_i)
 
-In Methfessel-Paxton and Gaussian smearing, where :math:`\{x_i=(\epsilon-\mu)/\sigma\}`, 
-and the arguments :math:`\{\epsilon,\mu,\sigma\}` are the same as the ones in Fermi-Dirac smearing.
+In Methfessel-Paxton and Gaussian smearing, where :math:`x_i=(\epsilon-\mu)/\sigma`, 
+the arguments :math:`\epsilon,\mu,\sigma` are the same as the ones in Fermi-Dirac smearing.
 
 Free- and fixed-spin EDFT
 =========================
