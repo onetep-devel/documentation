@@ -52,8 +52,9 @@ The slow approach is the only approach available until ONETEP 7.1.7. Starting fr
 is also available, *but it is not the default*. This means that action is required on your part to use the fast approach.
 The fast approach is up to several times faster (for this part of the calculation).
 
-The fast approach works best for "serious" systems, it's not meant to address scenarios with KE cutoffs
-below 700-800 eV or NGWFs smaller than 8.0 a0.
+**The fast approach works best for "serious" systems, it's not meant to address scenarios with KE cutoffs
+below 700-800 eV or NGWFs smaller than 8.0 a0. It will also not perform well when your FFT-box is small
+(say, below 80 x 80 x 80 points), as happens e.g. for very small periodic supercells.**
 
 To switch between the approaches use:
   - ``fast_density T`` -- for the fast approach,
