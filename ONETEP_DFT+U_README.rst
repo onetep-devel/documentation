@@ -141,43 +141,43 @@ Computing :math:`U` and :math:`J` from linear-response
 =======================================================
 
 The basic idea is to compare the response of the system to a perturbation in the DFT and in the DFT+U frameworks.
-We start by defining the response function χ, which describes how the occupation of localized orbitals changes with respect to a shift in the potential acting on these orbitals:
+We start by defining the response function :math:`\chi`, which describes how the occupation of localized orbitals changes with respect to a shift in the potential acting on these orbitals:
 The linear response method determines the Hubbard U parameter by comparing the response of the system to a perturbation in standard DFT and DFT+U frameworks.
 
-We define the response function :math:`\theta` as: 
+We define the response function :math:`\chi` as: 
 
 .. math::
    
-   \theta = \frac{dn^{I\sigma}}{d\alpha}
+   \chi = \frac{dn^{I\sigma}}{d\alpha}
 
 
 where :math:`n` is the occupation matrix of the localized orbitals and :math:`\alpha` is a potential shift applied to these orbitals.
 
 We compute two response functions:
 
-- :math:`\theta_0`: the bare Kohn-Sham (KS) response (without U)
-- :math:`\theta`: the interacting response (with U)
+- :math:`\chi_0`: the bare Kohn-Sham (KS) response (without U)
+- :math:`\chi`: the interacting response (with U)
 
 These are related by:
 
 .. math::
    
-   U = \theta^{-1} - \theta_0^{-1}
+   U = \chi^{-1} - \chi_0^{-1}
 
 which allow us to compute :math:`U` 
 
-In practice, we compute :math:`\theta_0` and :math:`\theta` by applying a small perturbation :math:`\alpha` to the system:
+In practice, we compute :math:`\chi_0` and :math:`\chi` by applying a small perturbation :math:`\alpha` to the system:
 
 
 .. math::
 
-    \theta_0 \approx \frac{\Delta n}{\Delta \alpha} 
+    \chi_0 \approx \frac{\Delta n}{\Delta \alpha} 
     \text{(computed without U)}
 
 
 .. math::
 
-    \theta \approx \frac{\Delta n}{\Delta \alpha}
+    \chi \approx \frac{\Delta n}{\Delta \alpha}
     \text{ (computed with a trial U)}  
 
 
@@ -193,7 +193,7 @@ We then iterate until self-consistency is achieved.
 This is done in a supercell as the perturbation should not interact with its periodic images.
 
 This is the conventional linear response but it poses practial problems:
-The response :math:`\theta_0` is usually computed via the first iteration
+The response :math:`\chi_0` is usually computed via the first iteration
 of the Kohn-Sham equations during a self-consistent field
 (SCF) calculation; that is, the response is to be measured
 following the initial charge redistribution introduced by the
@@ -213,12 +213,12 @@ response matrices as:
 
 .. math::
 
-   \theta_{IJ} = \frac{dn^I}{dv_\text{ext}^J},
+   \chi_{IJ} = \frac{dn^I}{dv_\text{ext}^J},
 
 
 .. math::
 
-   (\theta_0)_{IJ} = \left[\frac{dn}{dv_\text{KS}}\left(\frac{dv_\text{KS}}{dv_\text{ext}}\right)^{-1}\right]_{IJ}
+   (\chi_0)_{IJ} = \left[\frac{dn}{dv_\text{KS}}\left(\frac{dv_\text{KS}}{dv_\text{ext}}\right)^{-1}\right]_{IJ}
 
 
 This allow us to prevent the practical issues from the conventional linear response.
