@@ -119,7 +119,7 @@ such as constrained DFT) according to the prescription given in
 Refs. [Cococcioni2005]_, [Kulik2006]_.
 
 DFT+\ :math:`U` +\ :math:`J`
----------------------------
+----------------------------
 
 The complete rotationally invariant formulation of DFT+\ :math:`U` [Cococcioni2005]_ contains an explicit Hund's exchange term :math:`J`. 
 In the simplified formulation, the :math:`J` term is either set to 0 or included in the :math:`U` parameter as
