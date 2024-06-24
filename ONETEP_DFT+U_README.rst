@@ -496,10 +496,6 @@ The extension of the DFT+\ :math:`U` implementation to cluster Dynamical
 mean-field theory has also been implemented in ONETEP; for an example of
 its capabilities see Ref. [Weber2012]_.
 
-References
-==========
-
-
 .. [O-Regan2012] \ D. D. O’Regan, N. D. M. Hine, M. C. Payne and A. A. Mostofi, Phys. Rev. B **85**, 085107 (2012). https://doi.org/10.1103/PhysRevB.85.085107
 
 .. [Anisimov1991] \ J. Z. V. I. Anisimov and O. K. Andersen, Phys. Rev. B **44**, 943 (1991). https://doi.org/10.1103/PhysRevB.44.943
