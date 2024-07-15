@@ -3,8 +3,8 @@ DFT+\ :math:`U`\ (+\ :math:`J`)
 ==========================================================
 
 :Author: David D. O'Regan, Trinity College Dublin
-	 
-:Date:   July 2015
+:Author: Davide Sarpa, University of Southampton	 
+:Date:   July 2015 (Revised June/July 2024)
 
 
 .. contents:: Table of Contents
@@ -39,7 +39,7 @@ materials, and other materials such as certain magnetic semiconductors
 and organometallic molecules.
 
 Typically, the LDA and its extensions have the tendency to favour high-spin ground-states and to underestimate local magnetic
-moments and the band gap in cases where it is related to electron localisation, e.g in charge-transfer or Mott insulators.
+moments and the band gap in cases where it is related to electron localisation, e.g., in charge-transfer or Mott insulators.
 These failures stem from the inability of the approximate xc functionals to satisfy the flat-plane condition, 
 which combines two constraints that the exact functional must meet: piecewise linearity with 
 respect to electron number and the spin constancy constraint [Aron_J.Cohen2012]_
@@ -52,18 +52,18 @@ to an underestimation of the insulating gap and any associated magnetic order.
 In DFT+U, the idea is to describe the strongly correlated electronic states using the Hubbard model by projecting the Kohn-Sham orbitals onto a localised basis, while the rest of the valence electrons 
 are treated at the standard DFT level.
 
-The general form for the total energy in DFT+U is given by: 
+The general form for the total energy in DFT+\ :math:`U` is given by: 
 
 .. math::
 
-   E_{\text{DFT}+U}[\rho(r)] = E_{\text{DFT}}[\rho(r)] + E_{\text{Hub}}\left[\{n_i\}\right] - E_{dc}\left[\{n_i\}\right]
+   E_{\text{DFT+U}}[\rho(r)] = E_{\text{DFT}}[\rho(r)] + E_{\text{Hub}}\left[\{n_i\}\right] - E_{\text{dc}}\left[\{n_i\}\right]
 
 
-Where :math:`E_{\text{DFT}}[\rho(r)]` is the energy at the standard DFT level, :math:`E_{\text{Hub}}\left[\{n_i\}\right]` is the Hubbard correction
+In the above :math:`E_{\text{DFT}}[\rho(r)]` is the energy at the standard DFT level, :math:`E_{\text{Hub}}\left[\{n_i\}\right]` is the Hubbard correction
 and the last term :math:`E_{dc}\left[\{n_i\}\right]` is a double-counting correction for that contribution already
 included in the LDA term.
 
-The DFT+U correction term is usually thought of as an explicit
+The DFT+\ :math:`U` correction term is usually thought of as an explicit
 mean-field treatment of the exchange-correlation energy contributed by
 the correlated sites (subspaces projected out with functions of
 :math:`3d` and or :math:`4f` character).
@@ -74,7 +74,7 @@ additive energy correction.
 
 .. math::
 
-   E_{DFT+U} \left[ n^{(I) (\sigma)} \right] =  \sum_{I \sigma} \frac{U^{(I)}}{2} \rm{Tr} 
+   E_{\text{DFT+U}} \left[ n^{(I) (\sigma)} \right] =  \sum_{I \sigma} \frac{U^{(I)}}{2} \rm{Tr} 
    \left[  n^{(I) (\sigma)} \left( 1 -  n^{(I) (\sigma)} \right)\right].
 
 Here, :math:`U` is an estimate of the scalar screened density-density
@@ -91,16 +91,13 @@ defined, in the case of orthonormal projector functions :math:`\lbrace \lvert \v
 
 
 
-the DFT+\ :math:`U` method forces the on-site occupancy matrix to be idempotent.
-For real matrices to be idempotent their eigenvalues have to be either 1 or 0, this means that the DFT+\ :math:`U` 
-method penalises non-integer occupancy of these orbitals, tending to fill states with
-occupancy greater than :math:`0.5` and empty states with occupancy less
-than :math:`0.5`, as can be seen from the expression for the
-DFT+\ :math:`U` potential
+The DFT+\ :math:`U` method forces the on-site occupancy matrix to be idempotent.
+This means that the DFT+\ :math:`U` method penalises non-integer occupancy of these orbitals, tending to fill states with occupancy greater than :math:`0.5` or occupancy less
+than :math:`0.5`, as can be seen from the expression for the DFT+\ :math:`U` potential.
 
 .. math::
 
-   \hat{V}^{(\sigma)}_{DFT+U} = \sum_{I}  U^{(I)} 
+   \hat{V}^{(\sigma)}_{\text{DFT+U}} = \sum_{I}  U^{(I)} 
     \lvert \varphi_m^{(I)} \rangle 
    \left( \frac{1}{2} \delta_{m m'} - n^{(I) (\sigma)}_{m m'} \right)  \langle 
    \varphi_{m'}^{(I)} \rvert .
@@ -114,18 +111,13 @@ parameter is the curvature of the total energy with respect to the
 occupancy of the correlated manifold - which should be a piece-wise
 linear curve were Janak’s theorem satisfied [Janak1978]_. 
 
-The U parameter can be computed empirically or from linear-response theory (among other methods
+The :math:`U` parameter can be computed empirically or from linear-response theory (among other methods
 such as constrained DFT) according to the prescription given in
 Refs. [Cococcioni2005]_, [Kulik2006]_.
 
-DFT+\ :math:`U` +\ :math:`J`
+DFT+\ :math:`U`\ +\ :math:`J`
 ----------------------------
 
-The complete rotationally invariant formulation of DFT+\ :math:`U` [Cococcioni2005]_ contains an explicit Hund's exchange term :math:`J`. 
-In the simplified formulation, the :math:`J` term is either set to 0 or included in the :math:`U` parameter as
-:math:`U_{eff} = U - J`. This is the so called Dudarev's model [Dudarev1998]_.
-
-In this approach the exchange term works as an effective reduction to the U value for like-spin electrons.
 A corrective term to include :math:`J` for anti-parallel spin is described in Ref. [Himmetoglu2011]_ and is given by
 
 .. math::
@@ -133,16 +125,16 @@ A corrective term to include :math:`J` for anti-parallel spin is described in Re
    E_J[n^\sigma] = \sum_I \frac{J^I}{2} \text{Tr}[n^{I\sigma} n^{I-\sigma}]
 
 
-Inclusion of this term leads to the so called  DFT+\ :math:`U` +\ :math:`J` method, which is  fully implemented in 
+Inclusion of this term leads to the so called  DFT+\ :math:`U`\ +\ :math:`J` method, which is  fully implemented in 
 ONETEP and can be activated by
 assigning a value to the :math:`J` term. 
 
 Computing :math:`U` and :math:`J` from linear-response
 =======================================================
 
-The basic idea is to compare the response of the system to a perturbation in the DFT and in the DFT+U frameworks.
-We start by defining the response function :math:`\chi`, which describes how the occupation of localized orbitals changes with respect to a shift in the potential acting on these orbitals:
-The linear response method determines the Hubbard U parameter by comparing the response of the system to a perturbation in standard DFT and DFT+U frameworks.
+The basic idea is to compare the response of the system to a perturbation in the DFT and in the DFT+\ :math:`U` frameworks.
+We start by defining the response function :math:`\chi`, which describes how the occupation of localised orbitals changes with respect to a shift in the potential acting on these orbitals:
+The linear response method determines the Hubbard :math:`U`` parameter by comparing the response of the system to a perturbation in standard DFT and DFT+\ :math:`U`` frameworks.
 
 We define the response function :math:`\chi` as: 
 
@@ -151,12 +143,12 @@ We define the response function :math:`\chi` as:
    \chi = \frac{dn^{I\sigma}}{d\alpha}
 
 
-where :math:`n` is the occupation matrix of the localized orbitals and :math:`\alpha` is a potential shift applied to these orbitals.
+where :math:`n` is the occupation matrix of the localised orbitals and :math:`\alpha` is a potential shift applied to these orbitals.
 
 We compute two response functions:
 
-- :math:`\chi_0`: the bare Kohn-Sham (KS) response (without U)
-- :math:`\chi`: the interacting response (with U)
+- :math:`\chi_0`: the bare Kohn-Sham (KS) response (without :math:`U`)
+- :math:`\chi`: the interacting response (with :math:`U``)
 
 These are related by:
 
@@ -164,7 +156,7 @@ These are related by:
    
    U = \chi^{-1} - \chi_0^{-1}
 
-which allow us to compute :math:`U` 
+which allow us to compute :math:`U`. 
 
 In practice, we compute :math:`\chi_0` and :math:`\chi` by applying a small perturbation :math:`\alpha` to the system:
 
@@ -181,18 +173,18 @@ In practice, we compute :math:`\chi_0` and :math:`\chi` by applying a small pert
     \text{ (computed with a trial U)}  
 
 
-The perturbation is applied by shifting the potential of the localized orbitals:
+The perturbation is applied by shifting the potential of the localised orbitals:
 
 .. math::
 
-   V_{ext}^{p} = V_{ext} + \alpha \sum_{m,m'}\lvert\varphi_{m'}^{(I)}\rangle\langle\varphi_m^{(I)}\rvert
+   V_{\text{ext}}^{p} = V_{\text{ext}} + \alpha \sum_{m,m'}\lvert\varphi_{m'}^{(I)}\rangle\langle\varphi_m^{(I)}\rvert
 
 
 We then iterate until self-consistency is achieved. 
 
 This is done in a supercell as the perturbation should not interact with its periodic images.
 
-This is the conventional linear response but it poses practial problems:
+This is the conventional linear response but it poses practical problems:
 The response :math:`\chi_0` is usually computed via the first iteration
 of the Kohn-Sham equations during a self-consistent field
 (SCF) calculation; that is, the response is to be measured
@@ -202,7 +194,7 @@ This approach is impractical to implement in codes that
 use a direct-minimization procedure of the total energy with
 respect to the density, Kohn-Sham orbitals, or density matrix.
 
-Another approach to compute :math:`U` and :math:`J` is known as minimum tracking method [Linscott2018]_
+Another approach to compute :math:`U` and :math:`J` is known as minimum tracking method [Linscott2018]_.
 
 Minimum Tracking Method
 -----------------------
@@ -221,13 +213,13 @@ response matrices as:
    (\chi_0)_{IJ} = \left[\frac{dn}{dv_\text{KS}}\left(\frac{dv_\text{KS}}{dv_\text{ext}}\right)^{-1}\right]_{IJ}
 
 
-This allow us to prevent the practical issues from the conventional linear response.
-This approach can also be extended to include the J exchange term (The response matrices now become Rank-Four tensor [Linscott2018]_), practically
-this is done by modifying the perturbation by including an additional term (spin-splitting)
+This allows us to work around the practical issues from the conventional linear response.
+This approach can also be extended to include the :math:`J`` exchange term (The response matrices now become rank-four tensors [Linscott2018]_). 
+In practice this is done by modifying the perturbation by including an additional term (spin-splitting):
 
 .. math::
 
-   V_{ext}^{p} = V_{ext} + \beta \sum_{m,m'}\lvert\varphi_{m'}^{(I\uparrow)}\rangle\langle\varphi_m^{(I\uparrow)}\rvert-\lvert\varphi_{m'}^{(I\downarrow)}\rangle\langle\varphi_m^{(I\downarrow)}\rvert
+   V_{\text{ext}}^{p} = V_{\text{ext}} + \beta \sum_{m,m'}\lvert\varphi_{m'}^{(I\uparrow)}\rangle\langle\varphi_m^{(I\uparrow)}\rvert-\lvert\varphi_{m'}^{(I\downarrow)}\rangle\langle\varphi_m^{(I\downarrow)}\rvert
 
 
 Using NGWFs and projector self-consistency
@@ -279,7 +271,7 @@ The keywords ``hubbard_energy_tol``, ``hubbard_conv_win``, and
 ``hubbard_proj_mixing`` are used to manage the Hubbard projector
 self-consistency cycle. For convergence, the ground state energy must
 deviate less than ``hubbard_energy_tol`` (defaulting to
-:math:`10^{-8}Ha`) from one ``HUBBARDSCF`` iteration to the next, over
+:math:`10^{-8}` Ha) from one ``HUBBARDSCF`` iteration to the next, over
 ``hubbard_conv_win`` (defaulting to :math:`2`) iterations. A fraction
 ``hubbard_proj_mixing`` (defaulting to :math:`0.0`) of the previous
 Hubbard projectors may be mixed with the new ones in order to accelerate
@@ -292,7 +284,7 @@ post-processing tasks.
 How to activate DFT+\ :math:`U` in ONETEP
 =========================================
 
-In order to activate the DFT+\ :math:`U` functionality, the **hubbard**
+In order to activate the DFT+\ :math:`U` functionality, the ``hubbard``
 block is added to the input file. For example, in the case of a system
 containing iron and cerium atoms incorrectly described by the
 exchange-correlation functional, which we suspect could benefit from the
@@ -301,11 +293,11 @@ we might use the ``hubbard`` block:
 
 .. code-block:: none
    
-   % block hubbard
+   %block hubbard
      Fe1   2   4.0   0.0  -10.0   0.00   1.0
      Fe2   2   4.0   0.0  -10.0   0.00  -1.0
      Ce1   3   6.0   0.0  -10.0   0.50   0.0
-   % endblock hubbard
+   %endblock hubbard
 
 The columns of the ``hubbard`` block are described as follows:
 
@@ -335,15 +327,15 @@ The columns of the ``hubbard`` block are described as follows:
    The value of the Hund’s exchange :math:`J` for this sub-shell, in
    electron-volts. 
    The rotationally invariant exchange corrective term
-   described in detail in Ref. [Himmetoglu2011]_ (The so called DFT+\ :math:`U` +\ :math:`J`) is fully
+   described in detail in Ref. [Himmetoglu2011]_ (The so called DFT+\ :math:`U`\ +\ :math:`J`) is fully
    implemented in ONETEP (including forces etc), and activated for any
    :math:`J \ne 0`. 
 
-5. **Effective Charge Z and Projectors type**
+5. **Effective Charge** :math:`\mathbf{Z}` **and Projectors type**
    
    - Case 1: :math:`\mathbf{ Z < 0}` (Default)
       
-      A subset of the orbitals generated by solving the atomic problem subject to the pseudopotential for the species in question are chosen (in which case
+      A subset of the orbitals generated by solving the atomic problem subject to the pseudopotential for the species in question is chosen (in which case
       the projectors form a subset of the initial guesses for the ONETEP
       NGWFs); here the magnitude of the negative Z makes no difference. 
    
@@ -375,19 +367,19 @@ The columns of the ``hubbard`` block are described as follows:
    The spin-splitting factor, in electron-volts, which is deducted from
    the :math:`\alpha` factor for the spin-up channel and added to
    :math:`\alpha` for the spin-down channel. In the example shown here
-   we’re promoting spin-up magnetisation for iron atoms :math:`Fe1`, and
-   spin-down for :math:`Fe2`. This can be very useful for appropriately
+   we’re promoting spin-up magnetisation for iron atoms Fe1, and
+   spin-down for Fe2. This can be very useful for appropriately
    breaking magnetic symmetries in antiferromagnetic solids or
    open-shell singlet molecules, or for estimating the magnetic
    susceptibility or exchange coupling.
 
-   **N.B.** Users may find the DFT+\ :math:`U` functionality useful in
-   cases of systems even when the DFT+\ :math:`U` correction is not
-   needed (setting the all :math:`U` parameters to zero does not disable
-   the functionality). The implementation offers a very inexpensive
-   method for carrying out carefully-defined atom-centred atomic
-   population analysis, or breaking symmetries in spin or charge ordered
-   systems.
+**N.B.** Users may find the DFT+\ :math:`U` functionality useful in
+cases of systems even when the DFT+\ :math:`U` correction is not
+needed (setting the all :math:`U` parameters to zero does not disable
+the functionality). The implementation offers a very inexpensive
+method for carrying out carefully-defined atom-centred atomic
+population analysis, or breaking symmetries in spin or charge ordered
+systems.
 
 
 DFT+\ :math:`U` keywords
@@ -396,66 +388,70 @@ DFT+\ :math:`U` keywords
 
 .. table:: DFT+\ :math:`U` keywords
    :name: dft+u_keywords
+   :class: longtable
 
-   +---------------------------------+----------+---------------------------+----------------------------------------------------+
-   |Keyword                          | Type     |Default                    | Description                                        |
-   +=================================+==========+===========================+====================================================+
-   | ``HUBBARDSCF``                  | Task     |      —                    | | Activate a projector-self-consistent DFT+U       |
-   |                                 |          |                           | | calculation.                                     |
-   +---------------------------------+----------+---------------------------+----------------------------------------------------+ 
-   | ``HUBBARDSCF_ON_THE_FLY``       | Logical  |  False                    | | Activate a non-variational on-the-fly form of    |
-   |                                 |          |                           | | projector self-consistency in DFT+U or cDFT, in  |
-   |                                 |          |                           | | which the projectors are updated whenever the    |
-   |                                 |          |                           | | NGWFs are. task : HUBBARDSCF is then not needed. |
-   +---------------------------------+----------+---------------------------+----------------------------------------------------+                    
-   |``HUBBARD_CONV_WIN``             | Integer  | ``2``                     | | The minimum number of Hubbard projector update   |
-   |                                 |          |                           | | steps satisfying the incremental energy tolerance| 
-   |                                 |          |                           | | HUBBARD_ENERGY_TOL required for convergence      |
-   |                                 |          |                           | | in task : HUBBARDSCF.                            |
-   +---------------------------------+----------+---------------------------+----------------------------------------------------+
-   |``HUBBARD_ENERGY_TOL``           | Physical | ``1.0E-8 Ha``             | | The maximum incremental energy change between    |
-   |                                 |          |                           | | Hubbard projector update steps allowed for       |
-   |                                 |          |                           | | converge in task : HUBBARDSCF.                   |
-   +---------------------------------+----------+---------------------------+----------------------------------------------------+
-   | ``HUBBARD_FUNCTIONAL``          | Real     | ``1``                     | | The form of DFT+U energy term used. Contact      |
-   |                                 |          |                           | | developers if you need to try something beyond   |
-   |                                 |          |                           | | the default.                                     |
-   +---------------------------------+----------+---------------------------+----------------------------------------------------+
-   | ``HUBBARD_MAX_ITER``            | Integer  | ``10``                    | | The maximum allowed number of Hubbard projector  |
-   |                                 |          |                           | | update steps taken in a projector self-consistent|
-   |                                 |          |                           | | DFT+U or cDFT calculation in task : HUBBARDSCF.  | 
-   +---------------------------------+----------+---------------------------+----------------------------------------------------+
-   | ``HUBBARD_NGWF_SPIN_THRESHOLD`` | Physical |``2.0E-5 Ha``              | | The incremental change in energy, in             |
-   |                                 |          |                           | | total-energy minimisation, at which any          |
-   |                                 |          |                           | | spin-splitting (Zeeman) type term in DFT+U is    |
-   |                                 |          |                           | | switched off, and the minimisation history reset.| 
-   |                                 |          |                           | | Useful for breaking open-shell,                  | 
-   |                                 |          |                           | | antiferromagnetic, or charge-density             |
-   |                                 |          |                           | | wave symmetries.                                 |
-   +---------------------------------+----------+---------------------------+----------------------------------------------------+
-   | ``HUBBARD_PROJ_MIXING``         | Real     | ``0.0``                   | | The fraction of previous Hubbard projector to    |
-   |                                 |          |                           | | mix with new for projector self-consistent DFT+U |
-   |                                 |          |                           | | or cDFT in task : HUBBARDSCF.                    |
-   |                                 |          |                           | | Not found to be necessary.                       |
-   +---------------------------------+----------+---------------------------+----------------------------------------------------+
-   | ``HUBBARD_READ_PROJECTORS``     | Logical  |``False``                  | | Read Hubbard projectors from .tightbox_hub_projs |
-   |                                 |          |                           | | file in restart calculations involving DFT+U.    |
-   +---------------------------------+----------+---------------------------+----------------------------------------------------+
-   | ``HUBBARD_TENSOR_CORR``         | Integer  | ``1``                     | | The form of correction used to correct for any   |
-   |                                 |          |                           | | nonorthogonality between Hubbard projectors.     |
-   |                                 |          |                           | | Contact developers if you need to try something  |
-   |                                 |          |                           | | other than the default "tensorial" correction.   |
-   +---------------------------------+----------+---------------------------+----------------------------------------------------+
+   +---------------------------------+----------+---------------------------+-----------------------------------------------------+
+   |Keyword                          | Type     |Default                    | Description                                         |
+   +=================================+==========+===========================+=====================================================+
+   | ``HUBBARDSCF``                  | Task     |      —                    | | Activate a projector-self-consistent              |
+   |                                 |          |                           | | DFT+\ :math:`U` calculation.                      |
+   +---------------------------------+----------+---------------------------+-----------------------------------------------------+ 
+   | ``HUBBARDSCF_ON_THE_FLY``       | Logical  |  False                    | | Activate a non-variational on-the-fly form of     |
+   |                                 |          |                           | | projector self-consistency in DFT+\ :math:`U`     |
+   |                                 |          |                           | | or cDFT, in which the projectors are updated      |
+   |                                 |          |                           | | whenever the NGWFs are.                           |
+   |                                 |          |                           | | task: ``HUBBARDSCF`` is then not needed.          |
+   +---------------------------------+----------+---------------------------+-----------------------------------------------------+                    
+   |``HUBBARD_CONV_WIN``             | Integer  | ``2``                     | | The minimum number of Hubbard projector update    |
+   |                                 |          |                           | | steps satisfying the incremental energy           |
+   |                                 |          |                           | | tolerance  ``HUBBARD_ENERGY_TOL`` required        |
+   |                                 |          |                           | | for convergence  in task : ``HUBBARDSCF``.        |
+   +---------------------------------+----------+---------------------------+-----------------------------------------------------+
+   |``HUBBARD_ENERGY_TOL``           | Physical | ``1.0E-8 Ha``             | | The maximum incremental energy change between     |
+   |                                 |          |                           | | Hubbard projector update steps allowed for        |
+   |                                 |          |                           | | convergence in task : ``HUBBARDSCF``.             |
+   +---------------------------------+----------+---------------------------+-----------------------------------------------------+
+   | ``HUBBARD_FUNCTIONAL``          | Integer  | ``1``                     | | The form of DFT+\ :math:`U` energy term used.     |
+   |                                 |          |                           | | Contact developers if you need to try something   |
+   |                                 |          |                           | | beyond the default.                               |
+   +---------------------------------+----------+---------------------------+-----------------------------------------------------+
+   | ``HUBBARD_MAX_ITER``            | Integer  | ``10``                    | | The maximum allowed number of Hubbard projector   |
+   |                                 |          |                           | | update steps taken in a projector                 |
+   |                                 |          |                           | | self-consistent DFT+\ :math:`U` or  cDFT          | 
+   |                                 |          |                           | | calculation in task: ``HUBBARDSCF``               |
+   +---------------------------------+----------+---------------------------+-----------------------------------------------------+
+   | ``HUBBARD_NGWF_SPIN_THRESHOLD`` | Physical |``2.0E-5 Ha``              | | The incremental change in energy, in              |
+   |                                 |          |                           | | total-energy minimisation, at which any           |
+   |                                 |          |                           | | spin-splitting (Zeeman) type term in DFT+U is     |
+   |                                 |          |                           | | switched off, and the minimisation history        |
+   |                                 |          |                           | | reset. Useful for breaking open-shell,            |
+   |                                 |          |                           | | antiferromagnetic, or charge-density              |
+   |                                 |          |                           | | wave symmetries.                                  |
+   +---------------------------------+----------+---------------------------+-----------------------------------------------------+
+   | ``HUBBARD_PROJ_MIXING``         | Real     | ``0.0``                   | | The fraction of previous Hubbard projector to     |
+   |                                 |          |                           | | mix with new for projector self-consistent        |
+   |                                 |          |                           | | DFT+\ :math:`U` or cDFT in task : ``HUBBARDSCF``. |
+   |                                 |          |                           | | Not found to be necessary.                        |
+   +---------------------------------+----------+---------------------------+-----------------------------------------------------+
+   | ``HUBBARD_READ_PROJECTORS``     | Logical  |``False``                  | | Read Hubbard projectors from tightbox_hub_projs   |
+   |                                 |          |                           | | file in restart calculations involving            |
+   |                                 |          |                           | | DFT+\ :math:`U`.                                  |
+   +---------------------------------+----------+---------------------------+-----------------------------------------------------+
+   | ``HUBBARD_TENSOR_CORR``         | Integer  | ``1``                     | | The form of correction used to correct for any    |
+   |                                 |          |                           | | nonorthogonality between Hubbard projectors.      |
+   |                                 |          |                           | | Contact developers if you need to try something   |
+   |                                 |          |                           | | other than the default "tensorial" correction.    |
+   +---------------------------------+----------+---------------------------+-----------------------------------------------------+
 
 
 
 Tutorials
 =========
 
-Example of the use of DFT+U in Hematite, a strongly correlated system
+Example on the use of DFT+\ :math:`U` for Hematite, a strongly correlated system.
    - https://tutorials.onetep.org/T9_hematite_dftu.html
 
-Example on how to compute U and J from linear response
+Example on how to compute :math:`U` and :math:`J` from linear response.
    - To be added
 
 Compatibility
@@ -467,30 +463,30 @@ involves an additional term in the Hamiltonian and ionic forces. Please
 get in touch first if you would like to use a more exotic combination of
 these functionalities:
 
-#. Total-energy minimisation and ionic forces
+#. Total-energy minimisation and ionic forces.
 
-#. Geometry optimisation, molecular dynamics and phonon calculations
+#. Geometry optimisation, molecular dynamics and phonon calculations.
 
-#. All other functionals including hybrids and Van der Waals functionals
+#. All other functionals including hybrids and Van der Waals functionals.
 
-#. Implicit solvation
+#. Implicit solvation.
 
-#. The PAW formalism and ultrasoft pseudopotentials
+#. The PAW formalism and ultrasoft pseudopotentials.
 
-#. Constrained DFT
+#. Constrained DFT.
 
 #. Local density of states (including a correlated subspace
-   decomposition)
+   decomposition).
 
-#. Natural bond orbital calculations
+#. Natural bond orbital calculations.
 
-#. Conduction-band optimisation and Fermi’s Golden Rule spectra
+#. Conduction-band optimisation and Fermi’s Golden Rule spectra.
 
-#. Calculations of changes in electric polarisation
+#. Calculations of changes in electric polarisation.
 
-#. Time-dependent DFT
+#. Time-dependent DFT.
 
-#. Electronic transmission calculations
+#. Electronic transmission calculations.
 
 The extension of the DFT+\ :math:`U` implementation to cluster Dynamical
 mean-field theory has also been implemented in ONETEP; for an example of
