@@ -291,7 +291,7 @@ The spherical wave basis is contracted by default to reduce the memory
 requirements of the code. You may, however, not see an improvement in
 the spilling parameter by using this set. To be certain of reducing the
 spilling parameter, you should also opt to use the full, non-contracted
-spherical wave basis, by setting ``pdos_reduce_sws`` : T in your input
+spherical wave basis, by setting ``pdos_reduce_sws F`` in your input
 file, along with an adequately large ``pdos_max_l``. For ``pdos_max_l``
 you can start by running with 2 and increase to 3 if required. If you
 choose to take this approach, beware of the memory requirements, which
