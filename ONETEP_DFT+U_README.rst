@@ -134,7 +134,7 @@ Computing :math:`U` and :math:`J` from linear-response
 
 The basic idea is to compare the response of the system to a perturbation in the DFT and in the DFT+\ :math:`U` frameworks.
 We start by defining the response function :math:`\chi`, which describes how the occupation of localised orbitals changes with respect to a shift in the potential acting on these orbitals:
-The linear response method determines the Hubbard :math:`U`` parameter by comparing the response of the system to a perturbation in standard DFT and DFT+\ :math:`U`` frameworks.
+The linear response method determines the Hubbard :math:`U` parameter by comparing the response of the system to a perturbation in standard DFT and DFT+\ :math:`U` frameworks.
 
 We define the response function :math:`\chi` as: 
 
@@ -148,7 +148,7 @@ where :math:`n` is the occupation matrix of the localised orbitals and :math:`\a
 We compute two response functions:
 
 - :math:`\chi_0`: the bare Kohn-Sham (KS) response (without :math:`U`)
-- :math:`\chi`: the interacting response (with :math:`U``)
+- :math:`\chi`: the interacting response (with :math:`U`)
 
 These are related by:
 
@@ -214,7 +214,7 @@ response matrices as:
 
 
 This allows us to work around the practical issues from the conventional linear response.
-This approach can also be extended to include the :math:`J`` exchange term (The response matrices now become rank-four tensors [Linscott2018]_). 
+This approach can also be extended to include the :math:`J` exchange term (The response matrices now become rank-four tensors [Linscott2018]_). 
 In practice this is done by modifying the perturbation by including an additional term (spin-splitting):
 
 .. math::
