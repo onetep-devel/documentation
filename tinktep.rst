@@ -18,7 +18,7 @@ TINKER is used as the MM engine. The two main distinguishing features of
 TINKTEP are the linear scaling of the QM part (subject to usual ONETEP
 linear scaling caveats), and the fact that the MM side uses a
 polarisable force field (AMOEBA). There is full mutual self-consistency
-between the QM and MM subsystem – the QM subsystem polarises the MM
+between the QM and MM subsystem -- the QM subsystem polarises the MM
 subsystem and vice versa. Van der Waals interactions between QM and MM
 are also taken care of. TINKTEP is work in progress, both on the front
 of theory (improving the model) and implementation (adding desired
