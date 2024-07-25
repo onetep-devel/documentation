@@ -166,7 +166,7 @@ New functionality
 If you add new procedures or significantly change existing procedures,
 **you must create or update the documentation in the source code**.
 Examples of how to document procedures can be found in the template module
-``template_mod.F90`` in the ``doc`` directory. The key components of the
+``template_mod.F90`` in the ``documentation`` repository. The key components of the
 documentation of procedures are:
 
 * A human-readable description of the new functionality.

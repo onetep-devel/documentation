@@ -4,7 +4,7 @@ Performance considerations
 
 :Author: Jacek Dziedzic, University of Southampton
 
-How quickly ONETEP runs your calculations depends on a number of factors. 
+How quickly ONETEP runs your calculations depends on a number of factors.
 Choosing the number of nodes, processes and threads has already been described in :ref:`running_parallel`.
 
 Here we mention techniques that can be used in addition to an efficient parallel decomposition to improve performance.
@@ -27,7 +27,7 @@ You can check which approach you are using by examining the timings printed out 
 (provided you are not using ``timings_level 0``). If your timings include ``sparse_spam3toblacs_real_fast`` and
 ``sparse_blacstospam3_real_fast`` -- you are using the fast approach. If instead you have ``sparse_spam3toblacs_real_slow``
 and ``sparse_blacstospam3_real_slow`` -- you are using the slow approach.
- 
+
 To switch between the approaches use:
   - ``fast_dense_to_sparse T`` and ``fast_sparse_to_dense T`` -- for the fast approach,
   - ``fast_dense_to_sparse F`` and ``fast_sparse_to_dense F`` -- for the slow approach.
@@ -48,42 +48,65 @@ Calculating the electronic charge density is one of the more time-consuming oper
 calculation it has to be performed hundreds of times. There are two ways in which ONETEP can calculate the density
 -- conveniently termed "slow" and "fast".
 
-The slow approach is the only approach available until ONETEP 7.1.7. Starting from ONETEP 7.1.8, a fast approach
-is also available, *but it is not the default*. This means that action is required on your part to use the fast approach.
-The fast approach is up to several times faster (for this part of the calculation).
+The slow approach is the only approach available until ONETEP 7.1.7.
+Starting with ONETEP 7.1.8, a fast approach is also available, *but it is not the default*.
+This means that action is required on your part to use the fast approach.
+The fast approach is up to several times faster (for this part of the calculation),
+but that depends heavily on the system. It does require more memory.
 
-**The fast approach works best for "serious" systems, it's not meant to address scenarios with KE cutoffs
-below 700-800 eV or NGWFs smaller than 8.0 a0. It will also not perform well when your FFT-box is small
-(say, below 80 x 80 x 80 points), as happens e.g. for very small periodic supercells.**
+**The fast approach works best for "serious" systems, it's not meant to address
+scenarios with KE cutoffs below 700-800 eV or NGWFs smaller than 8.0 a0. It will
+also not perform well when your FFT-box is small (say, below 80 x 80 x 80 points),
+as happens e.g. for very small periodic supercells. In this case it can actually be slower.**
 
 To switch between the approaches use:
   - ``fast_density T`` -- for the fast approach,
   - ``fast_density F`` -- for the slow approach.
 
-Be aware that the fast approach *is an approximation*. The approximation is well-controllable, meaning you can get
-as close with the accuracy to the slow (exact) approach as you like, albeit sacrificing performance as you do so.
-Conversely, you can make the fast approach as fast as you like, but you will be sacrificing accuracy as you do so,
-up to a point of making your results worthless. This means care must be taken when changing the parameters of
-this approach -- non-expert users are advised to use the defaults, or even "safe settings" described below.
+Be aware that the fast approach *is an approximation*. The approximation is well-controllable,
+which means you can get as close with the accuracy to the slow (exact) approach as you
+like, albeit sacrificing performance as you do so.
+Conversely, you can make the fast approach as fast as you like, but you will be
+sacrificing accuracy as you do so, up to a point of making your results worthless.
+This means care must be taken when changing the parameters of this approach --
+non-expert users are advised to use the defaults, or even "safe settings" described below.
 
-You can check which approach you are using by examining the timings printed out at the end of your calculation
-(provided you are not using ``timings_level 0``). If your timings include ``density_on_dbl_grid_fast`` and
-``density_fast_new_ngwfs`` -- you are using the fast approach. If instead you have ``density_on_dbl_grid``
-and ``density_batch_interp_deposit`` -- you are using the slow approach.
+Starting from ONETEP 7.1.50 there are actually *three* different fast density
+methods implemented. They offer the practically same accuracy for the same
+settings (see below), but employ different tradeoffs between memory use and
+performance. As a user, about the only thing you need to know is:
+
+- ``fast_density_method 1`` is usually the fastest, but requires the most memory,
+- ``fast_density_method 2`` is a failed experiment, and typically performs poorly,
+  you should not be using it.
+- ``fast_density_method 3`` is usually somewhat slower than method 1, but faster
+  than the slow (default) calculation. It has two important advantages --
+  **it uses much less memory than** ``fast_density_method 1``, **and it has been
+  GPU ported**. If you are running on GPUs, you should be definitely using this
+  option.
+
+The default (once you specified ``fast_density T``) is ``fast_density_method 1``.
+
+You can check which approach you are using by examining the timings printed out
+at the end of your calculation
+(provided you are not using ``timings_level 0``). If your timings include
+``density_fast_new_ngwfs`` -- you are using one of the fast approaches. If instead you
+have ``density_on_dbl_grid`` and ``density_batch_interp_deposit`` -- you are
+using the slow approach.
 
 The main idea behind the fast density approach is *trimming* interpolated NGWFs, that is, ignoring the points
-where their values are below a prescribed threshold. The value of this threshold, set by ``fast_density_trim_threshold``
-is the main parameter controlling the balance between accuracy and efficiency. 
+where their (absolute) values are below a prescribed threshold. The value of this threshold, set by ``trimmed_boxes_threshold``
+is the main parameter controlling the balance between accuracy and efficiency.
 It is also independent of NGWF radii. The default is ``2E-6``.
 The parameter already includes grid weights, so you *do not* need to adjust it when changing ``psinc_spacing`` or
 ``cutoff_energy``. To make your calculation more accurate, decrease the threshold -- probably not below ``1E-7``.
-To make your calculation faster, increase the threshold -- probably not above ``1E-5``. 
+To make your calculation faster, increase the threshold -- probably not above ``1E-5``.
 
-If you use ``fast_density_output_detail VERBOSE`` (or higher), ONETEP will print out an estimate of the accuracy
+If you use ``trimmed_boxes_output_detail VERBOSE`` (or higher), ONETEP will print out an estimate of the accuracy
 of the approximation every time NGWFs change. It will look like something like :numref:`Figure fig:fast_density_info`,
 see the *accuracy of approximation* line. This tells you to how many digits the approximated NGWF charge is equal
 to the exact (double FFT-box) NGWF charge, in the root-mean-square sense over all NGWFs in the system. In this
-example our approximated charge is no further from 1.0 (a correctly normalized NGWF) than by 1E-7 
+example our approximated charge is no further from 1.0 (a correctly normalized NGWF) than by 1E-7
 (and is slightly closer, because we got 7.16, not 7.0).
 
 As your calculation progresses, this value will fluctuate, and is likely go down slightly, as the NGWFs become
@@ -107,30 +130,31 @@ truncated before you reached this line, you most likely already ran out of memor
 approach -- there is no way to give the algorithm a memory allowance and tell it that it should not consume more. Work on
 this is in progress. The best way to reduce memory load is to use fewer processes per node and more threads. If this is
 not sufficient, you can reduce the memory load by using more nodes, but this is not a linear dependence -- i.e. you will
-*not* reduce the load by a factor of two if you add twice as many nodes. Finally, note that what is printed out is the
+*not* reduce the load by a factor of two if you add twice as many nodes. Note that what is printed out is the
 amount of memory consumed by the fast density approach, not by all of ONETEP.
+Finally, the *estimated high-memory watermark* is not yet printed for `fast_density_method 3`.
 
 When is fast density used?
 --------------------------
 
 Fast density is only used for energy evaluations done from ``hamiltonian_mod`` -- via ``hamiltonian_lhxc_calculate()``
 and ``hamiltonian_energy_components()``. These are the costly density calculations, because they are done hundreds
-of times in the course of a calculation. All other density calculations (done in forces, properties, eigenstates, 
+of times in the course of a calculation. All other density calculations (done in forces, properties, eigenstates,
 linear response, lr_tddft, population, dma, dmft, EDA, implicit solvent restarts) are always done using the exact
 (slow) method. The rationale is that these are done much less often and possibly require more accuracy.
 
-If you want to know when the fast and slow routines are called, specify ``fast_density_output_detail PROLIX``
+If you want to know when the fast and slow routines are called, specify ``trimmed_boxes_output_detail PROLIX``
 or higher.
 
 More accuracy
 -------------
 
-The default settings should give you sufficient accuracy to converge NGWFs to the default threshold and to get energies and 
+The default settings should give you sufficient accuracy to converge NGWFs to the default threshold and to get energies and
 forces that are negligibly different from those obtained with the slow approach. However, for more difficult systems,
-particularly if using low kinetic energy cutoffs (say, below 700 eV -- like would probably be used with PAW), 
+particularly if using low kinetic energy cutoffs (say, below 700 eV -- like would probably be used with PAW),
 you might need to adjust the parameters to get desired accuracy.
 
-In addition to adjusting ``fast_density_trim_threshold`` down (to perhaps 1E-6 or 5E-7), you may want to use 
+In addition to adjusting ``trimmed_boxes_threshold`` down (to perhaps 1E-6 or 5E-7), you may want to use
 ``fast_density_off_for_last T`` (the default is ``F``). This will tell ONETEP to use the slow (but exact) approach for
 the final energy evaluation. You will know this happened by examining the output file and looking for:
 
@@ -139,7 +163,7 @@ the final energy evaluation. You will know this happened by examining the output
   ! Looks like the last energy evaluation.
   ! The fast density calculation will now be disabled in the interest of accuracy.
 
-Note that this will not be printed if ``fast_density_output_detail`` is ``BRIEF`` or if fast density would already
+Note that this will not be printed if ``trimmed_boxes_output_detail`` is ``BRIEF`` or if fast density would already
 have been switched off by ``fast_density_elec_energy_tol`` (see below). This setting resets any time you start a new
 NGWF convergence loop -- that means that in auto solvation, geometry optimisation, MD, etc. each optimisation will
 start with fast density turned on.
@@ -160,8 +184,8 @@ You will know if and when this happened by examining the output file and looking
   ! Energy change per atom: 0.30287E-07 Eh < 0.10000E-06.
   ! The fast density calculation will now be disabled in the interest of accuracy.
 
-Note that this will not be printed if ``fast_density_output_detail`` is ``BRIEF``. This setting resets any time 
-you start a new NGWF convergence loop -- that means that in auto solvation, geometry optimisation, MD, etc. each 
+Note that this will not be printed if ``trimmed_boxes_output_detail`` is ``BRIEF``. This setting resets any time
+you start a new NGWF convergence loop -- that means that in auto solvation, geometry optimisation, MD, etc. each
 optimisation will start with fast density turned on.
 
 Note that you need at least two NGWF iterations to have a meaningful energy change to examine, so this setting
@@ -171,34 +195,39 @@ Remaining options
 -----------------
 
 The default output detail of fast density is the same as specified for ``output_detail``. You can set it separately
-by specifying ``fast_density_output_detail``. The available options are the same as for all ONETEP output details:
+by specifying ``trimmed_boxes_output_detail``. The available options are the same as for all ONETEP output details:
 ``BRIEF``, ``NORMAL``, ``VERBOSE``, ``PROLIX`` and ``MAXIMUM``.
-
-If, in the future, other methods of trimming NGWFs than by using a fixed threshold become available, you will be
-able to use ``fast_density_trim_by`` to control these. Currently the only supported option is ``VALUE``.
 
 Example settings
 ----------------
 
-For a quick-and-dirty calculation use: 
+For a quick-and-dirty calculation use:
  - ``fast_density T``
- - ``fast_density_trim_threshold 2E-5``.
+ - ``trimmed_boxes_threshold 2E-5``.
 
-For a typical calculation just use: 
- - ``fast_density T`` (which will use the default of ``fast_density_trim_threshold 2E-6``).
+For a typical calculation just use:
+ - ``fast_density T`` (which will use the default of ``trimmed_boxes_threshold 2E-6``).
 
 For an accurate, but slower calculation use:
  -  ``fast_density T``
- - ``fast_density_trim_threshold 1E-6``
+ - ``trimmed_boxes_threshold 1E-6``
  - ``fast_density_off_for_last T``
  - ``fast_density_elec_energy_tol 1E-7``.
 
 For very safe settings that should provide a modest gain in efficiency, try:
  - ``fast_density T``
- - ``fast_density_trim_threshold 5E-7``
+ - ``trimmed_boxes_threshold 5E-7``
  - ``fast_density_off_for_last T``
  - ``fast_density_elec_energy_tol 3E-7``.
- 
+
+If you keep running out of memory, try adding
+ - ``fast_density_method 3``
+   to one of the above sets of settings.
+
+If you are running ONETEP on GPUs, most definitely add
+ - ``fast_density_method 3``
+   to one of the above sets of settings.
+
 Compatilibity
 -------------
 
@@ -216,11 +245,58 @@ Fast density is known to work (to the best of our knowledge) with the following 
   - TS search,
   - NEB,
   - EDFT and LNV.
-  
+
 
 Fast density is known *not* to work (this we know with certainty) with the following additional functionalities:
-  - complex NGWFs,
+  - complex NGWFs (and, thus, k-points),
+  - spin-polarised NGWFs (but spin-polarised density kernel is compatible),
   - TD-DFT (mixed bases are not supported at this point).
   - EMFT (regions).
 
 ONETEP will stop with an error if either of these is used with ``fast_density T``.
+
+
+.. _user_fast_locpot_int:
+
+Fast local potential integrals (for users)
+==========================================
+
+This is a user-level explanation -- for developer-oriented material, see :ref:`dev_fast_locpot_int`.
+
+The calculation of local potential integrals is another time-consuming part of ONETEP.
+In a typical calculation it has to be performed hundreds of times. There are two
+ways in which ONETEP can calculate the local potential integrals -- conveniently termed "slow" and "fast".
+
+The slow approach is the only approach available until ONETEP 7.1.49.
+Starting with ONETEP 7.1.50, a fast approach is also available, *but it is not the default*.
+This means that action is required on your part to use the fast approach.
+The fast approach is up to several times faster (for this part of the calculation),
+but that depends heavily on the system. It does require more memory.
+
+The fast approach for local potential integrals uses similar techniques as :ref:`user_fast_density`,
+that is *trimming* of data in double-grid FFT-boxes, which is a well-controllable approximation,
+but an approximation nevertheless. It would be prudent to read the section on :ref:`user_fast_density`,
+and the part about controlling accuracy in particular. The same mechanism is
+used here (`trimmed_boxes_threshold`).
+
+**The fast approach works best for "serious" systems, it's not meant to address
+scenarios with KE cutoffs below 700-800 eV or NGWFs smaller than 8.0 a0. It will
+also not perform well when your FFT-box is small (say, below 80 x 80 x 80 points),
+as happens e.g. for very small periodic supercells. In this case it can actually be slower.**
+
+To switch between the approaches use:
+  - ``fast_locpot_int T`` -- for the fast approach,
+  - ``fast_locpot_int F`` -- for the slow approach.
+
+In contrast to fast density, there is only one fast locpot int approach implemented,
+so there is no need to choose a method, just turning it on is sufficient.
+The fast locpot int approach works best when `fast_density T` is in use (regardless of
+`fast_density_method`), as they share some of the workload and memory requirement.
+You can expect good synergy when using both approaches at the same time.
+
+There are *no* additional settings for fast locpot int at this point, simply turning
+it on is sufficient. For pointers about about settings, see the suggested settings
+in :ref:`user_fast_density`, just add `fast_locpot_int T` to any of them.
+
+A preliminary GPU port of fast locpot int is in place (starting from ONETEP 7.1.50).
+It is activated automatically if you run a GPU-capable binary.

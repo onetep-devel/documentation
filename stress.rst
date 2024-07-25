@@ -16,23 +16,23 @@ User guide
    |Keyword                        | Type     |Default                    | Description                                        |
    +===============================+==========+===========================+====================================================+
    | ``STRESS``                    | Task     |  —                        | Enable stress functionality.                       |
-   +-------------------------------+----------+---------------------------+----------------------------------------------------+                    
+   +-------------------------------+----------+---------------------------+----------------------------------------------------+
    |``stress_tensor``              | Logical  | ``F``                     | | Enable the calculation of                        |
    |                               |          |                           | | the stress tensor.                               |
    +-------------------------------+----------+---------------------------+----------------------------------------------------+
    |``stress_elasticity``          | Logical  | ``F``                     | | Enable the calculation of                        |
-   |                               |          |                           | | elastic constants                                | 
+   |                               |          |                           | | elastic constants                                |
    +-------------------------------+----------+---------------------------+----------------------------------------------------+
    | ``stress_relax``              | Logical  | ``F``                     | | Use the stress tensor to                         |
    |                               |          |                           | | optimise the cell parameters.                    |
    +-------------------------------+----------+---------------------------+----------------------------------------------------+
-   | ``stress_assumed_symmetry``   | String   | ``nosymm``                | | Use assumed symmetry                             | 
-   |                               |          |                           | | to minimise calculations.                        | 
+   | ``stress_assumed_symmetry``   | String   | ``nosymm``                | | Use assumed symmetry                             |
+   |                               |          |                           | | to minimise calculations.                        |
    |                               |          |                           | | Values are ``nosymm``; 3D: ``cubic``             |
    |                               |          |                           | | ``ortho``, ``tetra1``, ``tetra2``                |
    |                               |          |                           | | ``hexa3d``, ``rhomb1``, ``rhomb2``;              |
    |                               |          |                           | | 2D: ``recta``, ``squar1``, ``squar2``, ``hexa2d``|
-   |                               |          |                           | | NOTE: Symmetry is assumed,                       |             
+   |                               |          |                           | | NOTE: Symmetry is assumed,                       |
    |                               |          |                           | | the code will not check if it's correct!         |
    +-------------------------------+----------+---------------------------+----------------------------------------------------+
    | ``stress_rescale_volume``     | Real     |``1.0``                    | | Rescaling for cell volume.                       |
@@ -55,10 +55,10 @@ User guide
    | ``stress_relax_pressure``     |Physical  |``0.0`` ``Ha/Bohr**3``     | | External pressure applied during cell.           |
    |                               |          |                           | | relaxation                                       |
    +-------------------------------+----------+---------------------------+----------------------------------------------------+
-   | ``stress_relax_pressure_tol`` | Physical | ``2.0e-6`` ``Ha/Bohr**3`` | | Convergence criterion for  absolute change of    |              
+   | ``stress_relax_pressure_tol`` | Physical | ``2.0e-6`` ``Ha/Bohr**3`` | | Convergence criterion for  absolute change of    |
    |                               |          |                           | | pressure in cell relaxation                      |
    +-------------------------------+----------+---------------------------+----------------------------------------------------+
-   | ``stress_relax_cell_rtol``    | Real     | ``1.0e-3``                | | Convergence criterion for relative change of c   | 
+   | ``stress_relax_cell_rtol``    | Real     | ``1.0e-3``                | | Convergence criterion for relative change of c   |
    |                               |          |                           | | cell parameters in cell relaxation.              |
    +-------------------------------+----------+---------------------------+----------------------------------------------------+
    | ``stress_relax_max_iter``     | Integer  | ``10``                    | Maximum number of iterations in cell relaxation    |
@@ -67,7 +67,7 @@ User guide
    |                               |          |                           | | relaxation.                                      |
    +-------------------------------+----------+---------------------------+----------------------------------------------------+
    | ``stress_relax_atoms``        |  Logical | ``F``                     | | Atomic positions are relaxed together with cell  |
-   |                               |          |                           | | parameters.                                      | 
+   |                               |          |                           | | parameters.                                      |
    +-------------------------------+----------+---------------------------+----------------------------------------------------+
 
 
@@ -102,8 +102,8 @@ Calculation of the stress tensor
 
 The definition for the stress tensor is
 
-.. math:: 
-   
+.. math::
+
    \sigma_{\alpha\beta} = -\frac{1}{V}\frac{\partial E}{\partial \epsilon_{\alpha\beta}} \;.
 
 Here :math:`V` is the volume of the unit cell, :math:`E` is the total
@@ -309,7 +309,7 @@ stress tensor is
 
 
 .. math::
-   
+
    \sigma_{\alpha\beta} = -\frac{1}{V}\frac{\partial E}{\partial \epsilon_{\alpha\beta}} \;.
 
 Here :math:`V` is the volume of the unit cell, :math:`E` is the total
@@ -334,7 +334,7 @@ unit cell is stretched to :math:`[0,L']` with
 also be stretched to :math:`\widetilde{\Psi}(x')` with the coordinate in
 the stretched unit cell being related to the starting one by
 :math:`x' = \left(1 + \epsilon\right) x`. This is illustrated in
-Fig. `1`_ . The wave function at the stretched
+:numref:`Figure fig:Ewald_Real_ManimCE_v0.17.3`. The wave function at the stretched
 coordinate is almost the same as the wave function at the unstretched
 coordinate,
 
@@ -359,11 +359,12 @@ Intuitively, the volume element is changed as
 :math:`{\mathrm{d}}x' = \left(1 + \epsilon\right) {\mathrm{d}}x`, so the
 normalisation is adjusted to compensate.
 
-.. figure:: Ewald_Real_ManimCE_v0.17.3.png
-   :name: 1
+.. _Figure fig:Ewald_Real_ManimCE_v0.17.3:
+.. figure:: _static/resources/Ewald_Real_ManimCE_v0.17.3.png
+   :target: _static/resources/Ewald_Real_ManimCE_v0.17.3.png
    :scale: 35 %
-   
-   Fig.1: One-dimensional example of coordinate stretching. Comparing the wave function in the
+
+   One-dimensional example of coordinate stretching. Comparing the wave function in the
    stretched coordinate system to the one in the original coordinates shows that its centre (nuclear
    position) and its amplitude (normalisation) are both changed by the scaling
 
@@ -436,8 +437,8 @@ unit cell vectors. Defining
 
 .. math::
 
-   {\mathbf{a}}_1^* = \frac{{\mathbf{a}}_2 \times {\mathbf{a}}_3}{V} \;,\quad 
-       {\mathbf{a}}_2^* = \frac{{\mathbf{a}}_3 \times {\mathbf{a}}_1}{V} \;,\quad 
+   {\mathbf{a}}_1^* = \frac{{\mathbf{a}}_2 \times {\mathbf{a}}_3}{V} \;,\quad
+       {\mathbf{a}}_2^* = \frac{{\mathbf{a}}_3 \times {\mathbf{a}}_1}{V} \;,\quad
        {\mathbf{a}}_3^* = \frac{{\mathbf{a}}_1 \times {\mathbf{a}}_2}{V} \;,\quad
        {\mathbf{a}}_i \cdot {\mathbf{a}}_j^* = \delta_{ij} \;,\quad
        V = {\mathbf{a}}_1 \cdot \left({\mathbf{a}}_2 \times {\mathbf{a}}_3\right) \;,

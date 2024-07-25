@@ -116,7 +116,7 @@ such as constrained DFT) according to the prescription given in
 Refs. [Cococcioni2005]_, [Kulik2006]_.
 
 DFT+\ :math:`U`\ +\ :math:`J`
-----------------------------
+-----------------------------
 
 A corrective term to include :math:`J` for anti-parallel spin is described in Ref. [Himmetoglu2011]_ and is given by
 

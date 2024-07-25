@@ -263,8 +263,11 @@ EDA schematic
 An example EDA calculation and directory structure is provided in :numref:`exampleEDA`.
 
 .. _exampleEDA:
-.. figure:: EDA_schematic.png
+.. _Figure fig:EDA_schematic:
+.. figure:: _static/resources/EDA_schematic.png
+   :target: _static/resources/EDA_schematic.png
    :alt: An example 3S EDA calculation (data IO flows are represented by arrows).
+
 
    An example 3S EDA calculation (data IO flows are represented by arrows).
 

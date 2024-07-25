@@ -67,8 +67,8 @@ libraries). **They are provided separately**.
 
 .. warning:: If you just updated your ONETEP source via ``git merge`` or ``git pull``
     (rather than cloning via ``git clone`` or unpacking ONETEP from a tarball),
-    issue a ``make cleanall`` before compiling. The script for cascade avoidance 
-    used when making ONETEP can get confused as to what needs to be rebuilt after a 
+    issue a ``make cleanall`` before compiling. The script for cascade avoidance
+    used when making ONETEP can get confused as to what needs to be rebuilt after a
     ``git merge`` or ``git pull``. If you forget about ``make cleanall``, you
     may get an executable that builds correctly but malfunctions in strange ways
     (usually producing very unexpected error messages).
@@ -225,7 +225,9 @@ across processes, with each process “owning” a subset of atoms. Both of
 these concepts are illustrated in :numref:`MPI`.
 
 .. _MPI:
-.. figure:: starting_with_onetep_fig1.png
+.. _Figure fig:starting_with_onetep_fig1:
+.. figure:: _static/resources/starting_with_onetep_fig1.png
+   :target: _static/resources/starting_with_onetep_fig1.png
    :alt: Illustration of parallel data decomposition in ONETEP. Figure borrowed from J. Chem. Phys. \ **122**, 084119 (2005), https://doi.org/10.1063/1.1839852, which you are well-advised to read.
 
    Illustration of parallel data decomposition in ONETEP. Figure borrowed from J. Chem. Phys. \ **122**, 084119 (2005), https://doi.org/10.1063/1.1839852, which you are well-advised to read.
@@ -240,7 +242,9 @@ Message Passing Interface (MPI). This is why we often call the processes
 *MPI processes*, or, more technically, *MPI ranks*.
 
 .. _processes:
-.. figure:: starting_with_onetep_fig2.png
+.. _Figure fig:starting_with_onetep_fig2:
+.. figure:: _static/resources/starting_with_onetep_fig2.png
+   :target: _static/resources/starting_with_onetep_fig2.png
    :alt: Four ONETEP processes running on one machine, each utilising 100% of a CPU core and 0.4% of available memory.
 
    Four ONETEP processes running on one machine, each utilising 100% of a CPU core and 0.4% of available memory.
@@ -317,7 +321,9 @@ spawn. For instance the command
 runs one process (note the absence of ``mpirun``), which spawns eight
 threads. This is what it looks like to the operating system:
 
-.. figure:: starting_with_onetep_fig3.png
+.. _Figure fig:starting_with_onetep_fig3:
+.. figure:: _static/resources/starting_with_onetep_fig3.png
+   :target: _static/resources/starting_with_onetep_fig3.png
    :alt: One ONETEP process that spawned eight threads, running on one machine, utilising almost 800% of a CPU core and 1.3% of available memory – this is for the entire process encompassing eight threads.
 
    One ONETEP process that spawned eight threads, running on one machine, utilising almost 800% of a CPU core and 1.3% of available memory – this is for the entire process encompassing eight threads.

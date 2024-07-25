@@ -50,7 +50,7 @@ and is calculated using a Green’s function technique:
 
 .. math::
    :label: greenf
-	   
+
       G_{\rm d}(E) = \big[ (E+i\eta)S_{\rm d} - H_{\rm d} - \Sigma(E)\big]^{-1},
 
 where :math:`H_{\rm d}`, :math:`S_{\rm d}` the
@@ -108,7 +108,7 @@ like
 
 .. math::
 
-   H_{\rm d} = 
+   H_{\rm d} =
       \begin{pmatrix}
          \mathbf{h}_{00,L}    & \mathbf{h}_{0,L}  & \cdot                & \cdot                  & \cdot              \\
          \mathbf{h}^\dagger_{01,L} & \mathbf{h}_{00,L}  & \mathbf{h}_{LC}    & \cdot                  & \cdot              \\
@@ -161,7 +161,8 @@ and terminated with a hydrogen atom. I will, however, assume that the
 user knows how to successfully converge the standard ONETEP single-point
 calculation.
 
-A suitable auxiliary simulation geometry is shown in schematic form in Fig. :numref:`fig1`,
+A suitable auxiliary simulation geometry is shown in schematic form in
+:numref:`Figure fig:transport_fig1`,
 consisting of molecular fragments of the polyacetylene and polyyne wires
 located in vacuum. This entire geometry contains 52 atoms. I will assume
 that these atoms are ordered in the input file by their position from
@@ -174,14 +175,14 @@ follows:
 
 ::
 
-       
+
        etrans_lcr               : T
        etrans_bulk              : T
        etrans_emin              : -2.0 eV
-       etrans_emax              :  2.0 eV 
+       etrans_emax              :  2.0 eV
        etrans_enum              :  401
        etrans_calculate_lead_mu : T
-       
+
        %block etrans_setup
          10  47
        %endblock etrans_setup
@@ -190,7 +191,7 @@ follows:
          10  17  18  25  unit_cells=2
          44  47  40  43  unit_cells=2
        %endblock etrans_leads
-       
+
        ! rest of input file...
 
 The first six lines indicate that we wish to calculate the transmission
@@ -232,12 +233,13 @@ band structure for that lead, which can be calculated separately. If the
 lead band structure is not converged, the size of the buffer region
 should be increased.
 
-.. _Fig1:
-.. figure:: transport_fig1.png
+.. _Figure fig:transport_fig1:
+.. figure:: _static/resources/transport_fig1.png
+   :name: fig:transport_fig1
    :alt: A possible auxilliary simulation geometry for calculating the tunnelling transmission between a polyacetylene wire and a polyyne wire. The atoms appear ordered in the input file by their position from left to right.
 
    A possible auxilliary simulation geometry for calculating the tunnelling transmission between a polyacetylene wire and a polyyne wire. The atoms appear ordered in the input file by their position from left to right.
-	   
+
 
 Computational scaling
 =====================
@@ -313,7 +315,7 @@ The following are the main warning messages that may be encountered, and
 how they may be tackled.
 
 ``Inversion of (eS-H)_lcr failed``
-    | 
+    |
     | **Cause**: Failed to calculate the Green’s function as it is
       singular at this energy. This can happen if etrans\_ecmplx is too
       small, or if localised states are present near this energy.
@@ -324,7 +326,7 @@ how they may be tackled.
       interest, try increasing ``etrans_ecmplx``.
 
 ``Warning in compute_transfer: Failed to compute transfer matrix.``
-    | 
+    |
     | **Cause**: Failed to compute the lead self energy. This can happen
       if ``etrans_ecmplx`` is too small, or if localised states are present
       near this energy.
@@ -337,7 +339,7 @@ how they may be tackled.
       that the calculation is numerically unstable.
 
 ``Lead electronic occupancy is significantly different ...``
-    | 
+    |
     | **Cause**: Large discrepancy between the ionic and electronic
       charge in the lead. Likely due to under-converged buffer region
       between this lead and the scattering region.
@@ -349,7 +351,7 @@ how they may be tackled.
       the default LNV algorithm).
 
 ``Unable to determine lead potential for lead ...``
-    | 
+    |
     | **Cause**: lead potential calculation for this lead failed: could
       not determine the lead band structure. This may indicate that the
       leads have been defined incorrectly. Check the lead structure.
@@ -393,20 +395,20 @@ Main parameters
     | ``%endblock etrans_leads``
     | The block defining the atoms to be used as the leads. Each line defines a new lead. ``start0/end0`` are integers giving the indices (from the input file) of the first/last atoms of the lead principal layer farthest from the central region; ``start1/end1`` are integers giving the indices of the first/last atom of the principal later closest to the central region.
     | The first principal layer geometry must be a periodic repeat of the lead geometry (i.e. same number of atoms, in the same relative ordering in the input file).
-    | For each lead, two optional tags can be defined. The option ``unit_cells=<n>`` forces the translational symmetry of the principal layer matrix elements, where ``n`` is the number of primitive unit cells in the principal layer. The option ``file=<lead1.hsm>`` allows for the lead matrix elements to be read in from a ``.hsm`` file. Reading in matrix elements is generally unnecessary, however it may be used effectively by taking the ``.hsm`` of a separate pristine/bulk transport calculation to ensure that the matrix elements are exactly at their bulk values. The positions and ordering of atoms in the lead principal layers in both calculations must be identical: this is not checked in the calculation.       
-      
+    | For each lead, two optional tags can be defined. The option ``unit_cells=<n>`` forces the translational symmetry of the principal layer matrix elements, where ``n`` is the number of primitive unit cells in the principal layer. The option ``file=<lead1.hsm>`` allows for the lead matrix elements to be read in from a ``.hsm`` file. Reading in matrix elements is generally unnecessary, however it may be used effectively by taking the ``.hsm`` of a separate pristine/bulk transport calculation to ensure that the matrix elements are exactly at their bulk values. The positions and ordering of atoms in the lead principal layers in both calculations must be identical: this is not checked in the calculation.
+
 ``etrans_enum: n`` [Integer, default ``etrans_enum: 50``\ ]
 
     | Number of transmission energy points calculated for. Energies are
       distributed uniformly.
 
 ``etrans_emax :`` :math:`E_{\mathrm{max}}` [Physical, default ``etrans_emax: -0.2 Hartree``\ ]
-      
+
     | The maximum energy above the reference energy transmission is
       calculated for.
 
 ``etrans_emin :`` :math:`E_{\mathrm{min}}` [Physical, default ``etrans_emin: 0.2 Hartree``\ ]
-      
+
     | The minimum energy below the reference energy transmission is
       calculated for.
 
@@ -440,11 +442,11 @@ Main parameters
     | ``%block etrans_plot_eigchan_energies``
     |    ``{Ha|eV} ! optional energy unit``
     |    :math:`E_1`
-    |	 :math:`E_2`
+    |  :math:`E_2`
     |    ``...``
     | ``%endblock etrans_plot_eigchan_energies``
     | The energies at which the eigenchannels are calculated and plotted. The first line may, optionally, define the energy unit; if undefined, the energy unit is Hartree.
-    | Plotting the eigenchannels uses an algorithm that scales with the cube of the number of atoms in the LCR system. Compiling with the ScaLAPACK library is strongly recommended to reduce memory requirements. 
+    | Plotting the eigenchannels uses an algorithm that scales with the cube of the number of atoms in the LCR system. Compiling with the ScaLAPACK library is strongly recommended to reduce memory requirements.
 
 ``etrans_write_xyz : T/F`` [Logical, default ``etrans_write_xyz : T``\ ]
 
@@ -549,45 +551,45 @@ polarised calculations, a separate file is outputted for each spin
 channel.
 
 ``basename_LCR.TRC``
-    
+
     | The LCR transmission coefficients between different pairs of leads
       of the system.
 
 ``basename_LCR_channels_lead<nn>.TRC``
-    
+
     | The LCR transmission coefficients decomposed into eigenchannels.
       The lead number defines which lead acts as the source.
 
 ``basename_LCR_E<nn>_lead<mm>_chan<ll>_{real\|imag}.cube``
-    
+
     | The plotted LCR eigenchannel. :math:`nn` is the the energy index
       from ``%block etrans_plot_eigchan_energies``; :math:`mm` is the lead
       that acts as the source; :math:`ll` is the eigenchannel number.
       The real and imaginary part are printed separately.
 
 ``basename_BULK.TRC``
-    
+
     | The bulk transmission coefficients for each lead of the system.
 
 ``basename_LCR.DOS``
-    
+
     | The density of states for the LCR system.
 
 ``basename_BULK.DOS``
-    
+
     | The density of states for each lead of the system.
 
 ``basename_lead<nn>.bands``
-    
+
     | Bandstructure of the lead in the  .bands format. The number of
       :math:`k`-points is set with etrans\_num\_lead\_kpoints.
 
 ``basename_device.xyz``   ``basename_lead<nn>.xyz``
-    
+
     | The geometries of the device and leads in .xyz file format.
 
 ``basename_lead<nn>.hsm``
-    
+
     | The lead matrix elements in Fortran (unformatted) binary format.
       Note that all energies are in Hartree. It is planned, but
       currently not possible, to be able to access the device matrix
@@ -604,12 +606,12 @@ channel.
                                          ! in block_etrans_leads
          integer          :: norb        ! matrix sizes
          real(kind=8)     :: eref        ! the lead chemical potential
-         
+
          real(kind=8)   :: h00(norb,norb,nspin)
          real(kind=8)   :: h01(norb,norb,nspin)
          real(kind=8)   :: s00(norb,norb)
          real(kind=8)   :: s01(norb,norb)
-            
+
 
 [Bell2014] R.A. Bell, S.M.-M. Dubois, M.C. Payne, A. A. Mostofi, *in preparation* (2014)
 
