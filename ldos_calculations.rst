@@ -310,6 +310,34 @@ quantum number. This can be achieved by setting ``pdos_sum_mag : F``.
 This will give histogram data for every magnetic quantum number of every
 angular momentum channel of each atom group.
 
+Recommended Settings
+--------------------
+The following table provides a set of recommended settings for calculating the PDOS in ONETEP:
+
+.. list-table::
+   :widths: 8 20 32 20
+   :header-rows: 1
+
+   * - 
+     - Cutoff energy (eV)
+     - NGWF radii (:math:`a_{0}`)
+     - Basis
+   * - Low
+     - 700
+     - 8.0
+     - Pseudo-atomic orbitals
+   * - Medium
+     - 800
+     - 10.0
+     - Pseudo-atomic orbitals
+   * - High
+     - 1200
+     - 13.0
+     - Fully uncontracted spherical waves
+
+These settings were calibrated and tested with platinum nanoparticles, and are a starting 
+point for obtaining reliable PDOS data.
+
 Interpreting Outputs
 --------------------
 
