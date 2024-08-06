@@ -312,10 +312,11 @@ angular momentum channel of each atom group.
 
 Recommended Settings
 --------------------
-The following table provides a set of recommended settings for calculating the PDOS in ONETEP:
+The following table provides a set of recommended settings for 
+calculating the PDOS in ONETEP:
 
 .. list-table::
-   :widths: 8 20 32 20
+   :widths: 8 16 16 20
    :header-rows: 1
 
    * - 
@@ -335,8 +336,8 @@ The following table provides a set of recommended settings for calculating the P
      - 13.0
      - Fully uncontracted spherical waves
 
-These settings were calibrated and tested with platinum nanoparticles, and are a starting 
-point for obtaining reliable PDOS data.
+These settings were calibrated and tested with platinum nanoparticles 
+and should be considered a starting point for your own calculations.
 
 Interpreting Outputs
 --------------------
@@ -350,48 +351,49 @@ input file with 3 ``pdos_groups`` and ``pdos_max_l=2``):
 
       
     ================ Projected Density of States (pDOS) calculation ================
-
-    Constructing AM resolved functions  ...... done
-
+    
+    Constructing AM resolved functions  ... done
+    Writing NGWF plot files in formats: ...  done
+    
     Performing overlap integrals ...  done
-
+    
     Computing pDOS weights ...  done
-
-    All bands spilling parameter =   2.16 %
+    
+    All bands spilling parameter =   2.14 %
     Occupancy-weighted spilling parameter =   0.30 %
-
+    
      => Outputting data for OptaDOS <=
-
+    
     Writing pDOS weights to file "Pt3O.val_pdos_bin" ... done
-
+    
     Writing band gradients to file "Pt3O.val_dome_bin" ... done
-
+    
     Writing Castep output cell file to "Pt3O-out.cell" ... done
-
-     => Computing Gaussian smeared pDOS <=
+    
+      => Computing Gaussian smeared pDOS <= 
     Writing "Pt3O_PDOS.txt" ...  done
-
-     => Computing Occupancy-weighted Gaussian smeared pDOS <=
+    
+      => Computing Occupancy-weighted Gaussian smeared pDOS <= 
     Writing "Pt3O_occ_PDOS.txt" ...  done
-      => Band centres:
-     S band centre of group 1:  -10.784858 eV
-     P band centre of group 1:   -6.380333 eV
-     D band centre of group 1:   -1.992269 eV
-     S band centre of group 2:   -3.492084 eV
-     P band centre of group 2:   -5.494629 eV
-     D band centre of group 2:   -1.992269 eV
-     S band centre of group 3:  -20.033217 eV
-     P band centre of group 3:   -6.607254 eV
+      => Band centres: 
+     S band centre of group 1 from  -24.409 eV upwards:  -10.785237 eV
+     P band centre of group 1 from  -24.409 eV upwards:   -6.380437 eV
+     D band centre of group 1 from  -25.000 eV upwards:   -1.992329 eV
+     S band centre of group 2 from  -24.409 eV upwards:   -3.492322 eV
+     P band centre of group 2 from  -24.409 eV upwards:   -5.494682 eV
+     D band centre of group 2 from  -25.000 eV upwards:   -1.992329 eV
+     S band centre of group 3 from  -24.409 eV upwards:  -20.033099 eV
+     P band centre of group 3 from  -24.409 eV upwards:   -6.607392 eV
       Band centres done. <=
-      => Integrated number of electrons in each AM band:
-     S num electrons of group 1:    3.769061
-     P num electrons of group 1:    5.624284
-     D num electrons of group 1:   26.497454
-     S num electrons of group 2:    2.107330
-     P num electrons of group 2:    1.147080
-     D num electrons of group 2:   26.497454
-     S num electrons of group 3:    1.661731
-     P num electrons of group 3:    4.477204
+      => Integrated number of electrons in each AM band: 
+     S num electrons of group 1 from  -24.409 eV upwards:    3.768881
+     P num electrons of group 1 from  -24.409 eV upwards:    5.624424
+     D num electrons of group 1 from  -25.000 eV upwards:   26.497489
+     S num electrons of group 2 from  -24.409 eV upwards:    2.107161
+     P num electrons of group 2 from  -24.409 eV upwards:    1.147191
+     D num electrons of group 2 from  -25.000 eV upwards:   26.497489
+     S num electrons of group 3 from  -24.409 eV upwards:    1.661719
+     P num electrons of group 3 from  -24.409 eV upwards:    4.477233
       Integrated number of electrons done. <=
     ================================================================================
 
@@ -423,7 +425,9 @@ Finally ONETEP reports the energy and occupancy weighted averages of the
 PDOS, so called-band centres, useful in catalysis (e.g. the value
 “d-band centre” is a very useful decsriptor about the ability of a metal
 surface to bind atomic oxygen and other types of adsorbates) and the
-integrated number of electrons in each component.
+integrated number of electrons in each component. The d-band centre is 
+calculated from a threshold, which by default is -15 eV, but this can be
+adjusted using the ``pdos_d_band_threshold`` keyword.
 
 [Skylaris2005] C.-K. Skylaris, P. D. Haynes, A. A. Mostofi, and M. C. Payne, J. Chem. Phys. **122**, 084119 (2005).
 
