@@ -6,7 +6,7 @@ Calculating the Local/Partial Density of States and Angular Momentum Projected D
 :Author: Jolyon Aarons, University of Warwick
 
 :Date: June 2019 (Updated by Jolyon Aarons to add angular momentum PDOS information).
-:Date: Originally written by Nicholas D.M. Hine April 2012. 
+:Date: Originally written by Nicholas D.M. Hine April 2012.
 
 What is being calculated?
 =========================
@@ -31,7 +31,7 @@ Therefore, such a diagonalisation remains fast up to quite large system
 sizes, particularly if a parallel eigensolver such as ScaLAPACK is used.
 
 The generalised eigenproblem that needs to be solved to provide the
-eigenvalues and eigenvectors is:\ 
+eigenvalues and eigenvectors is:\
 
 .. math::
    :label: gen_eig_prob
@@ -103,7 +103,7 @@ resolved functions on which to project our NGWFS,
 
 .. math::
    :label: DOS_identity_operator
-	   
+
    D_{l,I}(\epsilon) \approx \sum_n  \delta(\epsilon-\epsilon_n) \sum_{\alpha,l\in I}(M^{\dagger})_n^{\,\,\,\,\alpha} \sum_{m \in l}\langle{\phi_\alpha
    | \chi'_{\alpha l m}}\rangle \sum_{l'm'} \Lambda^{ l m, l'm'} \sum_\beta \left(\langle{ \chi'_{
    l' m'} |\phi_\beta}\rangle M^\beta_{\ \, n}   \, \right),
@@ -241,7 +241,7 @@ specification:
   here for example:
 
 ::
-  
+
    %block species
      Pt Pt 78 9 9.0
      Pt1 Pt 78 9 9.0
@@ -312,14 +312,14 @@ angular momentum channel of each atom group.
 
 Recommended Settings
 --------------------
-The following table provides a set of recommended settings for 
+The following table provides a set of recommended settings for
 calculating the PDOS in ONETEP:
 
 .. list-table::
    :widths: 8 16 16 20
    :header-rows: 1
 
-   * - 
+   * -
      - Cutoff energy (eV)
      - NGWF radii (:math:`a_{0}`)
      - Basis
@@ -336,8 +336,8 @@ calculating the PDOS in ONETEP:
      - 13.0
      - Fully uncontracted spherical waves
 
-These settings were calibrated and tested with platinum nanoparticles 
-and should be considered a starting point for your own calculations.
+These settings were calibrated and tested with platinum nanoparticles
+and can be considered a starting point for your own calculations.
 
 Interpreting Outputs
 --------------------
@@ -349,33 +349,33 @@ input file with 3 ``pdos_groups`` and ``pdos_max_l=2``):
 
 ::
 
-      
+
     ================ Projected Density of States (pDOS) calculation ================
-    
+
     Constructing AM resolved functions  ... done
     Writing NGWF plot files in formats: ...  done
-    
+
     Performing overlap integrals ...  done
-    
+
     Computing pDOS weights ...  done
-    
+
     All bands spilling parameter =   2.14 %
     Occupancy-weighted spilling parameter =   0.30 %
-    
+
      => Outputting data for OptaDOS <=
-    
+
     Writing pDOS weights to file "Pt3O.val_pdos_bin" ... done
-    
+
     Writing band gradients to file "Pt3O.val_dome_bin" ... done
-    
+
     Writing Castep output cell file to "Pt3O-out.cell" ... done
-    
-      => Computing Gaussian smeared pDOS <= 
+
+      => Computing Gaussian smeared pDOS <=
     Writing "Pt3O_PDOS.txt" ...  done
-    
-      => Computing Occupancy-weighted Gaussian smeared pDOS <= 
+
+      => Computing Occupancy-weighted Gaussian smeared pDOS <=
     Writing "Pt3O_occ_PDOS.txt" ...  done
-      => Band centres: 
+      => Band centres:
      S band centre of group 1 from  -24.409 eV upwards:  -10.785237 eV
      P band centre of group 1 from  -24.409 eV upwards:   -6.380437 eV
      D band centre of group 1 from  -25.000 eV upwards:   -1.992329 eV
@@ -385,7 +385,7 @@ input file with 3 ``pdos_groups`` and ``pdos_max_l=2``):
      S band centre of group 3 from  -24.409 eV upwards:  -20.033099 eV
      P band centre of group 3 from  -24.409 eV upwards:   -6.607392 eV
       Band centres done. <=
-      => Integrated number of electrons in each AM band: 
+      => Integrated number of electrons in each AM band:
      S num electrons of group 1 from  -24.409 eV upwards:    3.768881
      P num electrons of group 1 from  -24.409 eV upwards:    5.624424
      D num electrons of group 1 from  -25.000 eV upwards:   26.497489
@@ -425,7 +425,7 @@ Finally ONETEP reports the energy and occupancy weighted averages of the
 PDOS, so called-band centres, useful in catalysis (e.g. the value
 “d-band centre” is a very useful decsriptor about the ability of a metal
 surface to bind atomic oxygen and other types of adsorbates) and the
-integrated number of electrons in each component. The d-band centre is 
+integrated number of electrons in each component. The d-band centre is
 calculated from a threshold, which by default is -15 eV, but this can be
 adjusted using the ``pdos_d_band_threshold`` keyword.
 
