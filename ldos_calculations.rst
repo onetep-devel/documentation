@@ -424,7 +424,7 @@ plotted trivially with xmgrace, or any other plotting tool.
 
 Finally ONETEP reports the energy and occupancy weighted averages of the
 PDOS, so called-band centres, useful in catalysis (e.g. the value
-“d-band centre” is a very useful decsriptor about the ability of a metal
+“d-band centre” is a very useful descriptor about the ability of a metal
 surface to bind atomic oxygen and other types of adsorbates) and the
 integrated number of electrons in each component. The d-band centre and
 number of electrons are calculated from a threshold, which by default is
