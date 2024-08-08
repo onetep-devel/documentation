@@ -4,7 +4,8 @@ Calculating the Local/Partial Density of States and Angular Momentum Projected D
 
 :Author: Nicholas D.M. Hine, University of Warwick (originally Imperial College London)
 :Author: Jolyon Aarons, University of Warwick
-
+:Author: Weibo Ng, University of Southampton
+:Date: August 2024 (Updated by Weibo Ng to include recommended parameters).
 :Date: June 2019 (Updated by Jolyon Aarons to add angular momentum PDOS information).
 :Date: Originally written by Nicholas D.M. Hine April 2012.
 
@@ -427,7 +428,8 @@ PDOS, so called-band centres, useful in catalysis (e.g. the value
 surface to bind atomic oxygen and other types of adsorbates) and the
 integrated number of electrons in each component. The d-band centre and
 number of electrons are calculated from a threshold, which by default is
--15 eV, but this can be adjusted using the ``pdos_d_band_threshold`` keyword.
+set to -15 eV, but this can be adjusted with the ``pdos_d_band_threshold``
+keyword.
 
 [Skylaris2005] C.-K. Skylaris, P. D. Haynes, A. A. Mostofi, and M. C. Payne, J. Chem. Phys. **122**, 084119 (2005).
 
