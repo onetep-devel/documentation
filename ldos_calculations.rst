@@ -319,7 +319,7 @@ calculating the PDOS in ONETEP:
    :widths: 8 16 16 20
    :header-rows: 1
 
-   * -
+   * - Accuracy
      - Cutoff energy (eV)
      - NGWF radii (:math:`a_{0}`)
      - Basis
@@ -425,9 +425,9 @@ Finally ONETEP reports the energy and occupancy weighted averages of the
 PDOS, so called-band centres, useful in catalysis (e.g. the value
 “d-band centre” is a very useful decsriptor about the ability of a metal
 surface to bind atomic oxygen and other types of adsorbates) and the
-integrated number of electrons in each component. The d-band centre is
-calculated from a threshold, which by default is -15 eV, but this can be
-adjusted using the ``pdos_d_band_threshold`` keyword.
+integrated number of electrons in each component. The d-band centre and
+number of electrons are calculated from a threshold, which by default is
+-15 eV, but this can be adjusted using the ``pdos_d_band_threshold`` keyword.
 
 [Skylaris2005] C.-K. Skylaris, P. D. Haynes, A. A. Mostofi, and M. C. Payne, J. Chem. Phys. **122**, 084119 (2005).
 
