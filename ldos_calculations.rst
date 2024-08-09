@@ -427,9 +427,11 @@ PDOS, so called-band centres, useful in catalysis (e.g. the value
 “d-band centre” is a very useful descriptor about the ability of a metal
 surface to bind atomic oxygen and other types of adsorbates) and the
 integrated number of electrons in each component. The d-band centre and
-number of electrons are calculated from a threshold, which by default is
-set to -15 eV, but this can be adjusted with the ``pdos_d_band_threshold``
-keyword.
+number of electrons in each band are calculated above a threshold.
+By default, this is set to -15 eV, which works well for platinum nanoparticles,
+but this can be adjusted using the ``pdos_d_band_threshold`` keyword.
+The threshold was introduced as d-orbital contributions occured at regions
+outside of the d-band, which can be seen in Figure 3a. of [Aarons2019]_.
 
 [Skylaris2005] C.-K. Skylaris, P. D. Haynes, A. A. Mostofi, and M. C. Payne, J. Chem. Phys. **122**, 084119 (2005).
 
