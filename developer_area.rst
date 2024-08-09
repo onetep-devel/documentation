@@ -280,6 +280,336 @@ Preventing accidental pushes to the official repository
 ------
 
 
+.. _dev_continuous_integration:
+
+Continuous integration
+======================
+
+:Author: Jacek Dziedzic, University of Southampton
+:Author: Alin-Marin Elena, Science and Technology Facilities Council
+:Author: Gilberto Teobaldi, Science and Technology Facilities Council
+:Author: Chris-Kriton Skylaris, University of Southampton
+
+**To be populated soon with**: Introductory text, rationale,
+what is being tested currently and when. Onetep QC tests vs Alin's CI tests.
+
+.. _dev_continuous_integration_github_actions:
+
+GitHub Actions
+--------------
+
+**To be populated soon**: describe Actions, workflows, workflow runs. Where to find
+them, where to define them. Explain YAML files in ``.github/workflows``. How to add
+new actions, how to edit the ones we have already. GUI vs editing files under
+``.github``.
+
+.. _dev_continuous_integration_github_hosted_runners:
+
+GitHub-hosted runners
+---------------------
+
+**To be populated soon**: what are they, what are the limitations, how many
+minutes do we have, why do we run Dockers on them rather than just use
+the bare metal. List the current runners and dockers, explain what they do.
+
+.. _dev_continuous_integration_self_hosted_runners:
+
+Self-hosted runners
+-------------------
+
+.. admonition::  Self-hosted runners
+
+  Self-hosted runners are machines under our control that execute jobs defined
+  by Github Actions. They can be physical machines, virtual machines (VMs),
+  containers, or can live in the cloud.
+
+A self-hosted runner machine connects to GitHub using the GitHub Actions
+self-hosted runner application. The GitHub Actions runner application is open source.
+Instructions for downloading the application are shown when a new self-hosted
+runner is added from the GitHub web GUI. The application auto-updates.
+
+.. warning::
+
+  A self-hosted runner is automatically removed from GitHub if it has not
+  connected to GitHub Actions for more than 14 days.
+
+Self-hosted runners should only be used for private repositories, otherwise
+they could be used to run untrusted code. The ONETEP repository is private.
+
+Requirements for self-hosted runners can be found at `Requirements for self-hosted runner machines`_. In short:
+
+- Must be able to run the self-hosted runner application. Example supported linuces:
+
+  - RHEL 8 or newer
+
+  - Debian 10 or newer
+
+  - Ubuntu 20.04 or newer
+
+- Needs to be able to communicate with Github Actions.
+
+  - The self-hosted runner connects to GitHub to receive job assignments and to
+    download new versions of the runner application. They talk over HTTPS port 443.
+
+  - There is *no need* to allow inbound connections from GitHub to the self-hosted
+    runner, only a connection to github.com is needed.
+
+- Sufficient hardware to run our jobs.
+
+- If Docker container actions needed, Docker must be installed.
+
+.. _Requirements for self-hosted runner machines: https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/about-self-hosted-runners?learn=hosting_your_own_runners&learnProduct=actions#requirements-for-self-hosted-runner-machines
+
+To add a self-hosted runner, you must be the repository owner.
+`Instructions for adding a self-hosted runner`_ -- they describe the steps
+for obtaining, installing, configuring and running the Github Actions application.
+
+.. _Instructions for adding a self-hosted runner: https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/adding-self-hosted-runners
+
+In the YAML file, make sure you have ``runs-on: self-hosted``.
+
+.. admonition::  To see a list of our self-hosted runners
+
+  - Go to the `repository GitHub page`_. If you get a 404 Not Found, make sure
+    you're logged in to GitHub first, with necessary credentials (Owner).
+
+  - At the top right, click on ``Settings`` (cogwheel).
+
+  - In the left pane, under ``Actions``, choose ``Runners``.
+
+.. _repository GitHub page: https://github.com/onetep-devel/onetep
+
+
+.. _dev_continuous_integration_docker_containers_as_runners:
+
+Docker containers as runners
+----------------------------
+
+**To be populated soon** with: what are Docker containers, where do they reside,
+where do we get them from, who controls them, how to create them, how to push them,
+how they differ from VMs, difference between docker hub registry and ghcr.io. What
+can we get for free?
+
+.. _dev_continuous_integration_virtual_machine_as_a_self_hosted_runner:
+
+Virtual machine as a self-hosted runner
+---------------------------------------
+
+Using a virtual machine as a self-hosted runner has the advantage of easy
+portability. Once the VM is set up, it can be transferred to any physical
+machine that has VirtualBox installed. ONETEP's first VM is a Xubuntu 24.04 LTS
+install, with the following compilers:
+
+- Intel Fortran Classic 2021.13.0 20240602 (possibly the last version in this line of compilers),
+- Intel Fortran (ifx) 2024.2.0 20240602,
+- GNU Fortran v13.2.0,
+- nvfortran 24.7-0,
+
+and the following MPI versions:
+
+- openmpi 4.1.6 (installed system-wide),
+- openmpi 4.1.7a1 (bundled with nvfortran),
+- mpich 4.2.0 (installed system-wide),
+- Intel MPI 2021.13 Build 20240515 (bundled with Intel oneAPI).
+
+ScaLAPACK, OpenMP, CUDA, FFTW3 and MKL are also installed.
+
+There are config files for the following combinations to be found under ``./config/conf.runner_vbox.*``:
+
+- ``gfortran.no_omp.no_mpi``,
+
+- ``gfortran.omp.mpich.scalapack``,
+
+- ``gfortran.omp.openmpi.scalapack``,
+
+- ``ifort.omp.intelmpi.scalapack.mkl``,
+
+- ``ifx.omp.intelmpi.scalapack.mkl``,
+
+- ``nvfortran.omp.openmpi.acc``,
+
+- ``nvfortran.omp.openmpi.cuda``.
+
+The Github Action ``Compile and link in VM`` defined by ``self_hosted_build.yml``
+currently only builds these seven options. This happens on every push and every
+pull request.
+We plan to add running ``check_dependencies`` and ``check_whitespace`` too,
+and, possibly, running QC tests on a schedule, soon.
+
+An 8.7GB compressed file of the VM is stored on the ODG google drive, for lack
+of better hosting options. If you have a spare machine with VirtualBox,
+I encourage you to simply download it and add it to your VirtualBox. Once run,
+it will automatically listen to GitHub and execute the ``Compile and link in VM``
+GitHub action. To log in to the VM, use the username ``onetep``. Ask Jacek
+Dziedzic or Chris-Kriton Skylaris for the password. We are not publicly sharing
+the link for downloading the VM, because the VM contains a GitHub token.
+Anyone with the VM is able to clone the ONETEP repository.
+
+.. _dev_continuous_integration_instructions_for_preparing:
+
+Instructions for preparing an Ubuntu VM for a self-hosted github runner from scratch
+------------------------------------------------------------------------------------
+
+It would be best not to reinvent the wheel and use the one Jacek prepared in 2024.08.
+It uses Xubuntu-minimal 24.04 LTS.
+
+In case anyone needs to create a new one at some point in the future, here goes:
+
+1. Create a new VM in VirtualBox.
+
+   - Give it 4 or 8 CPU cores and plenty of RAM. I chose 12000 MB.
+
+   - Under ``System/Processor`` make sure to select ``Enable PAE/NX`` and ``Enable Nested VT-x/AMD-V``.
+
+   - Do not touch the ``Execution Cap``.
+
+   - Under ``Acceleration``, choose ``Default`` for the ``Paravirtualization Interface``,
+     and select ``Enable Nested Paging``.
+
+   - Under ``Storage``, add a SATA Controller and to it a newly created VDI with a 40-50 GB of space, use
+     ``dynamically allocated storage``.
+
+   - Under ``Storage``, to the same SATA Controller add an optical drive and attach the bootable ubuntu ISO to it.
+     I used Xubuntu-minimal 24.04 LTS, a server version would probably be a better idea, because we
+     do not want X11 or Wayland on this VM.
+
+   - Under ``Network``, make sure ``Enable Network Adapter`` is selected.
+     I chose ``Intel PRO/1000 MT Desktop`` for the adapter. It's better than
+     the default at reattaching correctly after a network connectivity interruption
+     on the host.
+
+   - The remaining settings are irrelevant.
+
+2. Boot the VM from the optical drive, install (X)ubuntu to the newly created VDI.
+   Create a single user, e.g. ``onetep`` with a password of your choice.
+   Turn off the VM.
+
+3. Detach the ISO from the optical drive. Boot into the freshly installed system.
+   Log in as the user you created.
+
+4. **Do not** install *VirtualBox guest additions*, as they do not respond well to changes
+   in the version number of the Oracle VirtualBox installation itself, and you want the
+   VM to be portable between different versions of VirtualBox.
+   That means, unfortunately, there will be no bidirectional clipboard between the VM
+   and the host OS. If there is a lot of typing, create a shared folder to paste
+   things into on the host and copy them over from there on the guest.
+
+5. ``sudo apt install`` the following packages::
+
+     curl
+     expect
+     gfortran
+     git
+     make
+     mc
+     libfftw3-bin
+     libfftw3-dev
+     libfftw3-doc
+     libmpich-dev
+     libopenmpi-dev
+     libopenblas-dev
+     libscalapack-mpich-dev
+     libscalapack-openmpi-dev
+     openmpi-bin
+     openmpi-common
+     openmpi-doc
+     plocate
+
+6. Download *Intel oneAPI Base Toolkit*, I used 2024.2.0.
+   It is a prerequisite for *Intel HPC Toolkit*, which you will need too, because
+   it includes the Fortran compiler.
+
+   - Choose the Linux version.
+
+   - Don't give out your email or name, don't agree to marketing communication.
+     Instead, click *continue as guest*.
+
+7. Once you have the installer, run it. Select **ONLY MKL**, or else you will
+   install **a lot** of unnecessary stuff.
+
+8. Download *Intel HPC Toolkit Online Installer*.
+   This includes the Fortran compilers and Intel MPI.
+
+   - Choose the Linux version.
+
+   - Don't give out your email or name, don't agree to marketing communication.
+     Instead, click *continue as guest*.
+
+9. Once you have the installer, run it.
+
+   - Deselect everyting with "C++" or "DPC++" in the name, or else you will
+     install **a lot** of unnecessary stuff.
+
+   - You will now have a working Intel oneAPI install in ``/opt/intel``.
+
+A. Get ``nvhpc`` via ``apt`` by following the instructions from NVIDIA.
+
+   - At the time of writing of this document, these were::
+
+       curl https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC-SDK | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg
+       echo 'deb [signed-by=/usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg] https://developer.download.nvidia.com/hpc-sdk/ubuntu/amd64 /' | sudo tee /etc/apt/sources.list.d/nvhpc.list
+       sudo apt-get update -y
+       sudo apt-get install -y nvhpc-24-7
+
+   - Once this is done, you'll have ``nvhpc`` in ``/opt/nvidia``.
+
+B. Install the GitHub runner app, as described at
+   https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/adding-self-hosted-runners
+   which will likely get you to
+   https://github.com/onetep-devel/onetep/settings/actions/runners/new.
+
+   - This needs to be done by a repository owner because the instructions that will be generated
+     will contain a token that lets the runner clone the repository without you having to share
+     your PAT credentials.
+
+   - At the time of writing of this document, the instructions looked like this::
+
+       # Create a folder
+       mkdir actions-runner && cd actions-runner
+
+       # Download the latest runner package
+       curl -o actions-runner-linux-x64-2.317.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.317.0/actions-runner-linux-x64-2.317.0.tar.gz
+
+       # Extract the installer
+       tar xzf ./actions-runner-linux-x64-2.317.0.tar.gz
+
+       # Create the runner and start the configuration experience
+       ./config.sh --url https://github.com/onetep-devel/onetep --token [___REDACTED___]
+
+      # Last step, run it!
+      ./run.sh
+
+C. Get rid of booting to X11. You can probably avoid having to do this by picking a server ISO in step 1.
+   As root or a sudoer edit ``/etc/default/grub`` to include::
+
+     GRUB_CMDLINE_LINUX_DEFAULT="text"
+     GRUB_TERMINAL=console
+
+   - This may require adjusting lines that are already there, uncommenting lines
+     that are already there, or adding new lines.
+
+   - Subsequently, issue::
+
+       sudo update-grub
+       sudo systemctl enable multi-user.target --force
+       sudo systemctl set-default multi-user.target
+
+   - This produced some warnings for me and didn't work the first time around. However, after I did::
+
+       sudo reboot
+       sudo systemctl set-default multi-user.target
+
+     it worked. Maybe it's just a matter of not doing ``--force``, or maybe a reboot was required.
+
+D. Add commands to ``cd`` to ``$HOME/actions-runner`` and ``./run.sh`` to ``$HOME/.profile``
+   so that they run automatically once you log in to the VM.
+
+E. Write down the username and the password in a secure place.
+
+
+------
+
+
 .. _dev_trimmed_boxes:
 
 Trimmed boxes
