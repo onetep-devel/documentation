@@ -98,11 +98,12 @@ If tests fail, please investigate this further before creating your pull request
     creating your pull request.
   * If the relevant tests also fail upstream, please check the
     list of issues in the official repository (
-    https://bitbucket.org/onetep/onetep/issues, soon to move to
-    https://github.com/onetep-devel/onetep/issues): there should be an open
+    https://github.com/onetep-devel/onetep/issues
+    ): there should be an open
     issue with relevant information. If such an issue has not been reported,
     please create a new issue explaining which tests are failing and any
-    details about how the failures occur.
+    details about how the failures occur. If the above link gives you a 404,
+    you are not logged into GitHub.
 
 If the tests are not failing upstream, the problem is likely to be part of the
 changes you have implemented and you will be the best person to find it and fix
@@ -287,30 +288,158 @@ Continuous integration
 
 :Author: Jacek Dziedzic, University of Southampton
 :Author: Alin-Marin Elena, Science and Technology Facilities Council
-:Author: Gilberto Teobaldi, Science and Technology Facilities Council
 :Author: Chris-Kriton Skylaris, University of Southampton
 
-**To be populated soon with**: Introductory text, rationale,
-what is being tested currently and when. Onetep QC tests vs Alin's CI tests.
+Since early 2024 ONETEP enjoys modern Continuous integration using
+:ref:`dev_continuous_integration_github_actions`, which replaces
+the earlier effort using ``buildbot``, which has been discontinued.
 
 .. _dev_continuous_integration_github_actions:
 
 GitHub Actions
 --------------
 
-**To be populated soon**: describe Actions, workflows, workflow runs. Where to find
-them, where to define them. Explain YAML files in ``.github/workflows``. How to add
-new actions, how to edit the ones we have already. GUI vs editing files under
-``.github``.
+GitHub Actions is a platform for adding and controlling workflows. There is
+a tutorial at https://docs.github.com/en/actions/writing-workflows/quickstart if you
+would like to learn more.
+
+A **workflow** is an automated process -- a set of commands to be executed on
+some **triggers** (like a push, pull request, schedule, clicking a button in
+the Actions GUI, etc). Example workflows would be: build ONETEP, deploy documentation,
+run QC tests.
+
+A **workflow run** is an instance of a particular workflow, e.g.
+"build ONETEP #42, ran on 2024-07-07".
+
+.. admonition::  To see a list of our workflows and workflow runs
+
+  - Go to the `repository GitHub page`_.
+
+    If you get a 404 Not Found, make sure
+    you're logged in to GitHub first, with necessary credentials (Owner).
+
+  - At the top middle, click on ``Actions`` (play symbol).
+
+  - Workflows will be listed as **All workflows** in the pane on the left.
+
+  - Workflow runs will be listed on the right.
+
+A workflow can be added by adding a YAML file that describes the commands and triggers
+to ``.github/workflows`` in the repository and committing changes. Alternatively,
+it can be added from the GUI by clicking ``New workflow`` in the pane on the left.
+
+Workflows can be edited simply by editing these YAML files -- either in the repository
+and then committing changes, or from the GUI. To do this from the GUI, find the
+workflow, click its name in the pane on the left, and then its ``.yml`` filename
+at the top. Next click the pencil icon on the right. Make necessary changes,
+and click the green ``Commit changes`` button.
+
+Currently, we have the following workflows for the main (code) repository:
+
+- **ONETEP CI**, which builds ONETEP using ``CMake`` on a number of Docker containers,
+  using GitHub-hosted runners. This has been implemented by Alin. It is defined
+  in `.github/workflows/build.yml`_. It runs on GitHub's ``ubuntu-latest``
+  using two Docker containers: ``onetep-2023:ubuntu-kinetic`` and
+  ``onetep-2023:opensuse-tumbleweed`` on Alin's account ``drfautroll``.
+  It is run on every push and every pull request.
+
+
+- **ONETEP CI tests**, which runs short tests (a skeleton set-up of only two,
+  currently) using GitHub-hosted runners. This has been implemented by Alin. It is defined
+  in `.github/workflows/tests.yml`_. It runs on GitHub's ``ubuntu-latest``
+  using a Docker container: ``onetep-2023:opensuse-tumbleweed`` on
+  Alin's account ``drfautroll``. It is run on every push and every pull request.
+  We expect to extend this to a larger variety of tests in the future.
+
+
+- **Compile and link in VM**, which builds ONETEP using ``make`` and config files
+  on an Ubuntu virtual machine set up by Jacek, described in
+  :ref:`dev_continuous_integration_virtual_machine_as_a_self_hosted_runner`.
+  This has been implemented by Jacek. It is defined in
+  `.github/workflows/self_hosted_build.yml`_.
+  It does not use Docker, running instead on the VM.
+  It is run on every push and every pull request.
+
+
+- **Run QC tests on a schedule**, which runs ONETEP's QC tests on a schedule.
+  Before the tests are run, it builds ONETEP using ``make`` and config files.
+  This runs on an Ubuntu virtual machine set up by Jacek, described in
+  :ref:`dev_continuous_integration_virtual_machine_as_a_self_hosted_runner`.
+  This has been implemented by Jacek. It is defined in
+  `.github/workflows/self_hosted_QC_tests.yml`_.
+  It does not use Docker, running instead on the VM. Currently it runs at 7am
+  every day. This is work in progress -- currently the tests are not actually
+  run, only ``ls`` is invoked as a test.
+
+
+- **Build using docker on self-hosted**, which, once completed, will build
+  ONETEP using ``make`` and config files on an Ubuntu 24.04 Noble Numbat
+  Docker image set up by Jacek and Alin. It is defined in
+  `.github/workflows/self_hosted_build_via_docker.yml`_.
+  It is run on every push and every pull request.
+  This is work in progress -- currently, only ``ls`` is invoked as a test.
+
+.. _.github/workflows/build.yml: https://github.com/onetep-devel/onetep/actions/workflows/build.yml
+.. _.github/workflows/tests.yml: https://github.com/onetep-devel/onetep/actions/workflows/tests.yml
+.. _.github/workflows/self_hosted_build.yml: https://github.com/onetep-devel/onetep/actions/workflows/self_hosted_build.yml
+.. _.github/workflows/self_hosted_QC_tests.yml: https://github.com/onetep-devel/onetep/actions/workflows/self_hosted_QC_tests.yml
+.. _.github/workflows/self_hosted_build_via_docker.yml: https://github.com/onetep-devel/onetep/actions/workflows/self_hosted_build_via_docker.yml
+
+For the public ``tutorials`` repository we only have:
+
+- **tutorials**, set up by Alin, which builds the tutorials with ``sphinx``
+  and deploys the to GitHub pages. It is defined in the ``tutorials`` repository
+  in `.github/workflows/tutorials.yml`_.
+
+.. _.github/workflows/tutorials.yml: https://github.com/onetep-devel/tutorials/blob/main/.github/workflows/tutorials.yml
+
+For the public ``documentation`` repository we only have:
+
+- **onetep docs**, set up by Alin, which builds the documentation with ``sphinx``
+  and deploys the to GitHub pages. It is defined in the ``documentation`` repository
+  in `.github/workflows/doc.yml`_.
+
+.. _.github/workflows/doc.yml: https://github.com/onetep-devel/documentation/blob/main/.github/workflows/doc.yml
+
+There are no workflows (none deemed needed) for the public repository ``onetep-devel``.
+
 
 .. _dev_continuous_integration_github_hosted_runners:
 
 GitHub-hosted runners
 ---------------------
 
-**To be populated soon**: what are they, what are the limitations, how many
-minutes do we have, why do we run Dockers on them rather than just use
-the bare metal. List the current runners and dockers, explain what they do.
+**Runners** are machines that execute jobs in a Github Actions workflow.
+
+They can be **GitHub-hosted** (described here), or **self-hosted** (described
+under :ref:`dev_continuous_integration_self_hosted_runners`).
+
+GitHub-hosted runners are virtual machines with tools preinstalled, set up in
+the GitHub cloud. To use a GitHub-hosted runner, specify "runs-on" in the
+workflow YAML file, e.g. ``runs-on: ubuntu-latest``.
+
+For a quick description and list of available GitHub-hosted runners see
+`About GitHub-hosted runners`_. This webpage also lists software installed on
+each runner, and the VM's hardware specs. The specs are different for public
+repositories (better specs, unlimited minutes) and private repositories
+(worse specs, pool of free minutes, then charged via billing).
+
+For instance ``ubuntu-latest`` currently uses ubuntu-22.04 LTS, with the following specs:
+
+  - 4 CPUs, 16 GB of RAM and 14 GB of SSD (for public repositories),
+  - 2 CPUs, 7 GB of RAM, 14 GB of SSD (for private repositories).
+
+On Linux GitHub-hosted runners passwordless sudo is in effect.
+
+We use GitHub-hosted runners for the following lightweight workflows:
+  - **ONETEP CI**,
+  - **ONETEP CI tests**,
+  - **tutorials**,
+  - **onetep docs**.
+
+For more involved workflows, we use :ref:`dev_continuous_integration_self_hosted_runners`.
+
+.. _About GitHub-hosted runners: https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners/about-github-hosted-runners
 
 .. _dev_continuous_integration_self_hosted_runners:
 
@@ -379,16 +508,11 @@ In the YAML file, make sure you have ``runs-on: self-hosted``.
 
 .. _repository GitHub page: https://github.com/onetep-devel/onetep
 
+A self-hosted runner can execute workflows:
+  - directly ("on the bare metal"),
+  - using a VM (:ref:`dev_continuous_integration_virtual_machine_as_a_self_hosted_runner`),
+  - using Docker containers (:ref:`dev_continuous_integration_docker_containers_as_runners`).
 
-.. _dev_continuous_integration_docker_containers_as_runners:
-
-Docker containers as runners
-----------------------------
-
-**To be populated soon** with: what are Docker containers, where do they reside,
-where do we get them from, who controls them, how to create them, how to push them,
-how they differ from VMs, difference between docker hub registry and ghcr.io. What
-can we get for free?
 
 .. _dev_continuous_integration_virtual_machine_as_a_self_hosted_runner:
 
@@ -397,7 +521,7 @@ Virtual machine as a self-hosted runner
 
 Using a virtual machine as a self-hosted runner has the advantage of easy
 portability. Once the VM is set up, it can be transferred to any physical
-machine that has VirtualBox installed. ONETEP's first VM is a Xubuntu 24.04 LTS
+machine that has VirtualBox installed. ONETEP's first VM is a Ubuntu server 24.04 LTS
 install, with the following compilers:
 
 - Intel Fortran Classic 2021.13.0 20240602 (possibly the last version in this line of compilers),
@@ -439,11 +563,32 @@ and, possibly, running QC tests on a schedule, soon.
 An 8.7GB compressed file of the VM is stored on the ODG google drive, for lack
 of better hosting options. If you have a spare machine with VirtualBox,
 I encourage you to simply download it and add it to your VirtualBox. Once run,
-it will automatically listen to GitHub and execute the ``Compile and link in VM``
-GitHub action. To log in to the VM, use the username ``onetep``. Ask Jacek
-Dziedzic or Chris-Kriton Skylaris for the password. We are not publicly sharing
-the link for downloading the VM, because the VM contains a GitHub token.
-Anyone with the VM is able to clone the ONETEP repository.
+it will automatically listen to GitHub and execute Actions.
+
+Here are instructions for setting this up:
+
+1. Install VirtualBox on your machine.
+
+2. Ask Jacek for a link to download the VM. We are not publicly sharing
+   the link, because the VM contains a GitHub token.
+   Anyone with the VM is able to clone the ONETEP repository.
+
+3. Since a copy of this VM is already running somewhere in Southampton, you
+   will need to tell Github Actions that this is a *different* runner, with
+   a different token. To do that, first
+
+   - Log into the VM, use the username ``onetep`` and the password ``onetep``.
+
+   - Remove the directory ``$HOME/actions-runner``. You will create a new one
+     in the next step.
+
+   - Complete **only** steps C and D in :ref:`dev_continuous_integration_instructions_for_preparing`.
+     This involves setting up a new runner in Github Actions, and building
+     a new ``$HOME/actions-runner``.
+
+4. That's it, you're done. Every time you will boot up the VM, it will listen
+   for connections from Github Actions.
+
 
 .. _dev_continuous_integration_instructions_for_preparing:
 
@@ -451,7 +596,7 @@ Instructions for preparing an Ubuntu VM for a self-hosted github runner from scr
 ------------------------------------------------------------------------------------
 
 It would be best not to reinvent the wheel and use the one Jacek prepared in 2024.08.
-It uses Xubuntu-minimal 24.04 LTS.
+It uses ubuntu-server 24.04 LTS.
 
 In case anyone needs to create a new one at some point in the future, here goes:
 
@@ -480,8 +625,10 @@ In case anyone needs to create a new one at some point in the future, here goes:
 
    - The remaining settings are irrelevant.
 
-2. Boot the VM from the optical drive, install (X)ubuntu to the newly created VDI.
-   Create a single user, e.g. ``onetep`` with a password of your choice.
+2. Boot the VM from the optical drive, install ubuntu to the newly created VDI.
+   Create a single user, e.g. ``onetep`` with a password of your choice, e.g. ``onetep``.
+   Anyone with access to the VM will be able to fetch the repository, but that's
+   about it, security-wise. The VM will not have SSH access.
    Turn off the VM.
 
 3. Detach the ISO from the optical drive. Boot into the freshly installed system.
@@ -497,6 +644,7 @@ In case anyone needs to create a new one at some point in the future, here goes:
 5. ``sudo apt install`` the following packages::
 
      curl
+     docker.io
      expect
      gfortran
      git
@@ -524,8 +672,10 @@ In case anyone needs to create a new one at some point in the future, here goes:
    - Don't give out your email or name, don't agree to marketing communication.
      Instead, click *continue as guest*.
 
-7. Once you have the installer, run it. Select **ONLY MKL**, or else you will
-   install **a lot** of unnecessary stuff.
+7. Once you have the installer, run it using ``sudo``. Go through ``Accept and customize``
+   to be able to select packages. Select **ONLY MKL**,
+   or else you will install **a lot** of unnecessary stuff. If prompted, skip
+   Eclipse IDE configuration.
 
 8. Download *Intel HPC Toolkit Online Installer*.
    This includes the Fortran compilers and Intel MPI.
@@ -535,7 +685,8 @@ In case anyone needs to create a new one at some point in the future, here goes:
    - Don't give out your email or name, don't agree to marketing communication.
      Instead, click *continue as guest*.
 
-9. Once you have the installer, run it.
+9. Once you have the installer, run it using ``sudo``.  Go through ``Accept and customize``
+   to be able to select packages. If prompted, skip Eclipse IDE configuration.
 
    - Deselect everyting with "C++" or "DPC++" in the name, or else you will
      install **a lot** of unnecessary stuff.
@@ -553,10 +704,20 @@ A. Get ``nvhpc`` via ``apt`` by following the instructions from NVIDIA.
 
    - Once this is done, you'll have ``nvhpc`` in ``/opt/nvidia``.
 
-B. Install the GitHub runner app, as described at
+B. Perform Docker post-installation set-up by issuing these two commands::
+
+     sudo groupadd docker
+     sudo usermod -aG docker $USER
+
+   This is necessary to be able to run ``docker`` without ``sudo``. This is how
+   Github Actions run docker, so will be necessary if you plan to use ``docker``
+   on the VM. You can skip this step if you plan to run directly on the VM.
+
+C. Install the GitHub runner app, as described at
    https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/adding-self-hosted-runners
    which will likely get you to
-   https://github.com/onetep-devel/onetep/settings/actions/runners/new.
+   https://github.com/onetep-devel/onetep/settings/actions/runners/new. If you get a 404 instead,
+   you are not logged into your (correct) GitHub account.
 
    - This needs to be done by a repository owner because the instructions that will be generated
      will contain a token that lets the runner clone the repository without you having to share
@@ -576,10 +737,16 @@ B. Install the GitHub runner app, as described at
        # Create the runner and start the configuration experience
        ./config.sh --url https://github.com/onetep-devel/onetep --token [___REDACTED___]
 
-      # Last step, run it!
-      ./run.sh
+D. Set up the github application to run automatically as a service so that
+   you won't even have to log in to the VM (just boot it up) to have a runner.
+   This can be done with::
 
-C. Get rid of booting to X11. You can probably avoid having to do this by picking a server ISO in step 1.
+     cd $HOME/actions-runner
+     sudo ./svc.sh install
+     reboot
+
+E. If you used a non-server ISO, best to get rid of booting to X11.
+   You can skip this step if you picked a server ISO in step 1.
    As root or a sudoer edit ``/etc/default/grub`` to include::
 
      GRUB_CMDLINE_LINUX_DEFAULT="text"
@@ -601,11 +768,225 @@ C. Get rid of booting to X11. You can probably avoid having to do this by pickin
 
      it worked. Maybe it's just a matter of not doing ``--force``, or maybe a reboot was required.
 
-D. Add commands to ``cd`` to ``$HOME/actions-runner`` and ``./run.sh`` to ``$HOME/.profile``
-   so that they run automatically once you log in to the VM.
+F. Set up the github application to run automatically as a service so that
+   you won't even have to log in to the VM (just boot it up) to have a runner.
+   This can be done with::
 
-E. Write down the username and the password in a secure place.
+     cd $HOME/actions-runner
+     sudo ./svc.sh install
+     reboot
 
+G. [Optional] To make the ``.vdi`` file that represents the HDD storage of the
+   VM compressible better, we can take an additional step. When files are deleted
+   in the VM, the space they used to occupy is not zeroed. That makes the ``.vdi``
+   file compress poorly. We will now zero all unused space. First, in the VM::
+
+     sudo dd if=/dev/zero of=/var/tmp/bigemptyfile bs=4096k
+     sudo rm /var/tmp/bigemptyfile
+
+   Then shut down the VM. Subsequently on the host::
+
+     VBoxManage.exe modifymedium --compact path_to_vdi
+
+   This compacts the image, making use of the zeroed blocks.
+
+   You might need to add a path to your VirtualBox installation before
+   ``VBoxManage.exe``. Of course, replace ``path_to_vdi`` with the path and
+   name of the ``.vdi`` file you're compacting.
+
+   Your ``.vdi`` file will now compress better.
+
+H. Write down the username and the password in a secure place.
+
+
+.. _dev_continuous_integration_docker_containers_as_runners:
+
+Docker containers as runners
+----------------------------
+
+A **Docker container** is a way to run in an isolated environment to ensure
+reproducible builds. It is more light-weight than a virtual machine (VM). One crucial
+difference between a Docker container and a VM is that the Docker container
+does not retain state. Every time it is instantiated, it starts fresh.
+Thus, when using Docker containers, we do not have to worry about any potential
+cleanup.
+
+A **Docker image** is a template for an image. You can think of a **Docker container**
+as a running instance of a **Docker image**.
+
+For more about Docker and Docker containers, see `docker for beginners`_.
+
+.. _docker for beginners: https://docker-curriculum.com/
+
+In the context of GitHub Action workflows, Docker containers can be used both
+for running on GitHub-hosted runners and of self-hosted runners. GitHub-hosted runners
+already have Docker installed. For using Docker on self-hosted runners, whether
+directly or in a VM, Docker must be installed and a small post-install step
+needs to be performed.
+
+The method for installing Docker will differ depending on the OS. On Ubuntu it
+should be as simple as::
+
+  sudo apt install docker.io
+
+On Red Hat::
+
+  sudo yum install docker
+
+installs ``podman``, which is an alternative to Docker, with a docker emulation
+mode.
+
+Once you install Docker, it typically requires ``sudo`` to run. This is not
+only cumbersome, but also won't work with GitHub Actions, which do not apply
+``sudo`` to Docker commands. To help with this, issue the following commands::
+
+  sudo groupadd docker
+  sudo usermod -aG docker $USER
+
+... and reboot. This only needs to be done once, after Docker is installed.
+Podman, apparently, does not require doing this.
+
+To test your Docker installation, you can issue::
+
+  docker images
+
+This should finish without any error messages and offer you an empty list
+of images, because you haven't created any.
+
+A **Dockerfile** is a set of instructions, or a recipe, for building a Docker
+image. We have several of these, they reside in ``./ci/docker_images``.
+They typically start from a ready-made image provided by the ``docker.io``
+repository, and then add any prerequisites needed for compiling or testing
+ONETEP.
+
+To pull an image from the ``docker.io`` repository, issue something like::
+
+  docker pull ubuntu:noble
+
+This will get the latest image of Ubuntu Noble. ``ubuntu`` is the ``repository``,
+while ``noble`` is the ``tag``. If you do not have that image on your machine,
+it will be pulled in its entirety (~80 MB, it's very basic). If you pulled
+it before, only the differences will have to be pulled. In any case, you will
+wind up with a full image.
+
+You cannot (easily) observe the content of the images directly, but you can
+issue::
+
+  docker images
+
+to view a list of the images on your system.
+
+To work with images that are not just copies of stock images that you pulled,
+but install whatever you might need on top, prepare a Dockerfile. You can
+use the one in ``./ci/docker_images/ubuntu/noble`` as an example. The following
+command builds an image using `Dockerfile` in the current directory as a recipe::
+
+  docker build -t onetep:noble .
+
+The resultant image will be called ``onetep:noble``. The Dockerfile is taken
+from the current directory (hence the ``.``).
+
+Issuing::
+
+  docker images
+
+again will reveal a new image on our machine, called ``onetep:noble``.
+
+To boot up a container from this image, simply issue::
+
+  docker run -it onetep:noble
+
+This will log you in as ``root`` into the container. Use ``exit`` to leave.
+
+To list running containers (as opposed to static images), use::
+
+  docker ps
+
+
+Pushing an image to GitHub Container Registry
+---------------------------------------------
+
+GitHub Container Registry (ghcr.io) is a space for hosting and managing
+your docker images. In the next step, we will push our image to ``ghcr.io``.
+Note that what is pushed is not the Dockerfile, it's the entire image.
+
+First, we need to ensure you have the correct credentials. This only needs to
+be done once.
+
+  - Log in to GitHub, and click on your portrait on the top right.
+  - In the pull-down menu that opens, near the bottom, click on ``Settings`` (cogwheel).
+  - In the pane on the left that opened, at the very very bottom click on
+    ``<> Developer settings``.
+  - In the new pane on the left, click on ``Personal access tokens``,
+    and then ``Tokens (classic)``.
+  - Find your PAT and click on it.
+  - Under ``Select scopes`` ensure that you checked: ``write:packages``,
+    ``delete:packages``, and ``workflow``.
+  - Click the green ``Update token`` button at the bottom if you had to check
+    any boxes. If not, your PAT was already good to go.
+
+Second, and that will have to happen any time you push an image,
+we need to log in to ``ghcr.io``. To do this, issue::
+
+  echo <YOUR_PAT> | docker login ghcr.io -u <YOUR_USERNAME> --password-stdin
+
+... where, naturally, you will replace ``<YOUR_PAT>`` by your Personal Access
+Token, and ``<YOUR_USERNAME>`` with your GitHub username.
+
+Subsequently, create a new tag. For example in my case that would be::
+
+  docker tag onetep:noble ghcr.io/jacekdziedzic/onetep:noble
+
+Not sure at this point why this is being done. I know, however, and this is
+absolutely crucial, that whatever your username is, **it needs to lowercasified**
+at this point. Even though my username is ``JacekDziedzic``, I had to use
+``jacekdziedzic`` at this stage.
+
+Finally, to push the image I would do::
+
+  docker push ghcr.io/jacekdziedzic/onetep:noble
+
+... where the lowercase **is again crucial**.
+
+As a side note, if you ever decide you need to get rid of an image pushed
+to ``ghcr.io``, you can issue something like::
+
+  docker rmi ghcr.io/name:tag
+
+... where your **lowercasified** username would be part of the ``name``.
+
+We now have the image on ``ghcr.io``. The only remaining issue is that it is
+private to the user (here: me), and not accessible from our GitHub Action workflow!
+
+To fix this, follow these steps.
+
+  1. Go to the `repository GitHub page`_.
+
+  2. At the top right, click on ``Settings`` (cogwheel).
+
+  3. In the pane on the left, under ``Security``/``Secrets and variables`` go
+     to ``Actions``
+
+  4. In the ``Secrets`` tab, click ``New repository secret``.
+
+  5. One of these *secrets* is your username, I added it under ``JACEKS_USERNAME``,
+     the other is your PAT (the one with the correct credentials for managing
+     packages). I added it unser ``JACEKS_PAT``.
+
+  6. In the YAML file that will access the Docker image you just pushed, have
+     a section like this after the ``runs-on`` section::
+
+       container:
+         image: ghcr.io/jacekdziedzic/onetep:noble
+         credentials:
+           username: ${{ secrets.JACEKS_USERNAME }}
+           password: ${{ secrets.JACEKS_PAT }}
+
+     Here, ``image`` is the image tag you just pushed, and the names of the
+     secrets correspond to the secrets you just added to the repository.
+     The spaces after ``{{`` and before ``}}`` are significant.
+
+More details on what we just did can be found at https://dev.to/willvelida/pushing-container-images-to-github-container-registry-with-github-actions-1m6b.
 
 ------
 
