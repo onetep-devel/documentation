@@ -290,18 +290,32 @@ Continuous integration
 :Author: Alin-Marin Elena, Science and Technology Facilities Council
 :Author: Chris-Kriton Skylaris, University of Southampton
 
-Since early 2024 ONETEP enjoys modern Continuous integration using
+Since early 2024 ONETEP enjoys modern **continuous integration** using
 :ref:`dev_continuous_integration_github_actions`, which replaces
 the earlier effort using ``buildbot``, which has been discontinued.
 
 .. _dev_continuous_integration_github_actions:
 
-GitHub Actions
---------------
+GitHub Actions and workflows
+----------------------------
 
 GitHub Actions is a platform for adding and controlling workflows. There is
 a tutorial at https://docs.github.com/en/actions/writing-workflows/quickstart if you
 would like to learn more.
+
+.. admonition::  To access GitHub Actions
+
+  - Go to the `repository GitHub page`_.
+
+    If you get a 404 Not Found, make sure
+    you're logged in to GitHub first, with necessary credentials (Owner).
+
+  - At the top middle, click on ``Actions`` (play symbol).
+
+  - If you don't see the ``Actions`` button at all, Actions have been disabled
+    for that repository. You can re-enable them via ``Settings`` (cogwheel),
+    then ``Actions`` in the pane on the left, then ``General``, check
+    ``Enable all actions and reusable workflows`` at the top.
 
 A **workflow** is an automated process -- a set of commands to be executed on
 some **triggers** (like a push, pull request, schedule, clicking a button in
@@ -311,84 +325,83 @@ run QC tests.
 A **workflow run** is an instance of a particular workflow, e.g.
 "build ONETEP #42, ran on 2024-07-07".
 
-.. admonition::  To see a list of our workflows and workflow runs
+.. admonition::  To see a list of ONETEP workflows and workflow runs
 
-  - Go to the `repository GitHub page`_.
-
-    If you get a 404 Not Found, make sure
-    you're logged in to GitHub first, with necessary credentials (Owner).
-
-  - At the top middle, click on ``Actions`` (play symbol).
+  - Access GitHub Actions (see above).
 
   - Workflows will be listed as **All workflows** in the pane on the left.
 
   - Workflow runs will be listed on the right.
 
-A workflow can be added by adding a YAML file that describes the commands and triggers
-to ``.github/workflows`` in the repository and committing changes. Alternatively,
-it can be added from the GUI by clicking ``New workflow`` in the pane on the left.
-
-Workflows can be edited simply by editing these YAML files -- either in the repository
-and then committing changes, or from the GUI. To do this from the GUI, find the
-workflow, click its name in the pane on the left, and then its ``.yml`` filename
-at the top. Next click the pencil icon on the right. Make necessary changes,
-and click the green ``Commit changes`` button.
-
 Currently, we have the following workflows for the main (code) repository:
 
-- **ONETEP CI**, which builds ONETEP using ``CMake`` on a number of Docker containers,
-  using GitHub-hosted runners. This has been implemented by Alin. It is defined
-  in `.github/workflows/build.yml`_. It runs on GitHub's ``ubuntu-latest``
-  using two Docker containers: ``onetep-2023:ubuntu-kinetic`` and
-  ``onetep-2023:opensuse-tumbleweed`` on Alin's account ``drfautroll``.
++--------------------------------------+--------------------------+--------------------+--------------------------+-------------------------+
+| Name                                 | Hosting                  | Purpose            | Runs in                  | OS                      |
++======================================+==========================+====================+==========================+=========================+
+| Build on Docker                      | GitHub (``GH``)          | Build              | Docker on ubuntu-latest  | ubuntu-noble            |
+|                                      |                          |                    |                          |                         |
+| for ubuntu:noble                     |                          |                    |                          |                         |
++--------------------------------------+--------------------------+--------------------+--------------------------+-------------------------+
+| Build in VM                          | Self-hosted (``SH``)     | Build              | VM on RHEL 8.9           | ubuntu-server           |
+|                                      |                          |                    |                          |                         |
+| on uos-23486                         |                          |                    | in Soton                 | 24.04 LTS               |
++--------------------------------------+--------------------------+--------------------+--------------------------+-------------------------+
+| Build                                | Self-hosted (``SH``)     | Build              | Physical machine         | RHEL 8.9                |
+|                                      |                          |                    |                          |                         |
+| on uos-23486                         |                          |                    | in Soton                 |                         |
++--------------------------------------+--------------------------+--------------------+--------------------------+-------------------------+
+| Check                                | Self-hosted (``SH``)     | Run checks         | Physical machine         | RHEL 8.9                |
+|                                      |                          |                    |                          |                         |
+| on uos-23486                         |                          |                    | in Soton                 |                         |
++--------------------------------------+--------------------------+--------------------+--------------------------+-------------------------+
+| QC-test                              | Self-hosted (``SH``)     | Run QC tests       | Physical machine         | RHEL 8.9                |
+|                                      |                          |                    |                          |                         |
+| on uos-23486                         |                          |                    | in Soton                 |                         |
++--------------------------------------+--------------------------+--------------------+--------------------------+-------------------------+
+
+Here they are in more detail
+
+- **GH: Build on Docker for ubuntu:noble** -- builds ONETEP using ``make``
+  and config files in an Ubuntu Noble Docker container running on GitHub's
+  ``ubuntu_latest``. Only one platform is built: gfortran+OMP+openmpi+ScaLAPACK.
+  It is defined in
+  ``.github/workflows/github_hosted_build_on_docker_ubuntu_noble.yml``. The
+  Docker image is defined in ``ci/docker_images/ubuntu/noble/Dockerfile``.
   It is run on every push and every pull request.
 
-
-- **ONETEP CI tests**, which runs short tests (a skeleton set-up of only two,
-  currently) using GitHub-hosted runners. This has been implemented by Alin. It is defined
-  in `.github/workflows/tests.yml`_. It runs on GitHub's ``ubuntu-latest``
-  using a Docker container: ``onetep-2023:opensuse-tumbleweed`` on
-  Alin's account ``drfautroll``. It is run on every push and every pull request.
-  We expect to extend this to a larger variety of tests in the future.
-
-
-- **Compile and link in VM**, which builds ONETEP using ``make`` and config files
-  on an Ubuntu virtual machine set up by Jacek, described in
+- **SH: Build in VM (on uos-23486)** -- builds ONETEP using ``make``
+  and config files in an Ubuntu virtual machine set up by Jacek, described in
   :ref:`dev_continuous_integration_virtual_machine_as_a_self_hosted_runner`.
-  This has been implemented by Jacek. It is defined in
-  `.github/workflows/self_hosted_build.yml`_.
-  It does not use Docker, running instead on the VM.
-  It is run on every push and every pull request.
-
-
-- **Run QC tests on a schedule**, which runs ONETEP's QC tests on a schedule.
-  Before the tests are run, it builds ONETEP using ``make`` and config files.
-  This runs on an Ubuntu virtual machine set up by Jacek, described in
+  An extensive list of platforms is built, they are listed in
   :ref:`dev_continuous_integration_virtual_machine_as_a_self_hosted_runner`.
-  This has been implemented by Jacek. It is defined in
-  `.github/workflows/self_hosted_QC_tests.yml`_.
-  It does not use Docker, running instead on the VM. Currently it runs at 7am
-  every day. This is work in progress -- currently the tests are not actually
-  run, only ``ls`` is invoked as a test.
-
-
-- **Build using docker on self-hosted**, which, once completed, will build
-  ONETEP using ``make`` and config files on an Ubuntu 24.04 Noble Numbat
-  Docker image set up by Jacek and Alin. It is defined in
-  `.github/workflows/self_hosted_build_via_docker.yml`_.
+  It is defined in
+  ``.github/workflows/self_hosted_build_on_soton_runner_vm_jaceks_box.yml``.
   It is run on every push and every pull request.
-  This is work in progress -- currently, only ``ls`` is invoked as a test.
 
-.. _.github/workflows/build.yml: https://github.com/onetep-devel/onetep/actions/workflows/build.yml
-.. _.github/workflows/tests.yml: https://github.com/onetep-devel/onetep/actions/workflows/tests.yml
-.. _.github/workflows/self_hosted_build.yml: https://github.com/onetep-devel/onetep/actions/workflows/self_hosted_build.yml
-.. _.github/workflows/self_hosted_QC_tests.yml: https://github.com/onetep-devel/onetep/actions/workflows/self_hosted_QC_tests.yml
-.. _.github/workflows/self_hosted_build_via_docker.yml: https://github.com/onetep-devel/onetep/actions/workflows/self_hosted_build_via_docker.yml
+- **SH: Build on uos-23486** -- builds ONETEP using ``make``
+  and config files on a RHEL 8.9 physical machine in Soton.
+  Only one platform is built: ifort+OMP+Intel MPI+ScaLAPACK+MKL.
+  It is defined in
+  ``.github/workflows/self_hosted_build_on_soton_runner_jaceks_box.yml``.
+  It is run on every push and every pull request.
+
+- **SH: Check on uos-23486** -- runs ONETEP checks (``check_whitespace``,
+  ``check_dependencies_extensive``) on a RHEL 8.9 physical machine in Soton.
+  It is defined in
+  ``.github/workflows/self_hosted_check_on_soton_runner_jaceks_box.yml``.
+  It is run on every push and every pull request, and at 4am every day.
+
+- **SH: QC-test on uos-23486** -- runs ONETEP QC tests on a
+  RHEL 8.9 physical machine in Soton.
+  Only one platform is tested: ifort+OMP+Intel MPI+ScaLAPACK+MKL.
+  It is defined in
+  ``.github/workflows/self_hosted_QC_on_soton_runner_jaceks_box.yml``.
+  It is run on every push and every pull request, and at 1am every day.
 
 For the public ``tutorials`` repository we only have:
 
 - **tutorials**, set up by Alin, which builds the tutorials with ``sphinx``
-  and deploys the to GitHub pages. It is defined in the ``tutorials`` repository
+  and deploys them, via GitHub pages, to tutorials.onetep.org. It is defined in the ``tutorials`` repository
   in `.github/workflows/tutorials.yml`_.
 
 .. _.github/workflows/tutorials.yml: https://github.com/onetep-devel/tutorials/blob/main/.github/workflows/tutorials.yml
@@ -403,6 +416,65 @@ For the public ``documentation`` repository we only have:
 
 There are no workflows (none deemed needed) for the public repository ``onetep-devel``.
 
+
+.. _dev_continuous_integration_adding_and_editing_workflows:
+
+Adding and editing workflows
+----------------------------
+
+A workflow can be added by adding a YAML file that describes the commands and triggers
+to ``.github/workflows`` in the repository and committing changes. Alternatively,
+it can be added from the GUI by clicking ``New workflow`` in the pane on the left.
+
+Workflows can be edited simply by editing these YAML files -- either in the repository
+and then committing changes, or from the GUI. To do this from the GUI, find the
+workflow, click its name in the pane on the left, and then its ``.yml`` filename
+at the top. Next click the pencil icon on the right. Make necessary changes,
+and click the green ``Commit changes`` button.
+
+The workflows under ``.github/workflows`` are extensively commented, so it should
+be easy to create a new one by starting from something that is already there.
+Try following the naming convention in the ``name:`` field of the ``.yml``
+file: *hosting-purpose-where*.
+
+ - For *hosting*, use ``GH`` for GitHub-hosted or ``SH`` for self-hosted.
+
+ - For *purpose*, use ``Build``, ``Check`` or ``QC-test``.
+
+ - Use *where*, to describe if it's a Docker container, VM or a physical
+   machine (with location).
+
+.. warning::
+
+  If you add a workflow through your own fork, it will also be featured in
+  your fork, in addition to the main repository. If it is using a self-hosted
+  runner, you probably do not want it to be run *from the fork* -- self-hosted
+  runners are not inherited from the parent repository, and your fork probably
+  does not have any self-hosted runners to run your workflow on. This will
+  result in failures after 24h as the workflows will be unable to run.
+
+  To work around this you can either:
+
+  - Disable ``Actions`` in your fork via ``Settings``-``Actions``-``General``-``Disable actions``.
+    This is the sledgehammer approach.
+
+  - Disable every new workflow in your fork via ``Actions``, clicking on workflow,
+    clickin on ``...`` in the top right, ``Disable workflow``. The workflows
+    will show as ``Disabled`` in your fork. This is the hammer approach.
+
+  - Add ``if: github.repository == 'onetep-devel/onetep`` before ``runs-on:``
+    in your workflow YAML file. This means you will have a copy of the workflow
+    in your fork, but it will be skipped. This is probably the rational approach,
+    and we do this for all ONETEP workflows.
+
+  When forking the main repository, workflows are not transferred to the fork,
+  so this only matters when **adding** new workflows via a fork.
+
+.. admonition::  To quickly test a workflow
+
+  - Add ``workflow_dispatch:`` to its list of triggers (like ONETEP does for
+    all workflows). This adds a ``Run workflow`` button above the list of
+    workflow runs. This button lets you run a workflow manually. Very useful!
 
 .. _dev_continuous_integration_github_hosted_runners:
 
@@ -432,8 +504,7 @@ For instance ``ubuntu-latest`` currently uses ubuntu-22.04 LTS, with the followi
 On Linux GitHub-hosted runners passwordless sudo is in effect.
 
 We use GitHub-hosted runners for the following lightweight workflows:
-  - **ONETEP CI**,
-  - **ONETEP CI tests**,
+  - **GH: Build on Docker for ubuntu:noble**,
   - **tutorials**,
   - **onetep docs**.
 
@@ -489,13 +560,18 @@ Requirements for self-hosted runners can be found at `Requirements for self-host
 
 .. _Requirements for self-hosted runner machines: https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/about-self-hosted-runners?learn=hosting_your_own_runners&learnProduct=actions#requirements-for-self-hosted-runner-machines
 
-To add a self-hosted runner, you must be the repository owner.
+To add a self-hosted runner, you must be the repository owner. Follow
 `Instructions for adding a self-hosted runner`_ -- they describe the steps
-for obtaining, installing, configuring and running the Github Actions application.
+for obtaining, installing, configuring and running the GitHub Actions application
+that must be present on the self-hosted runner. These are also mentioned in
+steps C and D in :ref:`dev_continuous_integration_instructions_for_preparing`.
+Take a look at that too.
 
 .. _Instructions for adding a self-hosted runner: https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/adding-self-hosted-runners
 
-In the YAML file, make sure you have ``runs-on: self-hosted``.
+In the YAML file, make sure you have ``runs-on: [self-hosted, your-runner-label]``,
+where you need to replace ``your-runner-label`` with the label you gave it
+when configuring the GitHub Actions application.
 
 .. admonition::  To see a list of our self-hosted runners
 
@@ -554,11 +630,9 @@ There are config files for the following combinations to be found under ``./conf
 
 - ``nvfortran.omp.openmpi.cuda``.
 
-The Github Action ``Compile and link in VM`` defined by ``self_hosted_build.yml``
+The Github Action **SH: Build in VM (on uos-23486)**
 currently only builds these seven options. This happens on every push and every
 pull request.
-We plan to add running ``check_dependencies`` and ``check_whitespace`` too,
-and, possibly, running QC tests on a schedule, soon.
 
 An 8.7GB compressed file of the VM is stored on the ODG google drive, for lack
 of better hosting options. If you have a spare machine with VirtualBox,
@@ -570,24 +644,24 @@ Here are instructions for setting this up:
 1. Install VirtualBox on your machine.
 
 2. Ask Jacek for a link to download the VM. We are not publicly sharing
-   the link, because the VM contains a GitHub token.
-   Anyone with the VM is able to clone the ONETEP repository.
+   the link, because the GitHub token could be (with difficulty) salvaged
+   from the VM disk file. Anyone with the VM would technically be able to
+   clone the ONETEP repository.
 
-3. Since a copy of this VM is already running somewhere in Southampton, you
-   will need to tell Github Actions that this is a *different* runner, with
-   a different token. To do that, first
+3. The VM does not have the GitHub Actions application installed. This is
+   because the installation and configuration needs to be done separately
+   on every instance of the runner. At least one instance is already running
+   somewhere in Southampton, you do not want to confuse GitHub with another
+   one that would be using the same token. So,
 
    - Log into the VM, use the username ``onetep`` and the password ``onetep``.
 
-   - Remove the directory ``$HOME/actions-runner``. You will create a new one
-     in the next step.
-
    - Complete **only** steps C and D in :ref:`dev_continuous_integration_instructions_for_preparing`.
-     This involves setting up a new runner in Github Actions, and building
-     a new ``$HOME/actions-runner``.
+     This involves setting up a new runner in GitHub Actions, and building
+     a new ``$HOME/actions-runner``. It is a simple process.
 
 4. That's it, you're done. Every time you will boot up the VM, it will listen
-   for connections from Github Actions.
+   for connections from GitHub Actions.
 
 
 .. _dev_continuous_integration_instructions_for_preparing:
@@ -710,7 +784,7 @@ B. Perform Docker post-installation set-up by issuing these two commands::
      sudo usermod -aG docker $USER
 
    This is necessary to be able to run ``docker`` without ``sudo``. This is how
-   Github Actions run docker, so will be necessary if you plan to use ``docker``
+   GitHub Actions run docker, so will be necessary if you plan to use ``docker``
    on the VM. You can skip this step if you plan to run directly on the VM.
 
 C. Install the GitHub runner app, as described at
@@ -736,6 +810,19 @@ C. Install the GitHub runner app, as described at
 
        # Create the runner and start the configuration experience
        ./config.sh --url https://github.com/onetep-devel/onetep --token [___REDACTED___]
+
+     ... but they can change (e.g. the name and address of the the ``.tar.gz`` file gets updated).
+
+   - During the configuration stage you will be asked a few questions. Here are
+     the recommended answers:
+
+     - For name of group, press ``Enter`` to use the default.
+     - For name of runner, pick something clear, e.g. I chose `onetep-vm-on-jaceks-box`.
+     - For label, also pick something clear, e.g. I chose `soton-runner-vm-jaceks-box`.
+       The label is referenced later in the ``.yml`` file in the ``runs-on:`` section
+       -- you want your workflow to run not on all self-hosted runners, but on this
+       specific runner.
+     - For name of work folder, press ``Enter`` to use the defailt.
 
 D. Set up the github application to run automatically as a service so that
    you won't even have to log in to the VM (just boot it up) to have a runner.
@@ -824,10 +911,15 @@ already have Docker installed. For using Docker on self-hosted runners, whether
 directly or in a VM, Docker must be installed and a small post-install step
 needs to be performed.
 
+.. _dev_continuous_integration_installing_docker:
+
+Installing Docker
+-----------------
+
 The method for installing Docker will differ depending on the OS. On Ubuntu it
 should be as simple as::
 
-  sudo apt install docker.io
+  sudo apt install docker.io docker-buildx
 
 On Red Hat::
 
@@ -838,13 +930,22 @@ mode.
 
 Once you install Docker, it typically requires ``sudo`` to run. This is not
 only cumbersome, but also won't work with GitHub Actions, which do not apply
-``sudo`` to Docker commands. To help with this, issue the following commands::
+``sudo`` to Docker commands. To help with this, on Ubuntu, issue the following
+commands::
 
   sudo groupadd docker
   sudo usermod -aG docker $USER
 
 ... and reboot. This only needs to be done once, after Docker is installed.
-Podman, apparently, does not require doing this.
+
+Podman, it seems, requires a more complicated post-install step, described at
+https://github.com/containers/podman/blob/main/docs/tutorials/rootless_tutorial.md.
+For me, the following steps worked::
+
+  sudo yum install slirp4netns
+  usermod --add-subuids 100000-165535 --add-subgids 100000-165535 $USER
+
+... and rebooting.
 
 To test your Docker installation, you can issue::
 
@@ -852,6 +953,13 @@ To test your Docker installation, you can issue::
 
 This should finish without any error messages and offer you an empty list
 of images, because you haven't created any.
+
+To further test your Docker installation (to see if it can access the Web
+and write local files), you can issue::
+
+  docker pull hello-world
+
+This too should finish without any error messages.
 
 A **Dockerfile** is a set of instructions, or a recipe, for building a Docker
 image. We have several of these, they reside in ``./ci/docker_images``.
@@ -902,6 +1010,17 @@ To list running containers (as opposed to static images), use::
 
   docker ps
 
+.. warning::
+
+  Light-weight ubuntu Docker images do not have CA certificates set up.
+  This will bite you when a workflow using the Docker container image
+  tries to ``git pull`` the repository -- it will not be able to connect
+  to GitHub. To fix this, make sure your Dockerfile recipe contains::
+
+    apt-get install apt-transport-https ca-certificates -y
+    update-ca-certificates
+
+  See how we do this in ``ci/docker-images/ubuntu/noble``.
 
 Pushing an image to GitHub Container Registry
 ---------------------------------------------
@@ -937,8 +1056,9 @@ Subsequently, create a new tag. For example in my case that would be::
 
   docker tag onetep:noble ghcr.io/jacekdziedzic/onetep:noble
 
-Not sure at this point why this is being done. I know, however, and this is
-absolutely crucial, that whatever your username is, **it needs to lowercasified**
+This ties the name of the local image (here: ``onetep:noble``) to the name
+of the pushed image (here: ``ghcr.io/jacekdziedzic/onetep:noble``). It is
+absolutely crucial that whatever your username is, **it needs to lowercasified**
 at this point. Even though my username is ``JacekDziedzic``, I had to use
 ``jacekdziedzic`` at this stage.
 
