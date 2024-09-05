@@ -98,6 +98,8 @@ Fermi-Dirac distribution:
    and :math:`\sigma` is the broadening parameter, for finite temperature 
    calculations :math:`\sigma=k_BT` with :math:`T` being the temperature.
 
+- To activate, pass ``EDFT_SMEARING_SCHEME FERMIDIRAC``, or do nothing, as this is the default.
+
 Mepan (Methfessel-Paxton) smearing:
 ---------------------------------
 
@@ -112,6 +114,8 @@ Mepan (Methfessel-Paxton) smearing:
    .. math::
       S=\sum_i-\frac{1}{4\sqrt{\pi}}(2x_i^2-1)\exp(-x_i^2)
 
+- To activate, pass ``EDFT_SMEARING_SCHEME MEPA``.
+
 Gaussian smearing:
 ------------------
 
@@ -125,6 +129,8 @@ Gaussian smearing:
 
    .. math::
       S(x_i)=\sum_i\frac{1}{2\sqrt{\pi}}\exp(-x_i)
+
+- To activate, pass ``EDFT_SMEARING_SCHEME GAUSSIAN``.
 
 In Methfessel-Paxton and Gaussian smearing, where :math:`x_i=(\epsilon-\mu)/\sigma`, 
 the arguments :math:`\epsilon,\mu,\sigma` are the same as the ones in Fermi-Dirac smearing.
