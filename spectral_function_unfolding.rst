@@ -15,8 +15,7 @@ Bandstructure (spectral-function) unfolding
   procedures required to unfold the bandstructure in a ONETEP
   “Properties” calculation. We strongly suggest that one reads the
   entire document carefully before attempting any calculations, as there
-  are some stringent requirements along the way. For further details,
-  please contact Gabriel Constantinescu, the code author. Essentially,
+  are some stringent requirements along the way. Essentially,
   all one will need is the following group of keywords and blocks:
 
 ::
