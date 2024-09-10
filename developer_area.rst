@@ -664,10 +664,69 @@ Here are instructions for setting this up:
    for connections from GitHub Actions.
 
 
+Starting and stopping the VM remotely
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The box on which you will be running the VM will occasionally have to be shut down,
+or rebooted. If you're not physically there to start the VM anew from the GUI, and
+don't have the patience of a saint to start it via ssh + X11, here's how to
+start and stop the VM remotely.
+
+First, find out the name of the VM::
+
+  VBoxManage list vms
+
+On my machine this lists just one VM::
+
+  "self-hosted-runner-ubuntu" {91d15f0a-000d-44fc-91c6-68452ca6bd2b}
+
+The name of the VM is the bit in double quotes. To start the VM (assuming it has
+the same name as here)::
+
+  VBoxManage startvm "self-hosted-runner-ubuntu" --type headless
+  disown -ah
+
+This starts the VM in the background. If you run ``top``, you will notice a
+process with the name ``VBoxHeadless`` running. The additional ``disown -ah``
+is to make sure that the newly started process doesn't die when you log off.
+An alternative is to use ``nohup`` or ``screen`` to ensure the same thing.
+
+.. warning::
+
+  My tests, and internet lore, indicate that it is absolutely crucial that you
+  log in to the physical machine **without X11 forwarding**. Otherwise, the shell
+  will pause at ``logout`` when you exit, and pressing ``ctrl-C`` to finish
+  the logging out *will* terminate your ``VBoxHeadless`` process, regardless of
+  the use of ``disown -ah``, ``nohup`` or ``screen``. **IOW, the machine dies on
+  logout when you use X11**. No idea why that is, as we are not using X11 in
+  headless mode.
+
+If you need to shut down the VM from remote, issue::
+
+  VBoxManage controlvm "self-hosted-runner-ubuntu" poweroff
+
+This is equivalent to pulling the cable on the VM. If you'd like to be more
+graceful, you can do::
+
+  VBoxManage controlvm "self-hosted-runner-ubuntu" acpipowerbutton
+
+This will emulate pressing the ACPI power button, which, with a bit of luck,
+should lead to a graceful shutdown. Note that::
+
+  VBoxManage controlvm "self-hosted-runner-ubuntu" shutdown
+
+**does not work** without Guest Additions installed, and these would normally be
+absent on the VM.
+
+Finally, to list running VMs, you can issue::
+
+  VBoxManage list runningvms
+
+
 .. _dev_continuous_integration_instructions_for_preparing:
 
-Instructions for preparing an Ubuntu VM for a self-hosted github runner from scratch
-------------------------------------------------------------------------------------
+Preparing an Ubuntu VM for a self-hosted github runner from scratch
+-------------------------------------------------------------------
 
 It would be best not to reinvent the wheel and use the one Jacek prepared in 2024.08.
 It uses ubuntu-server 24.04 LTS.

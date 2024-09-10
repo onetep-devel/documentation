@@ -101,7 +101,7 @@ Fermi-Dirac distribution:
 - To activate, pass ``EDFT_SMEARING_SCHEME FERMIDIRAC``, or do nothing, as this is the default.
 
 Mepan (Methfessel-Paxton) smearing:
----------------------------------
+-----------------------------------
 
 -  Besides the Fermi-Dirac distributions, 
    in ONETEP there is also Methfessel-Paxton smearing with occupancies:
