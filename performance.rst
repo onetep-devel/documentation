@@ -277,7 +277,7 @@ The fast approach for local potential integrals uses similar techniques as :ref:
 that is *trimming* of data in double-grid FFT-boxes, which is a well-controllable approximation,
 but an approximation nevertheless. It would be prudent to read the section on :ref:`user_fast_density`,
 and the part about controlling accuracy in particular. The same mechanism is
-used here (`trimmed_boxes_threshold`).
+used here (``trimmed_boxes_threshold``).
 
 **The fast approach works best for "serious" systems, it's not meant to address
 scenarios with KE cutoffs below 700-800 eV or NGWFs smaller than 8.0 a0. It will
@@ -294,9 +294,29 @@ The fast locpot int approach works best when `fast_density T` is in use (regardl
 `fast_density_method`), as they share some of the workload and memory requirement.
 You can expect good synergy when using both approaches at the same time.
 
-There are *no* additional settings for fast locpot int at this point, simply turning
+There are *no* additional settings for fast local potential integrals at this point
+(apart from ``trimmed_boxes_threshold``), simply turning
 it on is sufficient. For pointers about about settings, see the suggested settings
 in :ref:`user_fast_density`, just add `fast_locpot_int T` to any of them.
 
-A preliminary GPU port of fast locpot int is in place (starting from ONETEP 7.1.50).
+A GPU port of fast local potential integrals is in place (starting from ONETEP 7.1.50).
 It is activated automatically if you run a GPU-capable binary.
+
+.. _user_fast_ngwfs:
+
+Fast NGWFs (for users)
+======================
+
+This is a user-level explanation -- for developer-oriented material,
+see :ref:`dev_fast_ngwfs`.
+
+This is an experimental feature at this point (January 2025).
+The PPD representation of NGWFs in ONETEP can be replaced by a faster representation
+known as the *rod* representation. This can be done with ``fast_ngwfs T``.
+
+Currently this is only used when ``fast_locpot_int T`` is in effect,
+and you will see zero effect otherwise. Even with ``fast_locpot_int T``, you are
+unlikely to see much benefit at this point, unless you are running on a GPU. On
+a GPU you can expect modest improvements in performance.
+
+The default is ``fast_ngwfs F``.

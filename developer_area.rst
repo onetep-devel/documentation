@@ -1727,7 +1727,7 @@ It multiplies the local potential with ``\phi_Bb`` in double FFT-boxes
 in ``potential_apply_to_ngwf_batch()``.
 
 Our goal is to improve on that, leveraging
-`remote_mod` for comms, and using :ref:`dev_trimmed_boxes` for operating on double-grid
+``remote_mod`` for comms, and using :ref:`dev_trimmed_boxes` for operating on double-grid
 quantities. The implementation, in ``integrals_fast_mod`` is remarkably lean,
 and takes place almost exclusively in ``integrals_fast_locpot_dbl_grid()``.
 
@@ -1743,12 +1743,11 @@ We proceed as follows:
     by local NGWFs *Aa* (via ``trimmed_boxes_all_local_positions_in_cell()``).
     These are the points of interest, e.g. we will need the local potential only
     for these points. By establishing the union, we avoid communicating the same
-    points many times, as part of multiple different NGWFs.
-(3) Rather naively, we communicate the entire local potential on the double grid
-    (``potential_dbl``) to everyone. This is the replicated double-grid representation.
-    This will soon be superseded by an approach, where only the requisite points
-    (just determined) are communicated. This will be much faster and use less
-    memory.
+    points many times, as part of multiple different NGWFs. Subsequently,
+    if ``fast_ngwfs T``, the communicated NGWFs *Bb* are converted to the rod
+    representation. If GPUs are in use, NGWFs *Bb* are copied to the device.
+(3) We communicate the local potential, only for the points of interest, to
+    whichever ranks need them. This happens in ``integrals_fast_extract_locpot()``.
 (4) Using ``trimmed_boxes_mould_set_from_cell()``, the previously trimmed local
     NGWFs *Aa* are used to mould corresponding trimmed locpots from the cell,
     for each local NGWF *Aa*. This happens in an OMP loop over *Aa*. At this
@@ -1758,27 +1757,112 @@ We proceed as follows:
 (5) In an OMP loop over ``\phi_Aa``, we
      - Put the product ``\phi_Aa`` * ``locpot_Aa`` in double FFT-box.
      - Fourier filter to a coarse FFT-box.
-     - Dot with all S-overlapping ``\phi_Bb`` in PPDs, store in a SPAM3 matrix.
-       This is done by ``integrals_fast_brappd_ketfftbox()``.
+     - Dot with all S-overlapping ``\phi_Bb``, store in a SPAM3 matrix.
+       With ``fast_ngwfs F``, this is done by dotting PPDs with an FFT-box
+       in ``integrals_fast_bra_ketfftbox()``. With ``fast_ngwfs T``, we
+       dot `rods` with an FFT-box in ``rod_rep_dot_with_box()``, using GPUs
+       if available.
 
     Notably, ``\phi_Bb`` have been made available by ``remote_mod``, so no
-    comms are needed. We can simply use ``basis_dot_function_with_box()``.
+    comms are needed. We can simply use ``basis_dot_function_with_box_fast()``
+    when working with PPDs and ``rod_rep_dot_with_box()`` when working with rods.
+
 (6) Symmetrise the SPAM3 matrix.
 
 
-Most of the time is spent in the Fourier filtering. This, however, uses the GPU
-if available. Currently, this is done in the simplest possible fashion, with
-copyin from the host to the device, and copyout from the device to the host,
-so it is not very efficient. Most of the cost is the copyin, as the data on
-the double grid is 8 times as large. This will soon be avoided, it's just a
-matter of putting the product in a double FFT-box directly on the device.
+When using CPUs only, much of the time is spent in the Fourier filtering.
+With a GPU, this becomes much faster. Copyin is avoided at all times. Copyout
+is avoided when ``fast_ngwfs T`` is in use.
 
 Performance
 -----------
 
-A detailed performance analysis is not available yet, but is expected before
-the end of 2024. Preliminary testing reveals a speed-up of 2.2x on a CPU, and
-3.6x with a GPU, even with the naive things we do in points 3 and 5 above.
+Two testcases were benchmark so far -- a ~2600-atom lysozyme protein with LNV,
+and a 353-atom Pt cluster with EDFT. Only the time for the calculation of the
+local potential integrals was measured. Measurements were done on a 48-core
+node with and without an A100 GPU.
+
+For the LNV testcase I obtained a speed-up of 5.3x on a CPU, and a *further*
+2.7x speed-up once the GPU was used, for a total speed-up of 14.3x.
+For the EDFT testcase I obtained a speed-up of 3.6x on a CPU, and a *further*
+3.2x speed-up once the GPU was used, for a total speed-up of 11.5x.
+
+------
+
+.. _dev_fast_ngwfs:
+
+Fast NGWFs (for developers)
+===========================
+
+:Author: Jacek Dziedzic, University of Southampton
+
+This section describes the "fast ngwfs" approach introduced in ONETEP 7.3.26
+in December 2024. This is developer-oriented material -- for a user manual,
+see :ref:`user_fast_ngwfs`.
+This documentation pertains to ONETEP 7.3.26 and later.
+
+
+Rationale
+---------
+
+The usual ("slow") method for working with NGWFs on the coarse grid uses *PPDs*
+-- parallelepipeds with axes parallel to those of the simulation cell,
+spanning an integer number of grid points.
+In practice we use flat PPDs, as the default number of points along *a3* is 1,
+unless HFx is in use (where it's more beneficial to use larger PPDs).
+Any NGWF sphere can be covered fully
+with a number of PPDs. The coarse grid data is then stored as points in PPDs.
+Operations on PPDs are straightforward and fast -- there is data
+contiguity because the data in a PPD is stored as a linear 1D array.
+
+
+
+Operations that mix PPDs and FFT-boxes are less straightforward and not as fast
+-- there is data contiguity for the entire length of the PPD along *a1*, but
+not *a2* or *a3*. Furthermore, every time a PPD intersects with an FFT-box,
+we need to establish which parts of the PPD overlap
+with the FFT-box, and which ones stick out and need to be ignored. This is
+further complicated by ``ppd_loc`` -- a feature for remembering of a PPD
+is actually a periodic image and needs to be unwrapped back from the box to the
+image. Such PPDs are sometimes termed *improper*. The limited contiguity (a PPD
+is typically only 5-7 points long) and no GPU support are further drawbacks.
+
+With ``fast_ngwfs T`` we switch to a *rod* representation for NGWFs. A *rod* is
+oriented along the *a1* direction and spans an integer number of PPDs.
+Its width along *a2* and *a3* is one point.
+
+Operations mixing rods and FFT-boxes are much faster, because they leverage
+contiguity -- a rod is typically ~40-points long. There are also fewer operations
+to determine which parts of a rod stick out of the FFT-box and which parts
+overlap. Finally, rod operations have been GPU ported.
+
+Details
+-------
+
+For more details, see the banner in ``rod_rep_mod.F90``, where *rods*, *bunches*,
+and handling of periodicity are described.
+
+State of the art
+----------------
+
+Currently (January 2025, v7.3.27), fast NGWFs are only use in fast local potential
+integrals (``fast_locpot_int T``). There is potential to employ them in the fast
+density calculation, and time will tell if they can beat the *rowsum booster*
+approach. The rest of ONETEP certainly does not benefit from fast NGWFs, yet.
+
+Performance
+-----------
+
+No detailed performance analysis is available, but here are some tentative numbers.
+
+Dotting two 9a0 NGWFs takes about:
+ - 13 us when using PPDs for the bra and an FFT-box for the ket,
+ - 4.2 us when using PPDs for both,
+ - 2.0 us when using rods for the bra and an FFT-box for the ket,
+ - 0.6 us on a GPU when using rods for the bra and an FFT-box for the ket.
+
+In practice you will likely see very limited gains from fast NGWFs on a CPU,
+it's mostly meant to speed up GPU calculations.
 
 ------
 
