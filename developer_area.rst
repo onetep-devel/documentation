@@ -891,6 +891,23 @@ D. Set up the github application to run automatically as a service so that
      sudo ./svc.sh install
      reboot
 
+   For environments where you do not have ``sudo`` (e.g. for running on bare
+   metal rather than a VM), you will instead have to::
+
+     cd $HOME/actions-runner
+     ./run.sh >stdout 2>stderr &
+     disown -ah
+
+   every time you boot the machine.
+
+.. warning::
+
+  Make sure you do not ``sudo ./run.sh``. This will start the runner as ``root``,
+  which is insecure and ``mpirun`` may refuse to run as ``root``.
+  If this happens, to recover you will have to nuke
+  the ``_work`` directory because it will now be owned by ``root``, preventing
+  future, correctly-started instances from writing to it or removing it.
+
 E. If you used a non-server ISO, best to get rid of booting to X11.
    You can skip this step if you picked a server ISO in step 1.
    As root or a sudoer edit ``/etc/default/grub`` to include::
