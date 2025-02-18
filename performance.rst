@@ -43,9 +43,9 @@ Fast density calculation (for users)
 ====================================
 
 This is a user-level explanation -- for developer-oriented material, see :ref:`dev_fast_density`.
-All of the text below applies to ONETEP 7.3.40 and later. Certain subsets of the functionality
+All of the text below applies to ONETEP 7.3.53 and later. Certain subsets of the functionality
 described below have been available earlier (starting from 7.1.8), but some things, including defaults,
-changed in the meantime. **Make sure you are using ONETEP 7.3.40 or later.**
+changed in the meantime. **Make sure you are using ONETEP 7.3.53 or later.**
 
 Calculating the electronic charge density is one of the more time-consuming operations in ONETEP. In a typical
 calculation it has to be performed hundreds of times. There are two ways in which ONETEP can calculate the density
@@ -75,21 +75,19 @@ sacrificing accuracy, up to a point of making your results worthless.
 This means care must be taken when changing the parameters of this approach --
 non-expert users are advised to use the defaults, or even "safe settings" described below.
 
-Starting from ONETEP 7.1.50 there are actually *three* different fast density
+Starting from ONETEP 7.3.53 there are actually *two* different fast density
 methods implemented. They offer the practically same accuracy for the same
 settings (see below), but employ different tradeoffs between memory use and
 performance. As a user, about the only thing you need to know is:
 
 - ``fast_density_method 1`` is usually the fastest, but requires the most memory,
-- ``fast_density_method 2`` is a failed experiment, and typically performs poorly,
-  you should not be using it.
-- ``fast_density_method 3`` is usually somewhat slower than method 1, but faster
+- ``fast_density_method 2`` is usually somewhat slower than method 1, but still much faster
   than the slow (default) calculation. It has two important advantages --
   **it uses much less memory than** ``fast_density_method 1``, **and it has been
   GPU ported**. If you are running on GPUs, you should be definitely using this
   option.
 
-The default (once you specified ``fast_density T``) is ``fast_density_method 3`` (starting from ONETEP 7.3.40).
+The default (once you specified ``fast_density T``) is ``fast_density_method 2`` (starting from ONETEP 7.3.53).
 
 You can check which approach you are using by examining the timings printed out
 at the end of your calculation
@@ -113,7 +111,6 @@ to the default RMS gradient thresholds (which is ``ngwf_threshold_orig 2E-6``). 
 e.g. when you set ``elec_energy_tol``), consider reducing this value to get more accuracy -- e.g. to ``5E-7``
 or ``2E-7`` (this is already very tight). You probably don't want to decrease the threshold below ``1E-7``.
 To make your calculation faster, increase the threshold -- probably not above ``1E-5``.
-
 
 A *negative* value of ``trimmed_boxes_threshold`` turns on *adaptive thresholding* -- the threshold will start
 at ``1E-5`` and will progressively decrease during NGWF convergence. A value of ``-1.0`` will set the threshold
@@ -218,6 +215,33 @@ optimisation will start with fast density turned on.
 Note that you need at least two NGWF iterations to have a meaningful energy change to examine, so this setting
 has no effect if you take fewer than two NGWF iterations.
 
+.. _user_fast_density_memory_use:
+
+Memory use
+----------
+
+Fast density requires more memory than slow density, particularly with ``fast_density_method 1``. Fortunately,
+``fast_density_method 2`` requires substantially less memory. If you are running on GPUs, you might want to
+control memory use more tightly, since GPUs typically have much less RAM available.
+
+Keywords that might help you are:
+  - ``fast_density_batch_size n`` -- which controls the batch size over FFTs in fast density. The default is 64.
+    We need to keep a coarse-grid FFT-box for each element of the batch, both on the CPU and GPU (if in use),
+    per MPI rank. This setting is not affected by the number of OpenMP threads. Reducing this value will decrease
+    memory use both on the CPU and GPU. The lowest you can go is 1.
+    You will likely experience a performance hit if you go below 16.
+  - ``threads_gpu n`` -- which controls the number of OpenMP threads (on each MPI rank) driving GPU operations.
+    We need to keep a complex coarse-grid FFT-box and a complex fine-grid FFT-box both on the CPU and the GPU (if in use),
+    per each OpenMP thread per each MPI rank. This is for the OpenACC cuFFT backend, for the CUDA cuFFT backend the
+    requirement is twice that much. This is a lot of RAM, particularly for a GPU. Reducing this setting should
+    significantly reduce GPU memory use. The default is the same as ``threads_max``, and so is the same as
+    what you pass in the ``-t`` option to ``onetep_launcher`` or set your ``OMP_NUM_THREADS`` to. You will likely
+    experience a performance hit when decreasing it.
+  - ``fast_density_fast_ngwfs T/F``. For more details, see :ref:`user_fast_ngwfs`.
+    Setting to ``F`` will reduce memory use, particularly on the GPU. When running on CPU, you should be
+    using ``F`` anyway, as there will likely be no performance gain from using ``T``. On GPUs ``T`` should be faster.
+    The default is ``T`` when running on a GPU, and ``F`` otherwise.
+
 Remaining options
 -----------------
 
@@ -228,16 +252,16 @@ by specifying ``trimmed_boxes_output_detail``. The available options are the sam
 Example settings
 ----------------
 
-For a quick-and-dirty calculation use:
+For a quick-and-dirty calculation (might not converge to default thresholds) use:
  - ``fast_density T``
- - ``trimmed_boxes_threshold 1E-5``.
+ - ``trimmed_boxes_threshold 2E-5``.
 
 For a typical calculation just use:
  - ``fast_density T`` (which will use the default of ``trimmed_boxes_threshold -1.0``
    for optimised NGWFs, or ``1E-6`` for fixed NGWFs).
 
 For an accurate, but slower calculation use:
- -  ``fast_density T``
+ - ``fast_density T``
  - ``trimmed_boxes_threshold 7E-7``
  - ``fast_density_off_for_last T``
  - ``fast_density_elec_energy_tol 1E-7``.
@@ -249,11 +273,11 @@ For very safe settings that should provide a modest gain in efficiency, try:
  - ``fast_density_elec_energy_tol 3E-7``.
 
 If you keep running out of memory, ensure you are not using``fast_density_method 1``.
-Try ``fast_density_method 3`` instead.
+Try ``fast_density_method 2`` instead. Read :ref:`user_fast_density_memory_use`.
 
-If you are running ONETEP on GPUs, most definitely use ``fast_density_method 3``.
+If you are running ONETEP on GPUs, most definitely use ``fast_density_method 2``.
 
-Compatilibity
+Compatibility
 -------------
 
 Fast density is known to work (to the best of our knowledge) with the following additional functionalities:
@@ -319,10 +343,16 @@ The fast locpot int approach works best when `fast_density T` is in use (regardl
 `fast_density_method`), as they share some of the workload and memory requirement.
 You can expect good synergy when using both approaches at the same time.
 
-There are *no* additional settings for fast local potential integrals at this point
-(apart from ``trimmed_boxes_threshold``), simply turning
+There is only one additional settings for fast local potential integrals at this point
+(apart from ``trimmed_boxes_threshold``), and almost always simply turning
 it on is sufficient. For pointers about about settings, see the suggested settings
 in :ref:`user_fast_density`, just add `fast_locpot_int T` to any of them.
+
+The additional setting is:
+ - ``fast_locpot_int_fast_ngwfs T/F`` -- which turns *fast NGWFs* on or off in
+   the calculation of local potential integrals. On a CPU these are expected
+   to offer a marginal boost in performance. On a GPU the gain should be more
+   significant. The default is ``T`` when running on a GPU, and ``F`` otherwise.
 
 A GPU port of fast local potential integrals is in place (starting from ONETEP 7.1.50).
 It is activated automatically if you run a GPU-capable binary.
@@ -335,13 +365,22 @@ Fast NGWFs (for users)
 This is a user-level explanation -- for developer-oriented material,
 see :ref:`dev_fast_ngwfs`.
 
-This is an experimental feature at this point (January 2025).
+This is an experimental feature at this point (February 2025).
 The PPD representation of NGWFs in ONETEP can be replaced by a faster representation
-known as the *rod* representation. This can be done with ``fast_ngwfs T``.
+known as the *rod* representation. This can be done with:
 
-Currently this is only used when ``fast_locpot_int T`` is in effect,
-and you will see zero effect otherwise. Even with ``fast_locpot_int T``, you are
-unlikely to see much benefit at this point, unless you are running on a GPU. On
-a GPU you can expect modest improvements in performance.
+ - ``fast_density_fast_ngwfs T`` -- in the fast density calculation,
+ - ``fast_locpot_int_fast_ngwfs T`` -- the fact local potential integral calculation,
 
-The default is ``fast_ngwfs F``.
+or with:
+
+ - ``fast_ngwfs T`` -- which over-rides both of the above to ``T``.
+
+The default is ``fast_density_fast_ngwfs F`` and ``fast_locpot_int_fast_ngwfs F``
+when running on a CPU, and ``fast_density_fast_ngwfs T`` and ``fast_locpot_int_fast_ngwfs T``
+when running on a GPU.
+
+On a CPU the performance gain will likely be marginal or non-existent. On a GPU
+you should see a modest improvement. The memory cost of ``fast_locpot_int_fast_ngwfs T``
+should be negligible on both CPU and GPU. The memory cost of ``fast_density_fast_ngwfs T``
+is significant, particularly on a GPU.

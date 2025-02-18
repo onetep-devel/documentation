@@ -1431,14 +1431,13 @@ Fast density calculation (for developers)
 
 :Author: Jacek Dziedzic, University of Southampton
 
-This section describes the "fast density" approach introduced in ONETEP 7.1.8 in January 2024,
-and extended in ONETEP 7.1.50 in July 2024.
+This section describes the "fast density" approach introduced in ONETEP 7.1.8 in January 2024.
 This is developer-oriented material -- for a user manual, see :ref:`user_fast_density`.
-This documentation pertains to ONETEP 7.1.50 and later.
+This documentation pertains to ONETEP 7.3.50 and later. If you are using a version of
+ONETEP older than 7.3.50, please update -- not everything you read here will be applicable otherwise.
 
-There are three slightly different methods for "fast density", selected via
-``fast_density_method 1``, ``fast_density_method 2``, and ``fast_density_method 3``.
-The first one is the default.
+There are two slightly different methods for "fast density", selected via
+``fast_density_method 1`` and ``fast_density_method 2``, with the latter now the default.
 
 We focus on the calculation on the double grid. If ``fine_grid_scale`` is different from 2.0,
 the density gets interpolated from the double to the fine grid, regardless of the approach
@@ -1500,7 +1499,7 @@ We address (2) and (3) by first interpolating only ``\phi_Aa``, and then
 communicating them to where they are needed (and where they become ``\phi_Bb``).
 We use ``remote_mod`` for that, which separates the comms from the FFTs.
 In ``fast_density_method 1`` we communicate ``\phi_Bb`` in the form of trimmed boxes.
-In ``fast_density_method 2`` and ``3`` we communicate ``\phi_Bb`` in PPDs on the coarse grid,
+In ``fast_density_method 2`` we communicate ``\phi_Bb`` in PPDs on the coarse grid,
 and process them at destination. Of course, when communicating trimmed boxes, we only communicate the relevant points,
 not the entire double FFT-boxes.
 
@@ -1515,14 +1514,7 @@ we need memory to store the trimmed NGWFs, we have to communicate trimmed NGWFs 
 and we need to do ``rowsum_Aa = \sum_\Bb K^Aa,B \phi_Bb`` on the new representation somehow. If the latter can be done efficiently,
 we are addressing (4) above, too.
 
-In ``fast_density_method 2`` we do the FFTs in the inner loop, but only for the rowsums,
-as trimmed ``\phi_Aa`` are stored for the entire duration of the inner loop.
-We use *bursts* (described earlier) to calculate products between ``\phi_Aa`` and
-``rowsum_Aa``, which is not very efficient. This method is more FFT-heavy, but
-does less comms, as we communicate NGWFs on the coarse grid. Memory footprint
-is still rather high, because the bursts are memory-hungry.
-
-In ``fast_density_method 3`` we similarly do the FFTs in the inner loop, but only for the rowsums,
+In ``fast_density_method 2`` we similarly do the FFTs in the inner loop, but only for the rowsums,
 as trimmed ``\phi_Aa`` are stored for the entire duration of the inner loop.
 However, we are smart and realize that we do not need the entire ``rowsum_Aa``,
 but only its part that overlaps with ``\phi_Aa`` -- as these are multiplied
@@ -1531,8 +1523,8 @@ we only keep a ``\phi_Aa``-shaped fragment. This process is called *moulding* (d
 -- we take data from a double FFT-box and mould it to a shape of a previously
 trimmed NGWF. In so doing, we avoid bursts altogether -- multiplying two
 trimmed quantities with the same shape ("mask") is a simple pointwise job.
-This method has a vastly smaller memory footprint, is as FFT-heavy as ``fast_density_method 2``,
-and is light on comms, because it only transmits NGWFs in PPDs on the coarse grid.
+This method has a vastly smaller memory footprint, and is light on comms, because it only
+transmits NGWFs in PPDs on the coarse grid.
 Finally, this method GPU-ports well.
 
 The fast density approach thus proceeds in two stages -- one that is performed every time NGWFs change, and one that is performed
@@ -1540,40 +1532,45 @@ in the inner loop. The details of the stages depend on ``fast_density_method``.
 
 The following table summarizes the main differences between the three methods.
 
-+--------------------------+--------------------+-------------------+-------------------------+
-| Detail                   | method 1           | method 2          | method 3                |
-+==========================+====================+===================+=========================+
-| FFTs done for            | ``\phi_Aa``        | ``\phi_Aa`` in outer loop                   |
-|                          |                    |                                             |
-|                          | in outer loop only | ``rowsum_Aa`` in inner loop                 |
-+--------------------------+--------------------+-------------------+-------------------------+
-| FFT load                 | minimal            | ~half of original | ~half of original       |
-|                          |                    |                   |                         |
-|                          |                    |                   | can be done on GPU      |
-+--------------------------+--------------------+-------------------+-------------------------+
-| Communicated NGWFs       | all required ``\phi_Bb``                                         |
-+--------------------------+--------------------+-------------------+-------------------------+
-| Communicated how         | as trimmed boxes   | in PPDs on coarse                           |
-+--------------------------+--------------------+-------------------+-------------------------+
-| Comms load               | significant        | minimal                                     |
-+--------------------------+--------------------+-------------------+-------------------------+
-| Trimmed storage          | ``\phi_Aa``        | ``\phi_Aa``       | ``\phi_Aa``             |
-|                          |                    |                   |                         |
-|                          | ``\phi_Bb``        | ``rowsum_Aa``     | ``rowsum_Aa`` (moulded) |
-+--------------------------+--------------------+-------------------+-------------------------+
-| Bursts                   | yes, many          | yes, few          | no                      |
-|                          |                    |                   |                         |
-|                          | (pairs *Aa-Bb*)    | (pairs *Aa-Aa*)   |                         |
-+--------------------------+--------------------+-------------------+-------------------------+
-| Memory load              | high               | moderate          | low                     |
-+--------------------------+--------------------+-------------------+-------------------------+
-| Expected CPU performance | very good          | poor              | good                    |
-+--------------------------+--------------------+-------------------+-------------------------+
-| Expected GPU performance | very good          | poor              | excellent               |
-+--------------------------+--------------------+-------------------+-------------------------+
++--------------------------+--------------------+-----------------------------+
+| Detail                   | method 1           | method 2                    |
++==========================+====================+=============================+
+| FFTs done for            | ``\phi_Aa``        | ``\phi_Aa`` in outer loop   |
+|                          |                    |                             |
+|                          | in outer loop only | ``rowsum_Aa`` in inner loop |
++--------------------------+--------------------+-----------------------------+
+| FFT load                 | minimal            | ~half of original           |
+|                          |                    |                             |
+|                          |                    | can be done on GPU          |
++--------------------------+--------------------+-----------------------------+
+| Communicated NGWFs       | all required ``\phi_Bb``                         |
++--------------------------+--------------------+-----------------------------+
+| Communicated how         | as trimmed boxes   | in PPDs on coarse           |
++--------------------------+--------------------+-----------------------------+
+| Comms load               | significant        | minimal                     |
++--------------------------+--------------------+-----------------------------+
+| Trimmed storage          | ``\phi_Aa``        | ``\phi_Aa``                 |
+|                          |                    |                             |
+|                          | ``\phi_Bb``        | ``rowsum_Aa`` (moulded)     |
++--------------------------+--------------------+-----------------------------+
+| Bursts                   | yes, many          | no                          |
+|                          |                    |                             |
+|                          | (pairs *Aa-Bb*)    |                             |
++--------------------------+--------------------+-----------------------------+
+| Memory load              | high               | low                         |
++--------------------------+--------------------+-----------------------------+
+| Expected CPU performance | very good          | good                        |
++--------------------------+--------------------+-----------------------------+
+| Expected GPU performance | very good          | excellent                   |
++--------------------------+--------------------+-----------------------------+
 
-Typical speed-ups obtained using fast density range from 2x to 6x for the total time spent
+On a CPU, typical speed-ups obtained using fast density range from 2x to 6x for the total time spent
 calculating the density, and between 10% and 50% can be shaved off the total calculation walltime.
+
+On a GPU, typical speed-ups would be between 10x and 16x for the total time spent
+calculating the density, and between 50% and 70% shaved off the total calculation walltime.
+This measured is in a *fair comparison* -- a CPU-only compute node vs. the same compute node
+with a reasonable GPU (e.g. an NVIDIA A100).
 
 Cost
 ----
@@ -1582,11 +1579,11 @@ The main drawback of fast density is increased memory consumption. There are two
   (A) The trimmed NGWF data itself, which is, to a large extent, replicated.
       In ``fast_density_method 1`` a single trimmed
       NGWF can be needed on many processes, because it could be a ``\phi_Bb`` to many NGWFs Aa.
-      The same holds for NGWFs in PPDs for ``fast_density_method 2`` and ``3``.
+      The same holds for NGWFs in PPDs for ``fast_density_method 2``.
       Moreover, this memory requirement does not scale inverse-linearly with the number of processes.
       That is, increasing the node count by a factor of two doesn't reduce the memory requirement
       by a factor of two, because there is more replication.
-  (B) The burst data (in ``fast_density_method 1``, and, to a smaller extent, in ``fast_density_method 2``).
+  (B) The burst data (in ``fast_density_method 1``).
 
 Both (A) and (B) depend on the trimming threshold, and the shape of the NGWFs. Both tend to increase
 during the NGWF optimisation as the NGWFs delocalise somewhat.
@@ -1680,7 +1677,7 @@ with respect to one node. It is clear that the fast approach is quite a bit fast
 approach, although it does not scale that well to high core counts. Keep in mind that we pushed this
 system quite far by running 701 atoms on over 1600 CPU cores.
 
-More detailed benchmarks of ``fast_density_method 2`` and ``fast_density_method 3`` will follow soon.
+More detailed benchmarks of ``fast_density_method 2`` will follow at some point.
 
 Keywords
 --------
@@ -1700,11 +1697,9 @@ This approach could be improved in a number of ways:
      for more control over determinism vs efficiency. Currently we use ``SCHEDULE(STATIC)`` to get
      more deterministic results, but ``SCHEDULE(DYNAMIC)`` offers better efficiency. Toggling this
      at runtime is not trivial (``omp_set_schedule()``).
-  4. Having a dynamic ``trimmed_boxes_threshold`` -- we could probably start the NGWF optimisation
-     with a cruder approximation, tightening it as we go along.
-  5. Dynamically selecting ``MAX_TNGWF_SIZE``. It's currently a constant, and ``persistent_packed_tngwf``
+  4. Dynamically selecting ``MAX_TNGWF_SIZE``. It's currently a constant, and ``persistent_packed_tngwf``
      is not an allocatable.
-  6. A smarter way to flatten the computed density. Currently each process has their own density that
+  5. A smarter way to flatten the computed density. Currently each process has their own density that
      spans the entire cell and only contains contributions from the *Aa* NGWF it owns. We flatten it
      by a series of reduce operations over all nodes. This is the main killer of parallel performance.
 
@@ -1720,7 +1715,8 @@ Fast local potential integrals (for developers)
 
 This section describes the "fast locpot int" approach introduced in ONETEP 7.1.50 in July 2024.
 This is developer-oriented material -- for a user manual, see :ref:`user_fast_locpot_int`.
-This documentation pertains to ONETEP 7.1.50 and later.
+This documentation pertains to ONETEP 7.3.50 and later. If you are using a version of
+ONETEP older than 7.3.50, please update -- not everything you read here will be applicable otherwise.
 
 We focus on the calculation on the double grid. If ``fine_grid_scale`` is different from 2.0,
 the local potential first gets filtered from the fine to the double grid, regardless of the approach
@@ -1789,12 +1785,12 @@ We proceed as follows:
 
 When using CPUs only, much of the time is spent in the Fourier filtering.
 With a GPU, this becomes much faster. Copyin is avoided at all times. Copyout
-is avoided when ``fast_ngwfs T`` is in use.
+is avoided when ``fast_locpot_int_fast_ngwfs T`` is in use.
 
 Performance
 -----------
 
-Two testcases were benchmark so far -- a ~2600-atom lysozyme protein with LNV,
+Two testcases were benchmarked so far -- a ~2600-atom lysozyme protein with LNV,
 and a 353-atom Pt cluster with EDFT. Only the time for the calculation of the
 local potential integrals was measured. Measurements were done on a 48-core
 node with and without an A100 GPU.
@@ -1816,7 +1812,9 @@ Fast NGWFs (for developers)
 This section describes the "fast ngwfs" approach introduced in ONETEP 7.3.26
 in December 2024. This is developer-oriented material -- for a user manual,
 see :ref:`user_fast_ngwfs`.
-This documentation pertains to ONETEP 7.3.26 and later.
+This documentation pertains to ONETEP 7.3.50 and later. If you are using a version of
+ONETEP older than 7.3.50, please update -- not everything you read here will be
+applicable otherwise.
 
 
 Rationale
@@ -1844,7 +1842,13 @@ is actually a periodic image and needs to be unwrapped back from the box to the
 image. Such PPDs are sometimes termed *improper*. The limited contiguity (a PPD
 is typically only 5-7 points long) and no GPU support are further drawbacks.
 
-With ``fast_ngwfs T`` we switch to a *rod* representation for NGWFs. A *rod* is
+With ``fast_density_fast_ngwfs T`` we switch to a *rod* representation for NGWFs
+in the calculation of fast density.
+
+With ``fast_locpot_int_fast_ngwfs T`` we switch to a *rod* representation for NGWFs
+in the calculation of fast local potential integrals.
+
+A *rod* is
 oriented along the *a1* direction and spans an integer number of PPDs.
 Its width along *a2* and *a3* is one point.
 
@@ -1856,16 +1860,17 @@ overlap. Finally, rod operations have been GPU ported.
 Details
 -------
 
-For more details, see the banner in ``rod_rep_mod.F90``, where *rods*, *bunches*,
+For more details, see the banner in ``rod_rep_mod.F90``, where *rods*, *bunches*, *slots*,
 and handling of periodicity are described.
 
 State of the art
 ----------------
 
-Currently (January 2025, v7.3.27), fast NGWFs are only use in fast local potential
-integrals (``fast_locpot_int T``). There is potential to employ them in the fast
-density calculation, and time will tell if they can beat the *rowsum booster*
-approach. The rest of ONETEP certainly does not benefit from fast NGWFs, yet.
+Currently (February 2025, v7.3.50), fast NGWFs can be used in fast local potential
+integrals (``fast_locpot_int T``), and in the fast
+density calculation (``fast_density T``).
+
+The rest of ONETEP certainly does not benefit from fast NGWFs, yet.
 
 Performance
 -----------
