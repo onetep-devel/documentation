@@ -430,7 +430,7 @@ It is also common to map the subscripts to integers (Voigt notation),
        \left(\epsilon_1, \epsilon_2, \epsilon_3, \epsilon_4, \epsilon_5, \epsilon_6 \right) \;.
 
 To understand how that factor of 2 propagates see the chapter on
-elasticity of Kittel's book [Kittel]_ .
+elasticity of Kittel's book [Kittel2004]_ .
 
 The strain can also be represented in a form which uses directly the
 unit cell vectors. Defining

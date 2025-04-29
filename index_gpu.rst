@@ -3,11 +3,11 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-GPU Accelerated Code
-================================================
+GPU Acceleration
+================
 
 .. toctree::
    :maxdepth: 1
    :caption: Contents:
 
-   ONETEP_OpenACC.rst
+   gpu.rst

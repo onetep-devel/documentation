@@ -4,7 +4,7 @@ Spherical wave resolution of identity (SWRI), Hartree-Fock exchange (HFx), hybri
 
 :Author: Jacek Dziedzic, University of Southampton
 :Author: James C. Womack, University of Southampton
-	 
+
 :Date:   June 2020
 
 This manual pertains to ONETEP versions v5.3.4.0 and later.
@@ -554,12 +554,12 @@ ranks, 4 OMP threads each), requiring about 4 GiB of RAM.
        0.00     0.00    25.00
     %endblock lattice_cart
 
-    %block positions_abs  
+    %block positions_abs
     ang
-    O 5.79564200 7.40742600 6.63194300 
-    H 5.19938100 8.05407400 6.24141400 
-    H 5.16429100 6.74016800 6.88482600 
-    %endblock positions_abs  
+    O 5.79564200 7.40742600 6.63194300
+    H 5.19938100 8.05407400 6.24141400
+    H 5.16429100 6.74016800 6.88482600
+    %endblock positions_abs
 
     %block species
     O O 8 4 8.0
@@ -569,7 +569,7 @@ ranks, 4 OMP threads each), requiring about 4 GiB of RAM.
     %block species_pot
     O "oxygen.recpot"
     H "hydrogen.recpot"
-    %endblock species_pot   
+    %endblock species_pot
 
 DMA
 ===
@@ -875,12 +875,12 @@ RAM.
        0.00     0.00    25.00
     %endblock lattice_cart
 
-    %block positions_abs  
+    %block positions_abs
     ang
-    O 5.79564200 7.40742600 6.63194300 
-    H 5.19938100 8.05407400 6.24141400 
-    H 5.16429100 6.74016800 6.88482600 
-    %endblock positions_abs  
+    O 5.79564200 7.40742600 6.63194300
+    H 5.19938100 8.05407400 6.24141400
+    H 5.16429100 6.74016800 6.88482600
+    %endblock positions_abs
 
     %block species
     O O 8 4 8.0
@@ -890,7 +890,7 @@ RAM.
     %block species_pot
     O "oxygen.recpot"
     H "hydrogen.recpot"
-    %endblock species_pot   
+    %endblock species_pot
 
 **Expected results**:
 
@@ -909,6 +909,8 @@ RAM.
 Table:  Dipole moment of distorted water molecule. Comparison of
 accuracy: full density vs. DMA point multipoles.
 
+.. _hfx_advanced:
+
 Advanced options
 ================
 
@@ -916,7 +918,7 @@ Making Hartree-Fock exchange faster or less memory-hungry
 ---------------------------------------------------------
 
 Hartree-Fock exchange is not fast, although we’ve made great
-improvements in v5.3.4.0. For small systems (:math:`<200`  atoms), with
+improvements in v5.3.4.0. For small systems (:math:`<200` atoms), with
 a bit of luck, it will be an order of magnitude slower than GGA
 calculations. For large systems (:math:`\approx{}1000` atoms) expect it
 to be two orders of magnitude slower.
@@ -1214,7 +1216,7 @@ MPI ranks, allowing you to give much more memory to each of them.
 Increase ``hfx_memory_limit`` from the default value of 4096 to however
 much you can spare. This is the maximum RAM consumption of HFx (on top
 of the rest of ONETEP) per MPI rank. Here it is always the higher the
-better, except you don’t want to run out of memory. Use 
+better, except you don’t want to run out of memory. Use
 ``ppd_npoints 5 5 5`` or ``ppd_npoints 7 7 7`` for a slight
 efficiency gain.
 

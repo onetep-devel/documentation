@@ -18,6 +18,7 @@ Welcome to ONETEP's documentation!
    index_transition_states.rst
    index_spectroscopy.rst
    index_population.rst
+   index_gpu.rst
    index_qmmm.rst
    index_properties.rst
    index_geoopt.rst
