@@ -11,6 +11,7 @@ Ground State Calculation Setup
    :caption: Contents:
 
    pseudoatomic_solver.rst
+   kpoints_and_spin.rst
    conduction.rst
    onetep_edft_documentation.rst
    AQUA-FOE.rst
