@@ -11,16 +11,22 @@ Spin-polarisation in ONETEP
 
 TBC
 
-k-points and Beillouin zone sampling in ONETEP
+
+k-points and Brillouin zone sampling in ONETEP
 ==============================================
 
-ONETEP now supports k-point sampling in the Brillouin zone. By utilising k-point
+ONETEP now supports k-point sampling in the Brillouin zone. By utilising the k-point
 sampling technique, the periodicity of the system can be exploited to reduce the
-comupational cost of the calculation and small systems (i.e., unit cells) can be
+computational cost of the calculation and small systems (from unit cells upwards) can be
 efficiently simulated.
 
 The k-point sampling technique is implemented in two modes: the plane-wave (PW)
-mode and the tight-binding (TB) mode.
+mode and the tight-binding (TB) mode. The default behaviour in ONETEP is to assume
+the system is periodic but that the simulation cell is large enough that k-point
+sampling is not required. In order to launch a calculation on a simulation cell where
+this is not the case, so k-point sampling is required, the user must first choose
+between these modes as appropriate to the periodicity of their system, and then
+specify a grid of k-points on which the calculation is to be performed.
 
 
 Plane-wave mode (PW) mode
@@ -38,8 +44,8 @@ essentially expressed using plane waves (hence the name "plane-wave mode").
 
 Theory
 ------
-The Schördinger equation (Kohn-Sham equation) for a Bloch eigenstsate 
-:math:`\psi_{n,\mathbf{k}}` is given by
+The Schrödinger equation (or in the case of DFT, the Kohn-Sham equation) for a
+Bloch eigenstate :math:`\psi_{n,\mathbf{k}}` is given by
 
 .. math::
    :label: SE
@@ -47,17 +53,18 @@ The Schördinger equation (Kohn-Sham equation) for a Bloch eigenstsate
    \hat{H} \psi_{n,\mathbf k} (\mathbf r) = \epsilon_{n,\mathbf k} \psi_{n,\mathbf k} (\mathbf r).
 
 where :math:`\mathbf k` labels the k-point, :math:`n` the band number.
-Immediately we can see that we need to solve this equation at each k-point hence
-we need to have seperate matrices and NGWFs for each k-point.
+Immediately we can see that we need to solve this equation separately at each k-point,
+hence we need to have seperate representations of any quantities arising from
+:math:`\psi_{n,\mathbf k}` for each k-point.
 
-Remembering that the most generic form of the Bloch functions is written as,
+The most generic form of the Bloch functions is written as,
 
 .. math::
    :label: bloch
 
    \psi_{n,\mathbf k} (\mathbf r) = e^{i\mathbf k \cdot \mathbf r} u_{n,\mathbf k} (\mathbf r),
 
-where :math:`u_{n,\mathbf k} (\mathbf r)` has the periodicity of the unit cell,
+where :math:`u_{n,\mathbf k} (\mathbf r)` is a function with the periodicity of the unit cell,
 i.e., 
 
 .. math::
@@ -89,25 +96,24 @@ If we introduce the k-dependent Hamiltonian operator :math:`\hat{H}(\mathbf k)`,
 
    \hat{H}(\mathbf k) u_{n,\mathbf k} (\mathbf r) = \epsilon_{n,\mathbf k} u_{n,\mathbf k} (\mathbf r). 
 
-Using a set of k-dependent NGWFs as basis 
-(:math:`\{ \phi_\alpha^{\mathbf k}\}`), the cell-periodic part of the Bloch 
-wavefucntion :math:`u_{n,\mathbf{k}}` can be written as
+In ONETEP we use a set of k-dependent NGWFs (:math:`\{ \phi_\alpha^{\mathbf k}\}`) as our support functions,
+so the cell-periodic part of the Bloch wavefunction :math:`u_{n,\mathbf{k}}` can be written as
 
 .. math::
    u_{n,\mathbf k} (\mathbf r)  = \sum_{\alpha} c_{n,\mathbf k}^{\alpha} \phi_{\alpha}^{\mathbf k} (\mathbf r),
 
-where :math:`c_{n,\mathbf k}^{\alpha}` is the non-unitary rotation matrix that 
+where :math:`c_{n,\mathbf k}^{\alpha}` is a non-unitary rotation matrix that 
 rotates the NGWFs (see TB note).
 
-Expanding :math:`u_{n,\mathbf k}` using NGWFs (extended NGWFs to be precise, see
-later), :eq:`SE3` can be expressed as
+Expanding :math:`u_{n,\mathbf k}` using in terms of NGWFs (which, as we will see later
+will need to be "extended" NGWFs along periodic directions), :eq:`SE3` can be expressed as
 
 .. math::
    :label: SE4
 
    \hat{H}(\mathbf k) u_{n,\mathbf k} (\mathbf r)= \sum_{\beta} c_{n, \mathbf k}^{\beta}\hat{H}(\mathbf k) \phi_{\beta}^{\mathbf k} (\mathbf r)  =  \epsilon_{n,\mathbf k} \sum_{\beta} c_{n,\mathbf k}^{\alpha} \phi_{\beta}^{\mathbf k} (\mathbf r)
 
-Multiply both sides of :eq:`SE4` by :math:`\phi_{\alpha}^{\mathbf k *}(\mathbf r)`, and integrate over :math:`\mathbf r`, we get
+If we multiply both sides of :eq:`SE4` by :math:`\phi_{\alpha}^{\mathbf k *}(\mathbf r)`, and integrate over :math:`\mathbf r`, we get
 
 .. math::
    :label: SE5
@@ -132,18 +138,21 @@ and the overlap matrix :math:`S` elements are:
    S_{\alpha \beta} (\mathbf k) = \int \phi_{\alpha}^{\mathbf k *}(\mathbf r)\phi_{\beta}^{\mathbf k} (\mathbf r) d\mathbf r. 
 
 :eq:`SE6` is the generalized Kohn-Sham equation under the basis of 
-:math:`\phi`. If :math:`\phi` is simply plane waves, :math:`\mathbf{S}` would be
-identity and we resort to the usual notation of
+:math:`\phi`. If :math:`\phi` were simply plane waves, :math:`\mathbf{S}` would be
+the identity, and we could return to the canonical expression of the Kohn-Sham
+equation in the plane-wave basis:
 
 .. math::
    \sum_{\beta} H_{\alpha \beta}(\mathbf k) c_{n, \mathbf k}^{\beta} = \epsilon_{n,\mathbf k}  c_{n, \mathbf k}^{\alpha}
 
-It is worth nothing that here the explicit k-dependence only exists in the 
+It is worth nothing that in the plane-wave basis the explicit k-dependence only exists in the 
 Hamiltonian matrix and the k-index of eigenvectors is the result of solving such
-a Hamiltonian.
+a k-dependent Hamiltonian. In the NGWF basis, there is also k-dependence in the overlap matrix.
 
-
-The Hamiltonian can be expanded into three terms: the kinetic energy term [:math:`T_{\alpha \beta}(\mathbf{k})`], the potential term (including local potential from atomic cores and exchange correlation terms) and the non-local terms from pseudopotentials.
+The Hamiltonian can be expanded into three terms: the kinetic energy term
+[:math:`T_{\alpha \beta}(\mathbf{k})`],
+the potential term (including local potential from atomic cores and exchange
+correlation terms) and the non-local terms from pseudopotentials.
 
 Kinetic energy term
 ^^^^^^^^^^^^^^^^^^^
