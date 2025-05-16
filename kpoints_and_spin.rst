@@ -212,8 +212,75 @@ The k-dependent non-local potential term is given by:
 and we see that the phase factors are to be augmented to the non-local
 projectors so that the non-local potential term is k-dependent.
 
+Tight-binding (TB) mode
+=======================
+
+The tight-binding (TB) mode is designed to use fully localised NGWFs ( 
+``extended_ngwf : F F F``) and the k-point sampling is performed by augmenting
+the Hamiltonian matrix and the overlap matrix with the phase factors.
+
+Specifically, in the TB mode, we adopts the Bloch sum form of the Bloch 
+functions:
+
+.. math::
+   \psi_{n\mathbf k}(\mathbf r) = \sum_{\mathbf R} e^{i\mathbf k \cdot \mathbf R} \sum_\alpha c_{n,\mathbf k}^\alpha \phi_\alpha(\mathbf r - \mathbf R)
+
+where :math:`c_{n\mathbf k}` is the k-dependent coefficient that rotates the 
+basis into Kohn-Sham eigenstates. Using this expression, we can re-express the
+charge density and the Kohn-Sham energy.
+
+Using this Bloch sum the charge density becomes:
+
+.. math::
+   \begin{aligned}
+   n(\mathbf r) =& \sum_n f_{n,\mathbf k} \sum_{\mathbf k} w_{\mathbf k} |\psi_{n,\mathbf k}(\mathbf r)|^2\\
+   =&N_\mathrm{cell}\sum_{\alpha\beta}\sum_{\mathbf k} w_{\mathbf k} K_{\mathbf k}^{\beta\alpha} \sum_{\mathbf R'} e^{i\mathbf k\cdot \mathbf R'} \phi_{\alpha}(\mathbf r-\mathbf 0) \phi_{\beta}(\mathbf r - \mathbf R')
+   \end{aligned}
+
+where :math:`f_{n\mathbf k}` is the occupation of the Bloch state at band number
+:math:`n` and :math:`\mathbf k`, :math:`w_{\mathbf k}` is the k-point weight. 
+The density kernel elements :math:`K^{\alpha\beta}_ {\mathbf k}` is expressed as
+:math:`\sum_{n} c_{n\mathbf k}^{\alpha*}  f_{n\mathbf k}  c_{n\mathbf k}^\beta`
+and is k-dependent because :math:`c_{n\mathbf k}` is k-dependent.
+
+Since NGWFs are localised and only overlap with certain other NGWFs, we can 
+replace the summation over :math:`\mathbf R'` with a modified phase factor:
+
+.. math::
+   \begin{aligned}
+   n(\mathbf r)
+   &=N_\mathrm{cell}\sum_{\alpha\beta}\sum_{\mathbf k} w_{\mathbf k} K_{\mathbf k}^{\beta\alpha}   \phi_{\alpha}(\mathbf r - \mathbf 0) \phi_{\beta}(\mathbf r - \mathbf R') \prod_i \theta(k_i,r_{\alpha i} - r_{\beta i}, R'_i)
+   \end{aligned}
+
+where :math:`\mathbf R'` moves the :math:`\beta`-NGWF to be the nearest-neighbor
+of the :math:`\alpha`-NGWF based on the relative location of their centers 
+:math:`r_{\alpha}` and :math:`r_{\beta}`. The one-dimensional phase factor 
+:math:`\theta` takes the form along the :math:`i`-th lattice coordinate as
+
+.. math::
+   \theta(k, r, R)= \begin{cases}1 & |r| \leqslant \frac{1}{2} \\ 
+   e^{i k R} & r>\frac{1}{2} \\ 
+   e^{-i k R} & r<-\frac{1}{2}\end{cases}.
+
+Or, in a shorthand notation :math:`\Theta[\mathbf{k},\alpha,\beta]`.
+
+Similarly, the Hamiltonian matrix elelments can be expressed as
+
+.. math::
+   H_{\mathbf{k},\alpha\beta} = H_{\alpha\beta} \Theta[\mathbf{k},\alpha,\beta]
+
+Special treatment is needed for the non-local potential terms where phase
+factors are added based on the relative location between NGWFs and the non-local
+projectors. Moreover, the gradient contribution also needs to be augmented with
+phase factors.
+
+One thing to note is that when performing tensor corrections, the k-independent
+overlap matrix is used instead of the one augmented with phase factors, this is
+due to the fact that we only have one set of NGWFs in the TB mode.
+
+
 Brillouin zone sampling
------------------------
+=======================
 
 To find the ground state of the system, we need to sample the Brillouin zone by
 performing a summation over the results of different k-points.
@@ -327,12 +394,6 @@ One thing to note is that to use this feature, sometimes one has to turn on
 of NGWFs for each species so that the total number of NGWFs is equal to the
 number of occupied states.
 
-Tight-binding (TB) mode
-=======================
-
-The tight-binding (TB) mode is not yet implemented. The TB mode is designed to
-use fully localised NGWFs and the k-point sampling is performed by augmenting
-the Hamiltonian matrix and the overlap matrix with the k-point phase factors.
 
 Additional notes
 ================
@@ -352,9 +413,10 @@ Keywords
 
 -  ``kpoint_method`` [Basic, default ``None``\ ]. The method used to generate the k-point grid. The options are:
 
-   -  ``PW``: Plane-wave mode.
+   -  ``PW``: Plane-wave mode. Requires NGWFs to be extended along the periodic
+     directions where k-point sampling is applied.
+   -  ``TB``: Tight-Binding mode. Requires NGWFs to be fully localised.
    -  ``None``: No k-point sampling.
-   -  ``TB``: Currently not implemented.
 
 - ``kpoint_grid_shift`` [Basic int int int, default ``0 0 0``\ ]. The shift of the k-point grid.
 
