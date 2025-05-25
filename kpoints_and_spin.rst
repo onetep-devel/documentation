@@ -106,11 +106,11 @@ written as
    u_{n,\mathbf k} (\mathbf r)  = \sum_{\alpha} c_{n,\mathbf k}^{\alpha} \phi_{\alpha}^{\mathbf k} (\mathbf r),
 
 where :math:`c_{n,\mathbf k}^{\alpha}` is a non-unitary rotation matrix that 
-rotates the NGWFs (see TB note).
+rotates the NGWFs into eigenstates.
 
 Expanding :math:`u_{n,\mathbf k}` using in terms of NGWFs (which, as we will see
-later will need to be "extended" NGWFs along periodic directions), :eq:`SE3` can
-be expressed as
+later will need to be "extended" along periodic directions in PW mode),
+:eq:`SE3` can be expressed as
 
 .. math::
    :label: SE4
@@ -152,12 +152,13 @@ Kohn-Sham equation in the plane-wave basis:
 It is worth nothing that in the plane-wave basis the explicit k-dependence only
 exists in the Hamiltonian matrix and the k-index of eigenvectors is the result
 of solving such a k-dependent Hamiltonian. In the NGWF basis, there is also
-k-dependence in the overlap matrix.
+k-dependence in the overlap matrix since it is no longer identity.
 
 The Hamiltonian can be expanded into three terms: the kinetic energy term
 [:math:`T_{\alpha \beta}(\mathbf{k})`],
 the potential term (including local potential from atomic cores and exchange
-correlation terms) and the non-local terms from pseudopotentials.
+correlation terms) and the non-local terms from pseudopotentials and we will now
+see how these terms are expressed with k-dependence.
 
 Kinetic energy term
 ^^^^^^^^^^^^^^^^^^^
@@ -222,7 +223,7 @@ Tight-binding (TB) mode
 
 The tight-binding (TB) mode is designed to use fully localised NGWFs ( 
 ``extended_ngwf : F F F``) and the k-point sampling is performed by augmenting
-the Hamiltonian matrix and the overlap matrix with the phase factors.
+the Hamiltonian, overlap and other matrices with the phase factors.
 
 Specifically, in the TB mode, we adopts the Bloch sum form of the Bloch 
 functions:
@@ -231,8 +232,9 @@ functions:
    \psi_{n\mathbf k}(\mathbf r) = \sum_{\mathbf R} e^{i\mathbf k \cdot \mathbf R} \sum_\alpha c_{n,\mathbf k}^\alpha \phi_\alpha(\mathbf r - \mathbf R)
 
 where :math:`c_{n\mathbf k}` is the k-dependent coefficient that rotates the 
-basis into Kohn-Sham eigenstates. Using this expression, we can re-express the
-charge density and the Kohn-Sham energy.
+basis into Kohn-Sham eigenstates (similar to that in the PW mode) and
+:math:`\mathbf{R}` is the lattice vector of the unit cell. Using this 
+expression, we can re-express the charge density and the Kohn-Sham energy.
 
 Using this Bloch sum the charge density becomes:
 
@@ -246,10 +248,12 @@ where :math:`f_{n\mathbf k}` is the occupation of the Bloch state at band number
 :math:`n` and :math:`\mathbf k`, :math:`w_{\mathbf k}` is the k-point weight. 
 The density kernel elements :math:`K^{\alpha\beta}_ {\mathbf k}` is expressed as
 :math:`\sum_{n} c_{n\mathbf k}^{\alpha*}  f_{n\mathbf k}  c_{n\mathbf k}^\beta`
-and is k-dependent because :math:`c_{n\mathbf k}` is k-dependent.
+and is k-dependent.
 
 Since NGWFs are localised and only overlap with certain other NGWFs, we can 
-replace the summation over :math:`\mathbf R'` with a modified phase factor:
+limit the summation over :math:`\mathbf R'` over all cells to only the ones that
+makes NGWF :math:`\alpha` overlaps with :math:`\beta`. Doing this with a 
+modified phase factor gives
 
 .. math::
    \begin{aligned}
@@ -281,7 +285,8 @@ phase factors.
 
 One thing to note is that when performing tensor corrections, the k-independent
 overlap matrix is used instead of the one augmented with phase factors, this is
-due to the fact that we only have one set of NGWFs in the TB mode.
+due to the fact that only one set of NGWFs is used for all k-points in the 
+TB mode.
 
 
 Brillouin zone sampling
@@ -404,9 +409,7 @@ Additional notes
 ================
 
 Currently, full Brillouin zone sampling is only tested for norm-conserving
-pseudopotentials. 
-
-Supported functionalities:
+pseudopotentials. Here's a brief list of supported functionalities:
 
 - Ground state energy calculation with LNV (``exact_lnv : T``) and EDFT
   (``edft : T``). 
@@ -418,13 +421,13 @@ Keywords
 ========
 
 -  ``extended_ngwf`` [Basic, bool bool bool, default ``F F F``\ ]. Turn on 
-  extended NGWFs along the three directions.
+   extended NGWFs along the three directions.
 
 -  ``kpoint_method`` [Basic, default ``None``\ ]. The method used to generate 
-  the k-point grid. The options are:
+   the k-point grid. The options are:
 
    -  ``PW``: Plane-wave mode. Requires NGWFs to be extended along the periodic
-     directions where k-point sampling is applied.
+      directions where k-point sampling is applied.
    -  ``TB``: Tight-Binding mode. Requires NGWFs to be fully localised.
    -  ``None``: No k-point sampling.
 
