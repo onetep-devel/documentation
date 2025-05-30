@@ -223,20 +223,20 @@ Tight-binding (TB) mode
 
 The tight-binding (TB) mode is designed to use fully localised NGWFs ( 
 ``extended_ngwf : F F F``) and the k-point sampling is performed by augmenting
-the Hamiltonian, overlap and other matrices with the phase factors.
+the Hamiltonian, overlap and other matrices with k-dependent phase factors.
 
-Specifically, in the TB mode, we adopts the Bloch sum form of the Bloch 
-functions:
+Specifically, in the TB mode, we adopt the Bloch sum form of the Bloch function:
 
 .. math::
    \psi_{n\mathbf k}(\mathbf r) = \sum_{\mathbf R} e^{i\mathbf k \cdot \mathbf R} \sum_\alpha c_{n,\mathbf k}^\alpha \phi_\alpha(\mathbf r - \mathbf R)
 
 where :math:`c_{n\mathbf k}` is the k-dependent coefficient that rotates the 
 basis into Kohn-Sham eigenstates (similar to that in the PW mode) and
-:math:`\mathbf{R}` is the lattice vector of the unit cell. Using this 
-expression, we can re-express the charge density and the Kohn-Sham energy.
+:math:`\mathbf{R}` is the lattice vector of the unit cell. Using this
+expression, we can re-express the charge density and the Kohn-Sham energy with
+k-dependent phase factors.
 
-Using this Bloch sum the charge density becomes:
+Using this Bloch sum, the charge density becomes
 
 .. math::
    \begin{aligned}
@@ -245,15 +245,15 @@ Using this Bloch sum the charge density becomes:
    \end{aligned}
 
 where :math:`f_{n\mathbf k}` is the occupation of the Bloch state at band number
-:math:`n` and :math:`\mathbf k`, :math:`w_{\mathbf k}` is the k-point weight. 
-The density kernel elements :math:`K^{\alpha\beta}_ {\mathbf k}` is expressed as
+:math:`n` and :math:`\mathbf k`, :math:`w_{\mathbf k}` is the k-point weight.
+The density kernel element :math:`K^{\alpha\beta}_ {\mathbf k}` is expressed as
 :math:`\sum_{n} c_{n\mathbf k}^{\alpha*}  f_{n\mathbf k}  c_{n\mathbf k}^\beta`
 and is k-dependent.
 
 Since NGWFs are localised and only overlap with certain other NGWFs, we can 
-limit the summation over :math:`\mathbf R'` over all cells to only the ones that
-makes NGWF :math:`\alpha` overlaps with :math:`\beta`. Doing this with a 
-modified phase factor gives
+limit the summation over :math:`\mathbf R'` over all cells to only the one that
+makes NGWF :math:`\alpha` overlaps with :math:`\beta`. Doing this with the phase
+factors written in a product form gives
 
 .. math::
    \begin{aligned}
@@ -271,22 +271,23 @@ of the :math:`\alpha`-NGWF based on the relative location of their centers
    e^{i k R} & r>\frac{1}{2} \\ 
    e^{-i k R} & r<-\frac{1}{2}\end{cases}.
 
-Or, in a shorthand notation :math:`\Theta[\mathbf{k},\alpha,\beta]`.
+Or, in a shorthand notation we can write it as
+:math:`\Theta[\mathbf{k},\alpha,\beta]`.
 
 Similarly, the Hamiltonian matrix elelments can be expressed as
 
 .. math::
    H_{\mathbf{k},\alpha\beta} = H_{\alpha\beta} \Theta[\mathbf{k},\alpha,\beta]
 
-Special treatment is needed for the non-local potential terms where phase
+Special treatment is needed for the non-local pseudopotential terms where phase
 factors are added based on the relative location between NGWFs and the non-local
 projectors. Moreover, the gradient contribution also needs to be augmented with
 phase factors.
 
 One thing to note is that when performing tensor corrections, the k-independent
 overlap matrix is used instead of the one augmented with phase factors, this is
-due to the fact that only one set of NGWFs is used for all k-points in the 
-TB mode.
+due to the fact that only one set of NGWFs is used for all k-points in the TB
+mode.
 
 
 Brillouin zone sampling
