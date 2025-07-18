@@ -266,10 +266,10 @@ There are two ways to define the k-point sampling in ONETEP:
 Kpar parallelisation
 ====================
 
-Since the calculations with k-points are almost fully isolated with one and 
-another, it makes sense to use k-pool parallisation where multiple instances of 
-ONETEP (k-parallisation groups, or kpars in short) is launched altogether, each
-in charge of running a sub-set of k-points (and in each kpar, k-points are 
+Since the calculations with k-points are almost fully isolated with one and
+another, it makes sense to use k-pool parallelisation where multiple instances
+of ONETEP (k-parallelisation groups, or kpars in short) is launched altogether,
+each in charge of running a sub-set of k-points (and in each kpar, k-points are
 looped over in serial).
 
 The kpar parallelisation is controlled by the keyword `num_kpar` in the input
@@ -282,10 +282,37 @@ file:
 This means that the k-points are divided into 4 groups and 4 ONETEP instances
 will be launched. 
 
-It is worth noting that the number of processes needs to be the same for all
-kpars. This means you need to carefully calculate the number of processes,
-taking into account that each ONETEP instance can only use the number of
-processes less or equal to the number of atoms in the system.
+When kpar parallelisation is used, the total number of MPI processes will be
+divided by the number of kpars, i.e., if you have 16 MPI processes and 4 kpars,
+each kpar will use 4 MPI processes. This means that the number of processes
+needs to be divisible by the number of kpars. Also, because each ONETEP instance
+can only use the number of processes less or equal to the number of atoms in the
+system, the total number of MPI processes should not exceed number of kpars
+times the number of atoms in the system.
+
+OpenMP threading can also be used in combination with MPI parallelisation and
+kpar parallelisation. Since one standalone instance of ONETEP is launched for
+each kpar, the number of OpenMP threads only takes effect within each kpar,
+attaching to each ONETEP instance. This means that keywords such as
+`THREADS_NUM_FFTBOXES` and `THREADS_MAX (BASIC)` will only affect threads within
+each instance of ONETEP.
+
+To give an example, one can run a calculation with:
+
+1. 4 kpars
+
+2. 4 MPI processes per kpar
+
+3. 4 OpenMP threads per MPI process
+
+This means one would require a total number of 64 cores, used by 16 MPI
+processes and 4 openMP threads per MPI process. An example PBS script for this
+job is given below:
+
+
+::
+
+   #PBS -l select=8:ncpus=64:mpiprocs=32:ompthreads=2:mem=200gb
 
 
 Hybrid and extended NGWFs
