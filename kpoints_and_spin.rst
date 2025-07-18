@@ -297,18 +297,12 @@ attaching to each ONETEP instance. This means that keywords such as
 `THREADS_NUM_FFTBOXES` and `THREADS_MAX (BASIC)` will only affect threads within
 each instance of ONETEP.
 
-To give an example, one can run a calculation with:
-
-1. 4 kpars
-
-2. 4 MPI processes per kpar
-
-3. 4 OpenMP threads per MPI process
+To give an example, one can run a calculation with: 4 kpars, 4 MPI processes per
+kpar and 4 OpenMP threads per MPI process.
 
 This means one would require a total number of 64 cores, used by 16 MPI
 processes and 4 openMP threads per MPI process. An example PBS script for this
 job is given below:
-
 
 ::
 
