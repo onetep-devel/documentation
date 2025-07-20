@@ -300,13 +300,13 @@ each instance of ONETEP.
 To give an example, one can run a calculation with: 4 kpars, 4 MPI processes per
 kpar and 4 OpenMP threads per MPI process.
 
-This means one would require a total number of 64 cores, used by 16 MPI
+This means one would require a total number of 64 cores (1 node), used by 16 MPI
 processes and 4 openMP threads per MPI process. An example PBS script for this
 job is given below:
 
 ::
 
-   #PBS -l select=8:ncpus=64:mpiprocs=32:ompthreads=2:mem=200gb
+   #PBS -l select=1:ncpus=64:mpiprocs=16:ompthreads=4:mem=200gb
 
 
 Hybrid and extended NGWFs
