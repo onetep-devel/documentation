@@ -526,6 +526,8 @@ is less than the onset radius for the others. In this case, there is no
 need to apply a confinement to the lower-cutoff channel at all (eg in
 the example above for Zinc).
 
+.. _initial-guess-density-setting-initial-charges-and-spins:
+
 Initial Guess Density: Setting initial charges and spins
 --------------------------------------------------------
 
