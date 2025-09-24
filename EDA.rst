@@ -239,6 +239,8 @@ block would appear as,
       ../STAGE2/stage2
     %endblock EDA_SUPER
 
+.. _eda_continuation:
+
 Continuation
 ============
 

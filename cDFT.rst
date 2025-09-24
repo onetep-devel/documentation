@@ -64,6 +64,8 @@ should have been generated with the same entries for *Z-projector* *and
 L-projector* in %block constrained\_dft **OR** cdft\_multi\_proj and
 %block species\_atom\_set as in the current calculation.
 
+.. _cdft_singlepoint_restart:
+
 Is this the first single-point cDFT submission or do I want to restart a single-point calculation?
 --------------------------------------------------------------------------------------------------
 
@@ -200,6 +202,8 @@ CDFT\_PRINT\_ALL\_OCC=T.
 **Mind.** The population of a given cDFT-site depends critically on the
 projector used. Make sure you decide your cDFT-targets from the
 DFT-populations obtained with the same set of projectors!
+
+.. _cdft_optimise_projectors:
 
 How do I optimise self-consistently the projectors for a given geometry?
 ------------------------------------------------------------------------

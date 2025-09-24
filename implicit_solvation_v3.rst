@@ -448,6 +448,8 @@ of a ONETEP calculation. Normally this is avoided by making the fine and
 double grids the same size, but is no longer possible when the fine grid
 is modified for multigrid operations in PBCs.
 
+.. _solvation_auto:
+
 Auto solvation
 --------------
 
@@ -545,6 +547,8 @@ files are then read at the beginning of the calculation in solvent. This
 makes restarting in-solvent geometry optimisation and molecular dynamics
 runs very tricky – this is not recommended in practice. Please ensure
 such calculations run to completion without manual restarts.
+
+.. _solvation_manual:
 
 Manual solvation and restarts
 -----------------------------

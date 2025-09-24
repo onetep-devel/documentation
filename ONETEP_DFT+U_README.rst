@@ -221,6 +221,7 @@ In practice this is done by modifying the perturbation by including an additiona
 
    V_{\text{ext}}^{p} = V_{\text{ext}} + \beta \sum_{m,m'}\lvert\varphi_{m'}^{(I\uparrow)}\rangle\langle\varphi_m^{(I\uparrow)}\rvert-\lvert\varphi_{m'}^{(I\downarrow)}\rangle\langle\varphi_m^{(I\downarrow)}\rvert
 
+.. _dft+u_projectors_scf:
 
 Using NGWFs and projector self-consistency
 ==========================================
@@ -381,6 +382,8 @@ method for carrying out carefully-defined atom-centred atomic
 population analysis, or breaking symmetries in spin or charge ordered
 systems.
 
+
+.. _dft+u_keyword_list:
 
 DFT+\ :math:`U` keywords
 =========================
