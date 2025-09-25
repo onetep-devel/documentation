@@ -63,6 +63,8 @@ All calculations using SWRI have these limitations:
 Spherical wave resolution of identity
 =====================================
 
+.. _hfx_swri_metric:
+
 Generating the metric matrix
 ----------------------------
 

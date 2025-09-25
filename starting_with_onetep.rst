@@ -169,22 +169,89 @@ https://www.physics.rutgers.edu/gbrv/all_pbe_paw_v1.5.tar.gz. There are also
 PAWs and pseudopotential (``.recpot``) files in the ``utils-devel``
 repository at https://github.com/onetep-devel/utils-devel.
 
-| To continue a calculation if it has run out of computation time, use
-  the keywords below. The original input must have the ``write``
-  keywords, but no ``read`` keywords because the files aren’t available
-  to read at this stage. Any continuing input files must include the
-  ``read`` keywords. If the input file name isn’t changed upon
-  continuation, the output file will be overwrite with the results of
-  the continuation, so make sure to back up files before continuing.
-| ``write_denskern T``
-| ``write_tightbox_ngwfs T``
-| ``read_denskern T``
-| ``read_tightbox_ngwfs T``
-| If you are running an ensemble DFT (EDFT) calculation you will also
-  need to add
-| ``write_hamiltonian T``
-| ``read_hamiltonian T``
-| to the above list.
+ONETEP also supports pseudopotentials in the UPF format (``.upf``), either
+norm-conserving (NC) or projector augmented wave (PAW).
+Popular repositories for pseudopotentials in this format can be found at
+`PseudoDojo <https://www.pseudo-dojo.org>`__ and
+`Standard Solid State Pseudopotentials <https://www.materialscloud.org/discover/sssp/table/efficiency>`__.
+
+
+.. _restarting_onetep:
+
+Restarting or continuing ONETEP runs
+====================================
+
+ONETEP can write several files that can be reused to either continue a
+task or to perform subsequent tasks that are compatible with the
+one that has completed. For example, a task might not have achieved the
+desired precision in the total energy and has to be restarted with new
+parameters. As another example, the geometry of some complicated system
+was optimised and the next task is to compute something else based on
+the optimised atomic positions and/or cell parameters. When doing this
+it's important not to change the name of the input file between ONETEP
+runs, as the names of these auxiliary files are derived from the name of
+the input file and ONETEP will not be able to find them and read them
+otherwise.
+
+The auxiliary files are written if the corresponding keywords in the
+input file have been activated. These keywords are generally of the
+form ``write_[...] T`` and must be present in the input file used for
+the task that has completed. To instruct ONETEP to read these files for
+a subsequent task the respective keywords ``read_[...] T`` have to be
+added to the input file. If these keywords are present in the input file
+but the respective files do not exist or are not present in the folder
+where ONETEP is running the run will abort with an error.  Which files
+can be written depends on the task, but there are some files that are
+common to most tasks. The file containing the NGWFs is written using
+``write_tightbox_ngwfs T``. In addition, the density kernel can be
+written using ``write_denskern T``, and in DFT calculations with
+fractional occupation numbers (EDFT) one can also write out the
+Hamiltonian with ``write_hamiltonian T``. In a follow-up run these
+files are then read by setting ``read_tightbox_ngwfs T``,
+``read_denskern T`` and ``read_hamiltonian T`` as appropriate. The
+density kernel and the Hamiltonian are derived from the NGWFs, so
+reading the respective auxiliary files without reading the NGWFs is
+of no practical benefit.
+
+ONETEP can automate the logic explained in the previous paragraph to
+save the user the trouble of having to change/add all the appropriate
+flags to the input file, using ``task restart``. The fundamental
+condition for this to work is for the previous task to have completed
+correctly. If the simulation crashed or ran out of computing time then
+there is no guarantee that the files needed for continuation or restart
+have been written correctly and attempting a restart will fail with an
+error.  For example, to continue a singlepoint run that was declared in
+the input file with ``task singlepoint`` one prepends the restart task
+to the task list: ``task restart singlepoint``. ONETEP should then be
+executed on the same folder that was used for the previous task (or on
+a full copy of this folder). This will trigger some internal heuristics
+on what can be done based on what files are available from the prior run,
+using the information logged in its XML file (if the input file was named
+``something.dat`` then the XML file is named ``something.xml``). If the
+appropriate files are present in the folder for the new run then the
+corresponding flags are activated: ``read_[...] = T``. As an additional
+simplification to the user, if the prior run has resulted in an optimised
+geometry and/or cell parameters, this is also automatically updated
+using the XML file when using ``task restart``.
+
+Certain tasks have more specific continuation mechanisms which are
+described in their respective documentation. These are:
+
+* Geometry optimisation: :ref:`geometry_continuation`
+* Calculations with solvent: :ref:`solvation_auto`
+  and :ref:`solvation_manual`
+* Embedded Mean-field Theory (EMFT): :ref:`emft_keywords`
+* Constrained DFT: :ref:`cdft_singlepoint_restart`
+  and :ref:`cdft_optimise_projectors`
+* DFT + U (+ J): :ref:`dft+u_projectors_scf` and :ref:`dft+u_keyword_list`
+* Conduction NGWF calculations: :ref:`cond_ngwfs_notes` and :ref:`cond_ngwfs_solvent`
+* Linear-response TDDFT (LR-TDDFT): :ref:`lr-tddft_performing_calculation`
+* :ref:`bsunfold`
+* Molecular dynamics: :ref:`bomd_input`, :ref:`bomd_thermostat` and
+  :ref:`bomd_notes_restart`
+* Spherical wave resolution of identity: :ref:`hfx_swri_metric`
+* Energy decomposition analysis (EDA): :ref:`eda_continuation`
+
 
 .. _running_parallel:
 

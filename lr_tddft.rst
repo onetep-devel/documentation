@@ -130,6 +130,9 @@ orthonormality constraint of the form
 and an analogous expression for the total energy :math:`\Omega` in full
 TDDFT can be derived.
 
+
+.. _lr-tddft_performing_calculation:
+
 Performing a LR-TDDFT calculation
 =================================
 

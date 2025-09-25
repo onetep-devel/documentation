@@ -182,6 +182,8 @@ solely at the low level of theory, or optimised using EMFT. This only
 makes a difference if the active region is close to the edge of the
 cavity.
 
+.. _emft_keywords:
+
 Keywords
 ========
 

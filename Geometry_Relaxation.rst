@@ -273,6 +273,8 @@ parameter in the input file,
     & \mathrm{geom\_output\_detail: VERBOSE}
   \end{aligned}
 
+.. _geometry_continuation:
+
 Continuation
 ------------
 
