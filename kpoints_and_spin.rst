@@ -15,18 +15,19 @@ TBC
 k-points and Brillouin zone sampling in ONETEP
 ==============================================
 
-ONETEP now supports k-point sampling in the Brillouin zone. By utilising the k-point
-sampling technique, the periodicity of the system can be exploited to reduce the
-computational cost of the calculation and small systems (from unit cells upwards) can be
-efficiently simulated.
+ONETEP now supports k-point sampling in the Brillouin zone. By utilising the
+k-point sampling technique, the periodicity of the system can be exploited to
+reduce the computational cost of the calculation and small systems (from unit
+cells upwards) can be efficiently simulated.
 
 The k-point sampling technique is implemented in two modes: the plane-wave (PW)
-mode and the tight-binding (TB) mode. The default behaviour in ONETEP is to assume
-the system is periodic but that the simulation cell is large enough that k-point
-sampling is not required. In order to launch a calculation on a simulation cell where
-this is not the case, so k-point sampling is required, the user must first choose
-between these modes as appropriate to the periodicity of their system, and then
-specify a grid of k-points on which the calculation is to be performed.
+mode and the tight-binding (TB) mode. The default behaviour in ONETEP is to
+assume the system is periodic but that the simulation cell is large enough that
+k-point sampling is not required. In order to launch a calculation on a
+simulation cell where this is not the case, so k-point sampling is required, the
+user must first choose between these modes as appropriate to the periodicity of
+their system, and then specify a grid of k-points on which the calculation is to
+be performed.
 
 
 Plane-wave mode (PW) mode
@@ -53,9 +54,9 @@ Bloch eigenstate :math:`\psi_{n,\mathbf{k}}` is given by
    \hat{H} \psi_{n,\mathbf k} (\mathbf r) = \epsilon_{n,\mathbf k} \psi_{n,\mathbf k} (\mathbf r).
 
 where :math:`\mathbf k` labels the k-point, :math:`n` the band number.
-Immediately we can see that we need to solve this equation separately at each k-point,
-hence we need to have seperate representations of any quantities arising from
-:math:`\psi_{n,\mathbf k}` for each k-point.
+Immediately we can see that we need to solve this equation separately at each
+k-point, hence we need to have seperate representations of any quantities 
+arising from :math:`\psi_{n,\mathbf k}` for each k-point.
 
 The most generic form of the Bloch functions is written as,
 
@@ -64,8 +65,8 @@ The most generic form of the Bloch functions is written as,
 
    \psi_{n,\mathbf k} (\mathbf r) = e^{i\mathbf k \cdot \mathbf r} u_{n,\mathbf k} (\mathbf r),
 
-where :math:`u_{n,\mathbf k} (\mathbf r)` is a function with the periodicity of the unit cell,
-i.e., 
+where :math:`u_{n,\mathbf k} (\mathbf r)` is a function with the periodicity of
+the unit cell, i.e., 
 
 .. math::
    u_{n,\mathbf k} (\mathbf r) = u_{n,\mathbf k} (\mathbf r + \mathbf R),
@@ -96,17 +97,20 @@ If we introduce the k-dependent Hamiltonian operator :math:`\hat{H}(\mathbf k)`,
 
    \hat{H}(\mathbf k) u_{n,\mathbf k} (\mathbf r) = \epsilon_{n,\mathbf k} u_{n,\mathbf k} (\mathbf r). 
 
-In ONETEP we use a set of k-dependent NGWFs (:math:`\{ \phi_\alpha^{\mathbf k}\}`) as our support functions,
-so the cell-periodic part of the Bloch wavefunction :math:`u_{n,\mathbf{k}}` can be written as
+In ONETEP we use a set of k-dependent NGWFs 
+(:math:`\{ \phi_\alpha^{\mathbf k}\}`) as our support functions, so the
+cell-periodic part of the Bloch wavefunction :math:`u_{n,\mathbf{k}}` can be
+written as
 
 .. math::
    u_{n,\mathbf k} (\mathbf r)  = \sum_{\alpha} c_{n,\mathbf k}^{\alpha} \phi_{\alpha}^{\mathbf k} (\mathbf r),
 
 where :math:`c_{n,\mathbf k}^{\alpha}` is a non-unitary rotation matrix that 
-rotates the NGWFs (see TB note).
+rotates the NGWFs into eigenstates.
 
-Expanding :math:`u_{n,\mathbf k}` using in terms of NGWFs (which, as we will see later
-will need to be "extended" NGWFs along periodic directions), :eq:`SE3` can be expressed as
+Expanding :math:`u_{n,\mathbf k}` using in terms of NGWFs (which, as we will see
+later will need to be "extended" along periodic directions in PW mode),
+:eq:`SE3` can be expressed as
 
 .. math::
    :label: SE4
@@ -138,21 +142,23 @@ and the overlap matrix :math:`S` elements are:
    S_{\alpha \beta} (\mathbf k) = \int \phi_{\alpha}^{\mathbf k *}(\mathbf r)\phi_{\beta}^{\mathbf k} (\mathbf r) d\mathbf r. 
 
 :eq:`SE6` is the generalized Kohn-Sham equation under the basis of 
-:math:`\phi`. If :math:`\phi` were simply plane waves, :math:`\mathbf{S}` would be
-the identity, and we could return to the canonical expression of the Kohn-Sham
-equation in the plane-wave basis:
+:math:`\phi`. If :math:`\phi` were simply plane waves, :math:`\mathbf{S}` would
+be the identity, and we could return to the canonical expression of the
+Kohn-Sham equation in the plane-wave basis:
 
 .. math::
    \sum_{\beta} H_{\alpha \beta}(\mathbf k) c_{n, \mathbf k}^{\beta} = \epsilon_{n,\mathbf k}  c_{n, \mathbf k}^{\alpha}
 
-It is worth nothing that in the plane-wave basis the explicit k-dependence only exists in the 
-Hamiltonian matrix and the k-index of eigenvectors is the result of solving such
-a k-dependent Hamiltonian. In the NGWF basis, there is also k-dependence in the overlap matrix.
+It is worth nothing that in the plane-wave basis the explicit k-dependence only
+exists in the Hamiltonian matrix and the k-index of eigenvectors is the result
+of solving such a k-dependent Hamiltonian. In the NGWF basis, there is also
+k-dependence in the overlap matrix since it is no longer identity.
 
 The Hamiltonian can be expanded into three terms: the kinetic energy term
 [:math:`T_{\alpha \beta}(\mathbf{k})`],
 the potential term (including local potential from atomic cores and exchange
-correlation terms) and the non-local terms from pseudopotentials.
+correlation terms) and the non-local terms from pseudopotentials and we will now
+see how these terms are expressed with k-dependence.
 
 Kinetic energy term
 ^^^^^^^^^^^^^^^^^^^
@@ -212,8 +218,80 @@ The k-dependent non-local potential term is given by:
 and we see that the phase factors are to be augmented to the non-local
 projectors so that the non-local potential term is k-dependent.
 
+Tight-binding (TB) mode
+=======================
+
+The tight-binding (TB) mode is designed to use fully localised NGWFs ( 
+``extended_ngwf : F F F``) and the k-point sampling is performed by augmenting
+the Hamiltonian, overlap and other matrices with k-dependent phase factors.
+
+Specifically, in the TB mode, we adopt the Bloch sum form of the Bloch function:
+
+.. math::
+   \psi_{n\mathbf k}(\mathbf r) = \sum_{\mathbf R} e^{i\mathbf k \cdot \mathbf R} \sum_\alpha c_{n,\mathbf k}^\alpha \phi_\alpha(\mathbf r - \mathbf R)
+
+where :math:`c_{n\mathbf k}` is the k-dependent coefficient that rotates the 
+basis into Kohn-Sham eigenstates (similar to that in the PW mode) and
+:math:`\mathbf{R}` is the lattice vector of the unit cell. Using this
+expression, we can re-express the charge density and the Kohn-Sham energy with
+k-dependent phase factors.
+
+Using this Bloch sum, the charge density becomes
+
+.. math::
+   \begin{aligned}
+   n(\mathbf r) =& \sum_n f_{n,\mathbf k} \sum_{\mathbf k} w_{\mathbf k} |\psi_{n,\mathbf k}(\mathbf r)|^2\\
+   =&N_\mathrm{cell}\sum_{\alpha\beta}\sum_{\mathbf k} w_{\mathbf k} K_{\mathbf k}^{\beta\alpha} \sum_{\mathbf R'} e^{i\mathbf k\cdot \mathbf R'} \phi_{\alpha}(\mathbf r-\mathbf 0) \phi_{\beta}(\mathbf r - \mathbf R')
+   \end{aligned}
+
+where :math:`f_{n\mathbf k}` is the occupation of the Bloch state at band number
+:math:`n` and :math:`\mathbf k`, :math:`w_{\mathbf k}` is the k-point weight.
+The density kernel element :math:`K^{\alpha\beta}_ {\mathbf k}` is expressed as
+:math:`\sum_{n} c_{n\mathbf k}^{\alpha*}  f_{n\mathbf k}  c_{n\mathbf k}^\beta`
+and is k-dependent.
+
+Since NGWFs are localised and only overlap with certain other NGWFs, we can 
+limit the summation over :math:`\mathbf R'` over all cells to only the one that
+makes NGWF :math:`\alpha` overlaps with :math:`\beta`. Doing this with the phase
+factors written in a product form gives
+
+.. math::
+   \begin{aligned}
+   n(\mathbf r)
+   &=N_\mathrm{cell}\sum_{\alpha\beta}\sum_{\mathbf k} w_{\mathbf k} K_{\mathbf k}^{\beta\alpha}   \phi_{\alpha}(\mathbf r - \mathbf 0) \phi_{\beta}(\mathbf r - \mathbf R') \prod_i \theta(k_i,r_{\alpha i} - r_{\beta i}, R'_i)
+   \end{aligned}
+
+where :math:`\mathbf R'` moves the :math:`\beta`-NGWF to be the nearest-neighbor
+of the :math:`\alpha`-NGWF based on the relative location of their centers 
+:math:`r_{\alpha}` and :math:`r_{\beta}`. The one-dimensional phase factor 
+:math:`\theta` takes the form along the :math:`i`-th lattice coordinate as
+
+.. math::
+   \theta(k, r, R)= \begin{cases}1 & |r| \leqslant \frac{1}{2} \\ 
+   e^{i k R} & r>\frac{1}{2} \\ 
+   e^{-i k R} & r<-\frac{1}{2}\end{cases}.
+
+Or, in a shorthand notation we can write it as
+:math:`\Theta[\mathbf{k},\alpha,\beta]`.
+
+Similarly, the Hamiltonian matrix elelments can be expressed as
+
+.. math::
+   H_{\mathbf{k},\alpha\beta} = H_{\alpha\beta} \Theta[\mathbf{k},\alpha,\beta]
+
+Special treatment is needed for the non-local pseudopotential terms where phase
+factors are added based on the relative location between NGWFs and the non-local
+projectors. Moreover, the gradient contribution also needs to be augmented with
+phase factors.
+
+One thing to note is that when performing tensor corrections, the k-independent
+overlap matrix is used instead of the one augmented with phase factors, this is
+due to the fact that only one set of NGWFs is used for all k-points in the TB
+mode.
+
+
 Brillouin zone sampling
------------------------
+=======================
 
 To find the ground state of the system, we need to sample the Brillouin zone by
 performing a summation over the results of different k-points.
@@ -348,37 +426,38 @@ One thing to note is that to use this feature, sometimes one has to turn on
 of NGWFs for each species so that the total number of NGWFs is equal to the
 number of occupied states.
 
-Tight-binding (TB) mode
-=======================
-
-The tight-binding (TB) mode is not yet implemented. The TB mode is designed to
-use fully localised NGWFs and the k-point sampling is performed by augmenting
-the Hamiltonian matrix and the overlap matrix with the k-point phase factors.
 
 Additional notes
 ================
 
-Currently, full Brillouin zone sampling is only implemented in the plane-wave
-mode and tested for norm-conserving pseudopotentials. 
+Currently, full Brillouin zone sampling is only tested for norm-conserving
+pseudopotentials. Here's a brief list of supported functionalities:
 
-Supported functionalities:
-- Ground state energy calculation with LNV (``exact_lnv : T``) and EDFT (``edft : T``). 
+- Ground state energy calculation with LNV (``exact_lnv : T``) and EDFT
+  (``edft : T``). 
 - Geometry optimisation (but no cell-optimisation).
-- Parts of the properties module (e.g., charge density outputs).
+- Parts of the properties module (e.g., charge density outputs, eigenvalue
+  outputs).
 
 Keywords
 ========
 
--  ``extended_ngwf`` [Basic, bool bool bool, default ``F F F``\ ]. Turn on extended NGWFs along the three directions.
+-  ``extended_ngwf`` [Basic, bool bool bool, default ``F F F``\ ]. Turn on 
+   extended NGWFs along the three directions.
 
--  ``kpoint_method`` [Basic, default ``None``\ ]. The method used to generate the k-point grid. The options are:
+-  ``kpoint_method`` [Basic, default ``None``\ ]. The method used to generate 
+   the k-point grid. The options are:
 
-   -  ``PW``: Plane-wave mode.
+   -  ``PW``: Plane-wave mode. Requires NGWFs to be extended along the periodic
+      directions where k-point sampling is applied.
+   -  ``TB``: Tight-Binding mode. Requires NGWFs to be fully localised.
    -  ``None``: No k-point sampling.
-   -  ``TB``: Currently not implemented.
 
-- ``kpoint_grid_shift`` [Basic int int int, default ``0 0 0``\ ]. The shift of the k-point grid.
+- ``kpoint_grid_shift`` [Basic int int int, default ``0 0 0``\ ]. The shift of 
+  the k-point grid.
 
-- ``kpoint_grid_size`` [Basic int int int, default ``1 1 1``\ ]. The size of the k-point grid.
+- ``kpoint_grid_size`` [Basic int int int, default ``1 1 1``\ ]. The size of 
+  the k-point grid.
 
-- ``num_kpars`` [Basic int, default ``1``\ ]. The number of k-parallelisation groups.
+- ``num_kpars`` [Basic int, default ``1``\ ]. The number of k-parallelisation
+  groups.
