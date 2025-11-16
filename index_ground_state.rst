@@ -23,6 +23,7 @@ Ground State Calculation Setup
    implicit_solvation_v3.rst
    hfx.rst
    cutoff_coulomb.rst
+   dipole_correction.rst
    scissor_operator.rst
    EMFT_in_ONETEP.rst
 
