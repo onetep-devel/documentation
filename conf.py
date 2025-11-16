@@ -33,6 +33,7 @@
 # ones.
 extensions = ['sphinx.ext.mathjax']
 extensions += ["sphinx_rtd_dark_mode"]
+extensions += ["sphinx_favicon"]
 default_dark_mode = False
 
 # Add any paths that contain templates here, relative to this directory.
@@ -88,6 +89,16 @@ numfig = True
 # a list of builtin themes.
 #
 html_theme = 'alabaster'
+html_logo = '_static/onetep_logo.svg'
+html_theme_options = {
+    'logo_only': True,
+    'display_version': True,
+}
+
+# --- Favicon ---
+favicons = [
+    "favicon.ico",
+]
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
