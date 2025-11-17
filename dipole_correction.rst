@@ -13,7 +13,7 @@ spurious interaction across periodic images, especially when there's not enough
 vacuum space. The goal of applying dipole correction to ONETEP is to eliminate
 this effect. An alternative way is to employ coulomb cut-off.
 
-The netdipole moment :math:`\mu` can be easily calculated as,
+The net dipole moment :math:`\mu` can be easily calculated as,
 
 .. math::
 
@@ -36,18 +36,20 @@ expressed as
 To eliminate this effect, we can insert a dipole layer (by directly manipulating
 the external potential) along certain direction. This is done in the spirit of
 `Jörg Neugebauer and Matthias Scheffler
-<https://doi.org/10.1103/PhysRevB.46.16067>`__. It is indeed possible to do this
-adaptively to counter all dipole correction for molecules and that will be
-implemented in the future. For now, the added electric field takes the following
-shape
+<https://doi.org/10.1103/PhysRevB.46.16067>`__. 
 
+For now, the dipole correction only supports slab calculation (or equivlant) and
+can only be applied to the vacuum direction prependicular to the other two
+directions. Note that you cell can be tilted but as long as the Cartesian
+direction specified for the dipole correction is prependicular to the periodic
+cell direction, the result is correct. The added electric field takes the
+following shape
 
 .. math::
 
    E = 4\pi(\boldsymbol{\mu}/\Omega)_z (z-z_\mathrm{origin})
 
-Furthermore, following the same logic one can add an external electric field by
-manipulating
+Furthermore, one can add an external electric field by manipulating
 
 .. math::
 
