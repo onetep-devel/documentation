@@ -89,7 +89,7 @@ numfig = True
 # a list of builtin themes.
 #
 html_theme = 'alabaster'
-html_logo = '_static/onetep_logo.svg'
+html_logo = '_static/onetep_logo.png'
 html_theme_options = {
     'logo_only': True,
     'display_version': True,
