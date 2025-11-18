@@ -50,8 +50,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'ONETEP Documentation'
-copyright = '2022-2023, Joseph Prentice'
-author = 'ONETEP Developers\' Group: Jacek Dziedzic, Peter Haynes, Nicholas Hine, Arash Mostofi, Mike Payne, and Chris-Kriton Skylaris. Documentation by Joseph Prentice'
+copyright = '2022-2025, ONETEP Developers\' Group'
+author = 'ONETEP Developers\' Group: Jacek Dziedzic, Peter Haynes, Nicholas Hine, Arash Mostofi, Mike Payne, and Chris-Kriton Skylaris.'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -158,7 +158,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'ONETEP_Documentation.tex', 'ONETEP Documentation',
-     'Joseph Prentice', 'manual'),
+     'ONETEP Developers\'s Group', 'manual'),
 ]
 
 
