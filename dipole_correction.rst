@@ -35,8 +35,8 @@ expressed as (in units of Hartree/Bohr)
 
 To eliminate this effect, we can insert a dipole layer (by directly manipulating
 the external potential) along certain direction. This is done in the spirit of
-`Jörg Neugebauer and Matthias
-Scheffler<https://doi.org/10.1103/PhysRevB.46.16067>`__. For now, the dipole
+`Jörg Neugebauer and Matthias Scheffler <https://doi.org/10.1103/PhysRevB.46.16067>`__. 
+For now, the dipole
 correction only supports slab calculation (or equivlant) and can only be applied
 to the vacuum direction prependicular to the other two directions. Note that you
 cell can be tilted but as long as the Cartesian direction specified for the
