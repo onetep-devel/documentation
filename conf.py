@@ -58,7 +58,7 @@ author = 'ONETEP Developers\' Group: Jacek Dziedzic, Peter Haynes, Nicholas Hine
 # built documents.
 #
 # The short X.Y version.
-version = '7.1'
+version = '7.3'
 # The full version, including alpha/beta/rc tags.
 release = '7.1.8'
 
