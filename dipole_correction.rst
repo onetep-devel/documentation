@@ -57,6 +57,11 @@ Following the same logic, one can add an external electric field by:
 and in this case, dipole correction could and should be added to make sure the
 results are correct.
 
+Finally, after running ground state calculation with dipole correction, the
+total energy reported in the output file will contain the contribution from the
+dipole layer. Furthermore, the output potential will also include the dipole
+layer contribution.
+
 In ONETEP, dipole correction can be added by 
 
 .. code::
