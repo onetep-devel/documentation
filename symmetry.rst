@@ -131,9 +131,9 @@ One thing to note is that only MP grids set up by ``kpoint_grid_size`` will get
 symmetrised (i.e., reduced by applying symmetry). User-supplied k-point list
 (via ``block kpoints_list``) will not be modified.
 
-Once these tags are set, ONETEP will report the symmetry operations and the
-reduced k-points in the output file (only if ``output_detail`` is set to
-``verbose``), and the symmetry-related k-points will be used in the calculation.
+Once these tags are set (along with ``output_detail`` set to ``verbose``),
+ONETEP will report the symmetry operations and the reduced k-points in the
+output file, and the symmetry-related k-points will be used in the calculation.
 
 Keywords
 ========
