@@ -308,9 +308,9 @@ where :math:`q` is the number of k-points in each direction and :math:`r` is the
 k-point index. An optional shift of half a grid cell can be added so
 that :math:`\Gamma` point is included in the sampling.
 
-There are two ways to define the k-point sampling in ONETEP:
+There are two ways to define the k-point grid in ONETEP:
 
-1. Automatic generation using the Monkhorst-Pack scheme.:
+1. Automatic generation using the Monkhorst-Pack scheme:
 
    ::
    
@@ -320,6 +320,21 @@ There are two ways to define the k-point sampling in ONETEP:
    which indicates that the size of the k-point grid is 3 along a direction, 6 
    along b direction (shifted by half a grid distance) and 6 along c direction
    (also shifted by half a grid distance).
+
+   Alternatively, one can set the grid spacing in units of 1/Bohr and a grid
+   that fits within the specified spacing will be generated: 
+
+   ::
+   
+      kpoint_grid_spacing : 0.1 1/Bohr
+
+   Optionally, one can force the generated grid to include the Gamma point by:
+
+   ::
+   
+      kpoint_gamma_centred : T
+
+   which will override any shifts specified in `kpoint_grid_shift`.
 
 
 2. Manual generation using the k-point coordinates:
@@ -442,10 +457,10 @@ pseudopotentials. Here's a brief list of supported functionalities:
 Keywords
 ========
 
--  ``extended_ngwf`` [Basic, bool bool bool, default ``F F F``\ ]. Turn on 
+-  ``extended_ngwf`` [Basic, bool bool bool, default ``F F F``\ ] Turn on 
    extended NGWFs along the three directions.
 
--  ``kpoint_method`` [Basic, default ``None``\ ]. The method used to generate 
+-  ``kpoint_method`` [Basic, string, default ``None``\ ] The method used to generate 
    the k-point grid. The options are:
 
    -  ``PW``: Plane-wave mode. Requires NGWFs to be extended along the periodic
@@ -453,11 +468,17 @@ Keywords
    -  ``TB``: Tight-Binding mode. Requires NGWFs to be fully localised.
    -  ``None``: No k-point sampling.
 
-- ``kpoint_grid_shift`` [Basic int int int, default ``0 0 0``\ ]. The shift of 
+- ``kpoint_grid_shift`` [Basic int int int, default ``0 0 0``\ ] The shift of 
   the k-point grid.
 
-- ``kpoint_grid_size`` [Basic int int int, default ``1 1 1``\ ]. The size of 
+- ``kpoint_grid_size`` [Basic int int int, default ``1 1 1``\ ] The size of 
   the k-point grid.
 
-- ``num_kpars`` [Basic int, default ``1``\ ]. The number of k-parallelisation
+- ``kpoint_grid_spacing`` [Basic float 1/Bohr, default ``0.0 1/Bohr``\ ] The
+  spacing of the k-point grid in units of 1/Bohr.
+
+- ``kpoint_gamma_centred`` [Basic, bool, default ``F``\ ] Whether to force the
+  generated k-point grid to be Gamma-centred.
+
+- ``num_kpars`` [Basic int, default ``1``\ ] The number of k-parallelisation
   groups.

@@ -11,7 +11,7 @@ Symmetry operations in ONETEP
 Crystal symmetry operations can be defined using rotation and translation pairs.
 In ONETEP, symmetry operations (in fractional coordinates) are obtained by
 passing the crystal information (lattice, ionic positions, and types) to
-`spglib <http://github.com/spglib/spglib>`.
+`spglib <http://github.com/spglib/spglib>`__.
 
 
 These operations can then be used to find symmetry-related k-points:
@@ -68,31 +68,32 @@ commensurate with the total number of non-primitive translations, it will have
 zero amplitude so we can **avoid** applying symmetry operations to these
 G-vectors altogether.
 
-Magnetic symmetry operations
-============================
+Symmetry operations reductions
+==============================
 
-Magnetic moments can affect the symmetry operations in a crystal. Specifically,
-the presence of certain magnetic moments can lead to the existence of additional
-symmetry operations - Time-reversal operations that swap the spin components of
-the wavefunctions.
+In ONETEP, the default crystal symmetry is detected by pseudopotential types
+instead of species labels. This ensures that if the symmetry is not broken even
+if user has specified different species labels for atoms with the same
+pseudopotential and initial configurations.
 
-In ONETEP, instead of using full time-reversal operations to symmetrise the spin
-polarised charge density, the entire crystal symmetry is lowered by treating the
-atoms that belong to the same species but have different **initial** magnetic
-moments as if they belong to different species.
+It is important to know that initial atomic configurations can affect the
+symmetry operations in a crystal. For example, the presence of certain magnetic
+moments can lead to the existence of additional symmetry operations -
+Time-reversal operations that swap the spin components of the wavefunctions.
 
-Doing this allows the possibility for the lower symmetry magnetic structure
-(such as antiferromagnetic) to relax into a higher symmetry structure (such as
+In ONETEP, the entire crystal symmetry is lowered by treating the atoms that
+belong to the same species but have different **initial** configurations (e.g.,
+magnetic moments) as if they belong to different species. Doing this allows the
+possibility for the lower symmetry magnetic structure (such as
+antiferromagnetic) to relax into a higher symmetry structure (such as
 ferrimagnetic).
 
-
 This is done automatically by ONETEP when the ``use_symmetry`` keyword is set to
-``True`` and the ``use_time_reversal`` keyword is set to ``True`` and ``LOCK
-SPECIES_ATOMIC_SET`` is used to specify different initial magnetic moments for
-different atoms of the same species (for more, see
-:ref:`initial-guess-density-setting-initial-charges-and-spins`). If the initial
-magnetic moments do change the symmetry, ONETEP will report the symmetry
-operations written:
+``True`` and ``SPECIES_ATOMIC_SET`` is used to specify different initial
+configurations for different atoms of the same species (how this is done is
+documented in :ref:`initial-guess-density-setting-initial-charges-and-spins`).
+If the initial configurations such as magnetic moments do change the symmetry,
+ONETEP will report the symmetry operations written:
 
 .. code::
 
@@ -109,6 +110,9 @@ ONETEP now ships with spglib and can be enabled by ``BUILD_SPGLIB=yes``, i.e.,
 
    make onetep ARCH=YOUR_ARCH BUILD_SPGLIB=yes
 
+This is by default turned on, and you can turn it off by setting
+``BUILD_SPGLIB=no``.
+
 You can also change the C-compiler by setting the ``CC`` environment variable in
 your ARCH file, e.g.,
 
@@ -124,22 +128,22 @@ keyword to ``True``. To leverage the time-reversal symmetry to reduce the number
 of k-points, the ``use_time_reversal`` keyword can also be set to `True`.
 
 One thing to note is that only MP grids set up by ``kpoint_grid_size`` will get
-symmetrised. User-supplied k-point list (via ``block kpoints_list``) will not be
-modified.
+symmetrised (i.e., reduced by applying symmetry). User-supplied k-point list
+(via ``block kpoints_list``) will not be modified.
 
-Once these tags are set, ONETEP will report the symmetry operations and the
-reduced k-points in the output file (if ``output_detail`` is set to
-``verbose``), and the symmetry-related k-points will be used in the calculation.
+Once these tags are set (along with ``output_detail`` set to ``verbose``),
+ONETEP will report the symmetry operations and the reduced k-points in the
+output file, and the symmetry-related k-points will be used in the calculation.
 
 Keywords
 ========
 
-- ``use_symmetry``: [bool] turn symmetry on or off (only works if compiled with
-  spglib) | default: off
+- ``use_symmetry``: [Basic, bool, default ``F``\ ] Whether to use symmetry or
+  not (only works if compiled with spglib)
 
-- ``use_time_reversal`` : [bool] use TRS to reduce the number of k-points or not |
-  default: on
+- ``use_time_reversal``: [Basic, bool, define ``T``\ ] use TRS to reduce the
+  number of k-points or not.
 
-- ``symmetry_tol``: [float] Precision in determining the symmetry. | default:
-  0.001889726 Bohr (0.001 Å)
+- ``symmetry_tol``: [Basic, float, default 0.001889726 Bohr (0.001 Å)] Precision
+  in determining the symmetry.
 

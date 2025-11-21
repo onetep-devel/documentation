@@ -33,6 +33,7 @@
 # ones.
 extensions = ['sphinx.ext.mathjax']
 extensions += ["sphinx_rtd_dark_mode"]
+extensions += ["sphinx_favicon"]
 default_dark_mode = False
 
 # Add any paths that contain templates here, relative to this directory.
@@ -49,15 +50,15 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'ONETEP Documentation'
-copyright = '2022-2023, Joseph Prentice'
-author = 'ONETEP Developers\' Group: Jacek Dziedzic, Peter Haynes, Nicholas Hine, Arash Mostofi, Mike Payne, and Chris-Kriton Skylaris. Documentation by Joseph Prentice'
+copyright = '2022-2025, ONETEP Developers\' Group'
+author = 'ONETEP Developers\' Group: Jacek Dziedzic, Peter Haynes, Nicholas Hine, Arash Mostofi, Mike Payne, and Chris-Kriton Skylaris.'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
 # The short X.Y version.
-version = '7.1'
+version = '7.3'
 # The full version, including alpha/beta/rc tags.
 release = '7.1.8'
 
@@ -88,6 +89,16 @@ numfig = True
 # a list of builtin themes.
 #
 html_theme = 'alabaster'
+html_logo = '_static/onetep_logo.png'
+html_theme_options = {
+    'logo_only': True,
+    'display_version': True,
+}
+
+# --- Favicon ---
+favicons = [
+    "favicon.ico",
+]
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -147,7 +158,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'ONETEP_Documentation.tex', 'ONETEP Documentation',
-     'Joseph Prentice', 'manual'),
+     'ONETEP Developers\'s Group', 'manual'),
 ]
 
 
