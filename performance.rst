@@ -113,13 +113,16 @@ or ``2E-7`` (this is already very tight). You probably don't want to decrease th
 To make your calculation faster, increase the threshold -- probably not above ``1E-5``.
 
 A *negative* value of ``trimmed_boxes_threshold`` turns on *adaptive thresholding* -- the threshold will start
-at ``1E-5`` and will progressively decrease during NGWF convergence. A value of ``-1.0`` will set the threshold
-to a *quarter of the numerical value of the NGWF RMS gradient*, but never larger than ``1E-5``. In practice, this
-means you'll start at ``1E-5`` for the first few iterations, and then as your NGWF RMS gradient goes down,
+at ``1E-5`` (or ``8E-7`` when restarting) and will progressively decrease during NGWF convergence. 
+A value of ``-1.0`` will set the threshold to a *quarter of the numerical value of the NGWF RMS gradient*, 
+but never larger than ``1E-5`` (or ``8E-7`` when restarting). In practice, this
+means you'll start at ``1E-5`` (or ``8E-7`` when restarting) for the first few iterations, and then as your NGWF RMS gradient goes down,
 so will the threshold. The tighter you want to converge your NGWFs, the tighter the threshold will become.
 This frees you from worrying about this parameter. Starting from ONETEP 7.3.40, ``-1.0`` is the default if you
 are optimising NGWFs. If ``maxit_ngwf_cg`` is non-positive (implying fixed NGWFs), ``1E-6`` is used instead --
 there is nothing to adapt between NGWF steps, because there are no NGWF steps then.
+
+A different starting value for restarted calculations ensures we never start close to convergence with a crude threshold.
 
 In the unlikely case where you'd want to keep adaptive thresholding but control how it is coupled to the NGWF
 RMS gradient, you can choose a different *negative* value. ``-0.5`` will make the threshold equal to an *eighth
