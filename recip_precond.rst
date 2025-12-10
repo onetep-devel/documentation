@@ -19,7 +19,7 @@ where,
 .. math::
    x=\frac{\left(\hbar^2|\mathbf{k}+\mathbf{G}|^2\right) / 2 m}{T_i^m}
 
-and :math:`T_i^m=\braket{\psi_i^m\left|\left(-\hbar^2 / 2 m\right) \nabla^2\right| \psi_i^m}` 
+and :math:`T_i^m=<\psi_i^m\left|\left(-\hbar^2 / 2 m\right) \nabla^2\right| \psi_i^m >` 
 which is related to the band :math:`i` that :math:`K` is applied to.
 
 In ONETEP, since we do not have the kinetic energy eigenvalues, :math:`x` is
