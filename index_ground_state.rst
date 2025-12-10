@@ -26,4 +26,5 @@ Ground State Calculation Setup
    dipole_correction.rst
    scissor_operator.rst
    EMFT_in_ONETEP.rst
+   recip_precond.rst
 
