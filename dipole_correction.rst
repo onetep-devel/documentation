@@ -19,15 +19,15 @@ The net dipole moment :math:`\mu` can be easily calculated as,
 
    \boldsymbol{\mu} = \int_\mathrm{cell} \rho(\mathbf{r}) \mathbf{r} d\mathbf{r}
 
-where the total charge density $\rho(\mathbf{r})$ can be decomposed as the
-contribution from the electrons and ions (in units of e*Bohr):
+where the total charge density :math:`\rho(\mathbf{r})` can be decomposed as the
+contribution from the electrons and ions (in units of e*bohr):
 
 .. math::
 
    \rho(\mathbf{r}) = -\rho_\mathrm{el}(\mathbf{r}) + \rho_\mathrm{ion}(\mathbf{r})
 
 Correspondingly, the electric field created by this dipole moment can be
-expressed as (in units of Hartree/Bohr)
+expressed as (in units of hartree/bohr)
 
 .. math::
 
@@ -37,10 +37,10 @@ To eliminate this effect, we can insert a dipole layer (by directly manipulating
 the external potential) along certain direction. This is done in the spirit of
 `Jörg Neugebauer and Matthias Scheffler <https://doi.org/10.1103/PhysRevB.46.16067>`__. 
 For now, the dipole
-correction only supports slab calculation (or equivlant) and can only be applied
-to the vacuum direction prependicular to the other two directions. Note that you
-cell can be tilted but as long as the Cartesian direction specified for the
-dipole correction is prependicular to the periodic cell direction, the result is
+correction only supports slab calculation (or equivalent) and can only be applied
+to the vacuum direction perpendicular to the other two directions. Note that your
+cell can be non-orthorhombic but as long as the Cartesian direction specified for the
+dipole correction is perpendicular to the periodic cell direction, the result is
 correct. The added electric field generates a potential that takes the following
 form (assuming z direction):
 
@@ -57,12 +57,12 @@ Following the same logic, one can add an external electric field by:
 and in this case, dipole correction could and should be added to make sure the
 results are correct.
 
-Finally, after running ground state calculation with dipole correction, the
+Finally, after running a ground state calculation with dipole correction, the
 total energy reported in the output file will contain the contribution from the
 dipole layer. Furthermore, the output potential will also include the dipole
 layer contribution.
 
-In ONETEP, dipole correction can be added by 
+In ONETEP, the dipole correction can be added by 
 
 .. code::
 
@@ -93,9 +93,9 @@ Keywords
 - ``dipole_correction``: [Basic, bool, default ``F``\ ] Whether to use dipole
   correction or not.
 
-- ``dipole_correction_dir``: [Basic, integer, define ``3``\ ] Direction along
+- ``dipole_correction_dir``: [Basic, integer, default ``3``\ ] Direction along
   which the dipole correction is applied. ``1``\ , ``2``\ , ``3``\  correspond
-  to x, y, z directions respectively.
+  to x, y, z directions, respectively.
 
 - ``efield_origin``: [Basic, float float float, default 0.0 0.0 0.0] Location of
   the dipole layer.
