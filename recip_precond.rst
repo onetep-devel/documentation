@@ -64,7 +64,7 @@ There are three options for the matrix to use for NGWF-specific preconditioning:
 Testing is needed to determine which option is the best for specific systems.
 Note that kinetic energy preconditioning can affect the total energy so one
 should always check and make sure the convergence of total energy difference
-(e.g. bettwen a prestine system and a distorted system) is correct.
+(e.g. bettwen a pristine system and a distorted system) is correct.
 
 Keywords
 ========
