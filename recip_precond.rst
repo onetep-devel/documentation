@@ -19,7 +19,7 @@ where
 .. math::
    x=\frac{\left(\hbar^2|\mathbf{k}+\mathbf{G}|^2\right) / 2 m}{T_i}
 
-and :math:`T_i=\braket{\psi_i\left|\frac{-\hbar^2}{2 m} \nabla^2\right| \psi_i }`
+and :math:`T_i=\left < \psi_i\left|\frac{-\hbar^2}{2 m} \nabla^2\right| \psi_i \right>`
 which is related to the band :math:`i` that :math:`P` is applied to.
 
 In ONETEP, by default we want to avoid calculating the kinetic energy
