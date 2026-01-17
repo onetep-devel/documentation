@@ -93,5 +93,5 @@ Keywords
    energy to use for NGWF-specific preconditioning. Options are: ``KT``, ``INVST``,
    and ``T``. (requires ``precond_array`` to be ``T``).
 
-- ``precond_array_type`` [Basic, int, default same as ``threads_num_fftboxes``] How many threads to use for batch preconditioning.
-  When ``precond_array=T``, the bigger ``precond_array_type`` the more memory is required.
+- ``threads_precond`` [Basic, int, default same as ``threads_num_fftboxes``] How many threads to use for batch preconditioning.
+  When ``precond_array=T``, the bigger ``threads_precond`` the more memory is required.
