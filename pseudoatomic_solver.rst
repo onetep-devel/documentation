@@ -139,19 +139,14 @@ Let us imagine setting up a calculation with only nitrogen, for which
 manifold consists of :math:`4` NGWFs of radius :math:`R_{c}=8.0` per
 atom, so we would have the following blocks in our input file:
 
-````
-
-``%block species``
-
-``N N 7 4 8.0``
-
-``%endblock species``
-
-``%block species_atomic_set``
-
-``N “SOLVE”``
-
-``%endblock species_atomic_set``
+::
+    
+    %block species
+    N N 7 4 8.0
+    %endblock species
+    %block species_atomic_set
+    N "SOLVE"
+    %endblock species_atomic_set
 
 Note that because we may well want to add extra options to this string
 later, it’s best to always use the “” quotes around SOLVE. These
@@ -173,19 +168,14 @@ will produce one :math:`s`-like NGWF and the three degenerate
 A slightly more complex example would be if we were generating orbitals
 for iron (:math:`Z_{\mathrm{atom}}=26`, :math:`Z_{\mathrm{ion}}=8)`:
 
-````
-
-``%block species``
-
-``Fe Fe 26 9 10.0``
-
-``%endblock species``
-
-``%block species_atomic_set``
-
-``Fe “SOLVE”``
-
-``%endblock species_atomic_set``
+::
+    
+    %block species
+    Fe Fe 26 9 10.0 
+    %endblock species 
+    %block species_atomic_set 
+    Fe "SOLVE"
+    %endblock species_atomic_set
 
 This time, to find the default configuration, the solver initialisation
 routines will count back 8 electrons from the neutral atom configuration
@@ -210,26 +200,22 @@ the 3+ state, we might want to set the occupancies to
 :math:`3d^{5}\,4s^{0}`. To do this we use the “conf=” directive after
 the SOLVE string:
 
-````
+::
 
-``%block species_atomic_set``
-
-``Fe “SOLVE conf=3d5 4s0”``
-
-``%endblock species_atomic_set``
+    %block species_atomic_set 
+    Fe "SOLVE conf=3d5 4s0"
+    %endblock species_atomic_set
 
 Any terms in the configuration which are not overridden are left at
 their default values. Another example might be if we wanted to force the
 partial occupation of more higher-lying states than would otherwise be
 occupied for the neutral atom:
 
-````
+::
 
-``%block species_atomic_set``
-
-``C “SOLVE conf=2s1.5 2p2.5”``
-
-``%endblock species_atomic_set``
+    %block species_atomic_set 
+    C "SOLVE conf=2s1.5 2p2.5"
+    %endblock species_atomic_set
 
 Note that the solver counts through the configuration terms strictly in
 the order :math:`n,l`, i.e. \ :math:`n` is looped over outermost, then
@@ -241,19 +227,14 @@ wanted would be to run with 1 :math:`s`-like NGWF, 3 :math:`p`-like
 NGWFs and 5 :math:`d`-like NGWFs. However, this is not by default what
 one will get if one asks for
 
-````
+::
 
-``%block species``
-
-``O O 8 9 9.0``
-
-``%endblock species``
-
-``%block species_atomic_set``
-
-``O “SOLVE”``
-
-``%endblock species_atomic_set``
+    %block species 
+    O O 8 9 9.0 
+    %endblock species 
+    %block species_atomic_set 
+    O "SOLVE"
+    %endblock species_atomic_set
 
 This will identify :math:`2s^{2}\,2p^{4}` as the valence orbitals, and
 counting forward will identify :math:`2s`, :math:`2p`, :math:`3s`,
@@ -262,13 +243,11 @@ required. Therefore, we must instruct the atomsolver to ignore the
 unwanted excited :math:`3s` and :math:`3p` terms. We do this with an
 “X”, which instructs the solver to knock out this term:
 
-````
+::
 
-``%block species_atomic_set``
-
-``O “SOLVE conf=2s2 2p4 3sX 3pX 3d0”``
-
-``%endblock species_atomic_set``
+    %block species_atomic_set 
+    O "SOLVE conf=2s2 2p4 3sX 3pX 3d0"
+    %endblock species_atomic_set
 
 Strictly speaking, the :math:`2s`, :math:`2p` and :math:`3d` strings are
 not needed, as they are the default values anyway, but they are left in
@@ -330,31 +309,25 @@ basis for oxygen (:math:`2\times1\times s`,
 of the norm was matched for the :math:`s` and :math:`p`-orbitals, we
 would use the following:
 
-````
+::
 
-``%block species``
-
-``O O 8 13 9.0``
-
-``%endblock species``
-
-``%block species_atomic_set``
-
-``O “SOLVE conf=2s2:0.15 2p4:0.15 3sX 3pX 3d0”``
-
-``%endblock species_atomic_set``
+    %block species 
+    O O 8 13 9.0 
+    %endblock species 
+    %block species_atomic_set 
+    O "SOLVE conf=2s2:0.15 2p4:0.15 3sX 3pX 3d0"
+    %endblock species_atomic_set
 
 So that you can tell that it is happening, the code will output a
 message along the following lines when splitting a given orbital.
 
-````
+::
 
-``Splitting orbital 1, splitnorm= 0.150000000``
-
-``Splitting orbital 1, splitnorm= 0.060000000``
+    Splitting orbital 1, splitnorm= 0.150000000 
+    Splitting orbital 1, splitnorm= 0.060000000
 
 The result of the splitting can be viewed in the
-“initial\_rad\_ngwf\_xx” files.
+``initial\_rad\_ngwf\_xx`` files.
 
 Obtaining Polarisation Orbitals through Perturbation
 ----------------------------------------------------
@@ -420,26 +393,21 @@ In practice, polarisation of a given configuration term of angular
 momentum :math:`l`, to form a perturbative polarisation orbital for
 :math:`l+1`, is achieved by adding “\|P” to the term, for example:
 
-````
+::
 
-``%block species``
-
-``O O 8 13 9.0``
-
-``%endblock species``
-
-``%block species_atomic_set``
-
-``O “SOLVE conf=2s2:0.15 2p4:0.15|P”``
-
-``%endblock species_atomic_set``
+    %block species 
+    O O 8 13 9.0 
+    %endblock species 
+    %block species_atomic_set 
+    O "SOLVE conf=2s2:0.15 2p4:0.15|P"
+    %endblock species_atomic_set
 
 So that you can tell that it is happening, the code will output a
 message along the following lines when polarising a given orbital:
 
-````
+::
 
-``Polarising orbital 1 to generate l= 2 function (orbital 3)``
+    Polarising orbital 1 to generate l= 2 function (orbital 3)
 
 Again, the result can be viewed by plotting the relevant
 “initial\_rad\_ngwf\_xx” file.
@@ -455,24 +423,20 @@ for certain angular momentum channels.
 To override the radius for all channels, for example to
 7.0\ :math:`a_{0}`, would we add the flag “R=7.0” to the SOLVE string:
 
-````
+::
 
-``%block species_atomic_set``
-
-``O “SOLVE conf=2s2:0.15 2p4:0.15 3sX 3pX 3d0 R=7.0”``
-
-``%endblock species_atomic_set``
+    %block species_atomic_set 
+    O "SOLVE conf=2s2:0.15 2p4:0.15 3sX 3pX 3d0 R=7.0"
+    %endblock species_atomic_set
 
 Or leave the default values for all other channels, but override the
 :math:`d`-channel only to 5.0\ :math:`a_{0}`, we would use
 
-````
+::
 
-``%block species_atomic_set``
-
-``O “SOLVE conf=2s2:0.15 2p4:0.15 3sX 3pX 3d0 Rd=5.0”``
-
-``%endblock species_atomic_set``
+    %block species_atomic_set 
+    O "SOLVE conf=2s2:0.15 2p4:0.15 3sX 3pX 3d0 Rd=5.0"
+    %endblock species_atomic_set
 
 Adjusting confining potentials
 ------------------------------
@@ -492,26 +456,22 @@ For example, to set no confining potential on the confined
 :math:`d`-orbitals in Zinc, but to keep the default one on all the other
 orbitals, we could set :math:`w_{d}=0`:
 
-````
+::
 
-``%block species_atomic_set``
-
-``Zn “SOLVE conf=3d10 4s2 Rd=5.0 wd=0.0”``
-
-``%endblock species_atomic_set``
+    %block species_atomic_set 
+    Zn "SOLVE conf=3d10 4s2 Rd=5.0 wd=0.0"
+    %endblock species_atomic_set
 
 Or to turn off confinement potentials entirely, and generate
 :math:`R_{c}=15.0a_{0}` orbitals to match those generated by CASTEP’s
 atomsolver (this should allow direct comparison of energies, given
 suitable tweaking of the energy cutoffs so that they exactly match:
 
-````
+::
 
-``%block species_atomic_set``
-
-``O “SOLVE R=15.0 S=0.0”``
-
-``%endblock species_atomic_set``
+    %block species_atomic_set 
+    O "SOLVE R=15.0 S=0.0"
+    %endblock species_atomic_set
 
 Note that there can be problems with convergence for certain choices of
 confining potential. In particular, if you apply different confining
@@ -553,13 +513,11 @@ This can be done by specifying “INIT CHARGE=X SPIN=Y” in the SOLVE
 string. Either CHARGE or SPIN can be omitted if they are not required.
 For example, for a manganese ion with charge +3 and spin 4, we might set
 
-````
+::
 
-``%block species_atomic_set``
-
-``Mn “SOLVE conf=3d5 4s2 wd=7.0 INIT SPIN=4 CHARGE=+3”``
-
-``%endblock species_atomic_set``
+    %block species_atomic_set 
+    Mn "SOLVE conf=3d5 4s2 wd=7.0 INIT SPIN=4 CHARGE=+3"
+    %endblock species_atomic_set
 
 The default occupation for the neutral atom is :math:`3d^5`
 :math:`4s^2`. However, we ask it to apply a charge of +3, and this will
