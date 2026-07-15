@@ -65,7 +65,9 @@ number of separate NEB calculations. More control over the initial path
 guess may be implemented in the future.
 
 .. _NEB_example:
-.. figure:: NEB_example.jpg
+.. _Figure fig:NEB_example:
+.. figure:: _static/resources/NEB_example.jpg
+   :name: fig:NEB_example
    :alt: Cartoon of a NEB path initialization by linear interpolation and final sampling of the MEP. Each image only feels the component of the spring force parallel to the path tangent and the real force perpendicular to the path tangent. Image source & copyright [Cordier2018]_.
 
    Cartoon of a NEB path initialization by linear interpolation and final sampling of the MEP. Each image only feels the component of the spring force parallel to the path tangent and the real force perpendicular to the path tangent. Image source & copyright [Cordier2018]_.
@@ -102,7 +104,7 @@ and
 
 .. math::
    :label: improved_tangent_2
-   
+
    \boldsymbol{\tau}_i=
    \begin{cases}
    \boldsymbol{\tau}_i^+ V_i^\mathrm{max} + \boldsymbol{\tau}_i^- V_i^\mathrm{min}, & V_{i+1} > V_{i-1} \\

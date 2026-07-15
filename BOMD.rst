@@ -91,6 +91,8 @@ post-processing. In the limit of very long time, the ergodic hypothesis
 is invoked which allows us to derive ensemble averages from the
 molecular trajectories.
 
+.. _bomd_input:
+
 Basic input parameters
 ======================
 
@@ -289,6 +291,8 @@ of motion, the reader is referred to G. Bussi et
 al. [Bussi2007]_. In the same way as for the Berendsen
 thermostat, the coupling of the system with the heat bath is determined
 by the characteristic time :math:`\tau`.
+
+.. _bomd_thermostat:
 
 Thermostat definition
 =====================
@@ -786,7 +790,9 @@ energy profile, i.e. avoid discontinuities in energy plots.
 
     | NGWF gradient threshold for the MD calculation. This can be set to be different from the initial NGWF gradient threshold ``ngwf_threshold_orig`` of the first n steps (set by ``mix_ngwfs_init_num`` / ``mix_dkn_init_num``).
     
-    
+
+.. _bomd_notes_restart:
+ 
 Additional notes on restart when using a propagation scheme
 ===========================================================
 

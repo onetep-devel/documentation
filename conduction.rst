@@ -223,6 +223,8 @@ required number of extra states to include is mostly a trial and error
 process whereby the number of extra states should be increased until no
 changes are seen in the calculated conduction energy.
 
+.. _cond_ngwfs_notes:
+
 Additional notes on input parameters
 ------------------------------------
 
@@ -234,6 +236,8 @@ COND\_READ\_DENSKERN) which can be set to true for restarting conduction
 calculations. The parameters WRITE\_TIGHTBOX\_NGWFS and WRITE\_DENSKERN
 are not independently specified for the conduction and valence NGWF
 basis sets.
+
+.. _cond_ngwfs_solvent:
 
 Conduction calculations in implicit solvent
 -------------------------------------------

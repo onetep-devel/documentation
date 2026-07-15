@@ -18,7 +18,21 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  docs:
+  docs-build:
+    runs-on: ubuntu-latest
+    container: sphinxdoc/sphinx-latexpdf:5.3.0
+    steps:
+    - uses: actions/checkout@v4
+    - name: sphinx
+      run: |
+        pip install sphinx-rtd-dark-mode
+        pip install sphinx_favicon
+        make latexpdf
+        cp _build/latex/ONETEP_Documentation.pdf  _static/
+        make html
+
+  docs-deploy:
+    if: github.ref_name == 'main'  && github.repository == 'onetep-devel/documentation'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -26,19 +40,20 @@ jobs:
     container: sphinxdoc/sphinx-latexpdf:5.3.0
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: sphinx
       run: |
         pip install sphinx-rtd-dark-mode
+        pip install sphinx_favicon
         make latexpdf
         cp _build/latex/ONETEP_Documentation.pdf  _static/
         make html
     - name: upload
-      uses: actions/upload-pages-artifact@v1
+      uses: actions/upload-pages-artifact@v3
       with:
         # Upload entire repository
         path: './_build/html/.'
     - name: Deploy to GitHub Pages
       id: deployment
-      uses: actions/deploy-pages@v1
+      uses: actions/deploy-pages@v4
 

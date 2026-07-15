@@ -1,0 +1,77 @@
+! Mannitol molecule in a big box.
+! Run on 4 MPI ranks and 2 OMP threads to get the figure from the documentation.
+
+! Created by xyz2dat v1.11 from l01_in_wat_carved_optimised_resorted.xyz on Fri 17 Nov 14:25:08 CET 2023
+! 2009.10. Jacek Dziedzic jack.erede@gmail.com
+
+ ! Adjust this manually if your system is not neutral
+ charge 0 
+
+ fast_density T
+ fast_density_trim_threshold 2E-6
+ fast_density_elec_energy_tol 1E-30
+ fast_density_off_for_last F
+ 
+ maxit_ngwf_cg 30
+ minit_lnv 5
+ maxit_lnv 5
+ ngwf_threshold_orig 5E-7
+ 
+ timings_level 3
+
+ cutoff_energy 800 eV
+ xc_functional PBE
+ dispersion 4
+
+ write_xyz T
+ output_detail VERBOSE
+ write_denskern F
+ do_properties F
+ write_tightbox_ngwfs F
+ 
+ %block species
+ H   H   1 1 9.0
+ C   C   6 4 9.0
+ O   O   8 4 9.0
+ %endblock species
+ 
+ %block species_pot
+ H   H_04.recpot
+ C   C_01.recpot
+ O   O_02.recpot
+ %endblock species_pot
+
+ %block lattice_cart
+  84.39256176   0.00000000   0.00000000
+   0.00000000  84.44307225   0.00000000
+   0.00000000   0.00000000  84.78227057
+ %endblock lattice_cart
+
+ %block positions_abs
+C      46.36715063    40.54801812    38.03459898
+C      44.19585509    42.21475673    39.47457043
+C      43.70263652    41.04123669    42.21467358
+C      42.11337670    42.49254650    44.33683623
+C      39.28256668    42.80813080    44.15731223
+C      37.84259523    43.94196658    46.46088861
+O      35.47287843    44.57124545    45.66342411
+O      38.60226521    44.15172620    41.89719956
+O      42.88249530    44.99832359    44.47100680
+O      42.84092133    38.56569522    42.02381123
+O      45.09536482    44.76399753    39.58606428
+O      45.56968612    37.99310815    37.86641334
+H      34.31258648    43.52811652    46.60261808
+H      39.04446116    45.87893605    42.09184137
+H      43.30957345    45.72964768    42.91576205
+H      42.25699590    38.04413076    43.66787312
+H      44.78355998    45.75610384    38.14798256
+H      44.97820179    37.52067657    39.49724715
+H      48.04522759    40.67085034    39.18355258
+H      46.97564250    41.34170318    36.15810075
+H      42.40439455    42.14861631    38.42199287
+H      45.52811214    40.89572777    43.24079497
+H      42.45352743    41.54012444    46.05648718
+H      38.51155834    40.89761749    44.03636975
+H      37.71409384    42.56435610    47.98967720
+H      38.70053097    45.62760245    47.21488941
+ %endblock positions_abs

@@ -173,6 +173,66 @@ do so will finish with:
   remote: Write access to repository not granted.
 
 
+.. _github_clone_notcode:
+
+Cloning the ``documentation``, ``tutorials`` or ``utils-devel`` repositories
+============================================================================
+
+This procedure is only meant for *Users*. *Contributors* should go to
+:ref:`github_fork_notcode` instead, then to :ref:`github_clone_fork_notcode`.
+
+These repositories are public.
+
+Cloning the ``documentation`` repository lets you get a copy of the *source* of
+the ONETEP documentation (so, ``.rst`` files). If you are just interested in the
+compiled documentation (``.pdf`` or ``.html``), you might be better off just
+visiting https://onetep.org/resources/documentation.
+
+Cloning the ``tutorials`` repository lets you get a copy of the *source* of
+the ONETEP tutorials (so, ``.rst`` files). If you are just interested in the
+compiled tutorials (``.pdf`` or ``.html``), you might be better off just
+visiting https://onetep.org/resources/tutorials.
+
+Cloning the ``utils-devel`` repository lets you get a copy of the additional
+utilities useful mostly for developers, but ONETEP users may benefit from
+having a copy too. ONETEP will offer to clone this repository for you after
+you compile it, so perhaps it's not worth it to clone it manually.
+
+Think of the above clones as of your personal copies of, respectively, the
+documentation source, the source for the tutorials and the utilities. This
+copy/copies will reside locally, on your disk.
+See also :numref:`Figure fig:github_setup`, the left-hand side.
+
+To clone the documentation repository, go to your terminal and issue:
+::
+
+  git clone https://github.com/onetep-devel/documentation.git
+
+To clone the tutorials repository, go to your terminal and issue:
+::
+
+  git clone https://github.com/onetep-devel/tutorials.git
+
+To clone the utils-devel repository, go to your terminal and issue:
+::
+
+  git clone https://github.com/onetep-devel/utils-devel.git
+
+When prompted for username, enter your GitHub username. When prompted for
+password, type in (or preferably paste) your *GitHub personal access token*,
+**not** your GitHub password.
+
+See :ref:`github_pat_store` for instructions on how to have ``git`` store your
+credentials so that you don't have to type or paste them each time you want
+to perform an action on your repository.
+
+As a *User* you don't have permissions to write to the repository. Attempts to
+do so will finish with:
+::
+
+  remote: Write access to repository not granted.
+
+
 .. _github_fork:
 
 Forking the official ONETEP repository
@@ -203,6 +263,15 @@ To fork the official repository, assuming you have been given access
 
 You now have your private fork, accessible via something like
 https://github.com/JaneDoe/onetep_jd.
+
+
+.. _github_fork_notcode:
+
+Forking the ``documentation``, ``tutorials`` or ``utils-devel`` repositories
+============================================================================
+
+The procedure is the same as :ref:`github_fork`, except ``onetep`` should be
+replaced with ``documentation``, ``tutorials`` or ``utils-devel``.
 
 
 .. _github_clone_fork:
@@ -256,6 +325,15 @@ them to the official ONETEP repository, follow the steps in
 :ref:`github_pull_request`.
 
 
+.. _github_clone_fork_notcode:
+
+Cloning your private ``documentation``, ``tutorials`` or ``utils-devel`` fork
+=============================================================================
+
+The procedure is the same as :ref:`github_clone_fork`, except ``onetep`` should
+be replaced with ``documentation``, ``tutorials`` or ``utils-devel``.
+
+
 .. _github_development_in_fork:
 
 Development within a fork
@@ -281,6 +359,9 @@ the official repository by regularly merging with the official repository, i.e.
 
     git remote add github_official https://github.com/onetep-devel/onetep.git
 
+  If you are developing documentation, tutorials or the utilities, replace
+  ``onetep`` with ``documentation``, ``tutorials`` or ``utils-devel`` in the above.
+
 * Fetch changes from the official repository (each time):
   ::
 
@@ -291,6 +372,10 @@ the official repository by regularly merging with the official repository, i.e.
   ::
 
     git merge github_official/master
+
+It is often the case that ``make cleanall`` must be issued after merging,
+the script for cascade avoidance used when making ONETEP can get confused
+as to what needs to be rebuilt after a ``git merge``.
 
 Remember to commit your changes regularly and push these to your fork on
 GitHub so that they are backed up, e.g. ``git push origin <branch_name>``
@@ -328,6 +413,59 @@ changes will be selectively applied to the official repository via the pull
 request process.
 
 
+.. _github_rundat_vars:
+
+Keeping the XML file up to date
+===============================
+
+This procedure is only meant for *Contributors*.
+
+ONETEP uses an XML log file to store information about the internal state of the
+calculation in an easier to parse way. Currently this is only used in a limited way,
+to assist with determining whether a ONETEP calculation can be restarted or continued,
+as described in :ref:`restarting_onetep`. A major part of the XML file is used to store
+the values of the variables which are declared at the top of ``rundat_mod.F90``. This
+information was previously invisible during the calculation unless specific write
+statements were present or added to the code. In order to systematise this and to make it
+easier to handle the long list of variables declared in ``rundat_mod.F90``, a new module
+called ``rundat_new_mod.F90`` was introduced in which those variables are part of a derived
+data type, and auxiliary subroutines are available to interact with it. The XML I/O is
+mostly handled by ``rundat_xml_mod.F90``. These two files are very long and are actually
+auto-generated, so that the developer should never modify them directly (with a small
+exception mentioned later in point 4).
+
+The ``rundat_new_mod.F90`` and the ``rundat_xml_mod.F90`` files are auto-generated by a
+small program included in the ``rundat_new`` folder (top level with respect to the ONETEP
+source distribution). If new variables are added to ``rundat_mod.F90`` or changes are made
+to existing variables, the auto-generated code also needs to be updated. To do so, the
+following steps should be followed:
+
+  1. Ensure that all variables declared in ``rundat_mod.F90`` have matching declarations 
+     in the file ``rundat_vars.F90`` within the folder ``rundat_new``. If some are missing
+     or need correcting the developer has to do this by hand. Point 3 can help with this.
+
+  2. Auto-generate the ``rundat_new_mod.F90`` and the ``rundat_xml_mod.F90`` files by running
+     the ``make_rundat_new.sh`` script also given in the ``rundat_new`` folder.
+     ``make_rundat_new.sh`` is currently very primitive; if ``gfortran`` is not available
+     as a compiler this has to be manually corrected in the script.
+
+  3. The ``make_rundat_new.sh`` script also generates a comparison table between the
+     variables listed in ``rundat_mod.F90`` and in ``rundat_vars.F90``. The table is in the
+     file ``parse_out`` in the ``rundat_new`` folder. This can be useful to figure out which
+     variables might be missing from ``rundat_vars.F90`` or if some changes have been made
+     to them.
+
+  4. Check if the ``rundat_new_mod.F90`` and the ``rundat_xml_mod.F90`` files comply with
+     the ONETEP coding standards with respect to maximum code line lenghts. If not, the
+     offending lines require manual editing to insert line breaks (this will be 
+     fixed/automated in the near future).
+
+At present there is no significant consequence if the variables in the XML file are
+not up to date with the ones declared in ``rundat_mod.F90``, unless they are needed for
+checkpointing/restarting/continuing ONETEP runs. In any case, it is recommended to follow
+the steps explained in the previous paragraph to keep everything up to date and consistent.
+
+
 .. _github_pull_request:
 
 Creating a pull request
@@ -353,7 +491,7 @@ with the official repository, follow these steps.
   2. Click ``Contribute`` below and to the left of the green ``<> Code`` button.
   3. Click ``Open pull request``.
   4. Edit the title and description of what you want to commit.
-  5. Choose Reviewer(s) on the right.
+  5. Choose Reviewer(s) on the right. Read the two **notes** below.
   6. Click ``Create pull request``.
 
 Your pull request has now been created. You should wait for the Reviewer(s).
@@ -370,6 +508,21 @@ Your pull request has now been created. You should wait for the Reviewer(s).
 .. note::  It looks like at our settings it is not possible to have more than one
   reviewer, unless we upgrade to `Pro`, `Team` or `Enterprise` plan, see:
   https://github.com/orgs/community/discussions/23978
+
+.. note::  Also, unless you are one of the repository Owners, you will simply not see
+  the option to select a Reviewer. This is a GitHub feature meant to prevent
+  any spamming from people who forked public repositories. Intead of adding a
+  Reviewer, *tag* the person or people you'd like to review your change in the
+  text that you enter in the *Leave a comment* box. For instance, type
+  ``@JacekDziedzic`` to add Jacek as a reviewer -- he will then get a notification
+  once you submit the pull request.
+
+If the pull request is for the documentation or tutorials, once it is merged,
+the changes will be deployed automatically to the ONETEP website
+(a ``documentation-deploy`` or ``tutorials-deploy`` **GitHub Action**). When
+the pull request is submitted, this step will be skipped (because you have not
+been authorised to make the changes at this point yet). It will only be run
+following the merge.
 
 
 .. _github_review_and_merge:
@@ -396,6 +549,18 @@ steps.
      ``Squash and merge``), and choose ``Squash and merge``.
   8. Click ``Squash and merge``.
   9. Click ``Confirm squash and merge``.
+
+
+.. _github_gui_update:
+
+Simple changes to ``documentation`` or ``tutorials``
+====================================================
+
+If you have a small change to the documentation or tutorials, for instance you
+want to add or change a single file or several files, *and* you're an Owner,
+you can just upload the new/updated files straight from the GUI. Make sure
+you are logged in, then choose ``Add File`` (to the left of the green button).
+Follow the instructions on screen. Once you're done, this will create a commit.
 
 
 .. _github_pat_store:
@@ -425,7 +590,8 @@ This section is meant for *Owners*. It explains how to add users to the ONETEP
 GitHub repository.
 
 Note that only the ``onetep`` repository is private. Anyone can access the
-public repositories of the organisation ``onetep-devel``. To add a user to
+public repositories of the organisation ``onetep-devel`` (which are
+``documentation``, ``tutorials`` and ``utils-defvel``). To add a user to
 the ``onetep`` repository, you yourself must be a user in the ``Owner`` role.
 
 To add a new user, follow these steps:

@@ -1,3 +1,5 @@
+.. _bsunfold:
+
 =====================================================
 Bandstructure (spectral-function) unfolding
 =====================================================
@@ -15,8 +17,7 @@ Bandstructure (spectral-function) unfolding
   procedures required to unfold the bandstructure in a ONETEP
   “Properties” calculation. We strongly suggest that one reads the
   entire document carefully before attempting any calculations, as there
-  are some stringent requirements along the way. For further details,
-  please contact Gabriel Constantinescu, the code author. Essentially,
+  are some stringent requirements along the way. Essentially,
   all one will need is the following group of keywords and blocks:
 
 ::
@@ -105,10 +106,10 @@ For each in turn:
      (:math:`\AA^{-1}`), and the index of the k-point (from 1 to the total
      number of considered k-points).
 
-   | After the final output file has been obtained, one can use a
-     discretisation script (should be found on the ONETEP webside, in the
-     utilities section), in order to obtain a file that is ready to plot
-     with gnuplot.
+   | After the final output file has been obtained, one can discretize
+     the result by convolving with a gaussian with a suitably-chosen width
+     (perhaps try something around 0.05eV) in order to obtain a E(k) file
+     that is ready to plot with gnuplot.
 
 -  | The integer keyword ``BSUNFLD_NUM_EIGENVALUES`` controls the number of eigenvalues (above and
      below the Fermi level) for which the spectral function is calculated.
