@@ -54,7 +54,7 @@ quantities from a separate file: if the `.usp` file is called
 `pspot_name.usp`, this additional file should be called
 `pspot_name_ke_dens.dat`. The core KE density and :math:`V_\tau` are
 provided in exactly the same format as the core density and
-:math:`V_\loc` in the `.usp` file.
+:math:`V_{loc}` in the `.usp` file.
 
 KE density initialisation
 =========================
