@@ -4,7 +4,9 @@ ONETEP Keyword List
 :Author: ONETEP Documentation Team
 :Date: 2026-07-17
 
-Use links marked "🔍︎" to search occurances of a keyword in all the documentation.
+.. only:: html
+
+   Use links marked "🔍︎" to search occurances of a keyword in all documentation pages.
 
 .. _active-ke-density-gauge:
 

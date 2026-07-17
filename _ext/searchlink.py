@@ -34,7 +34,7 @@ class SearchLinkRole(SphinxRole):
                 location=self.get_source_info(),
             )
 
-            return [nodes.Text(f"🔍︎ {self.text}")], []
+            return [nodes.Text(self.text)], []
 
         url = f"/search.html?q={quote(self.text)}"
         html = f'<a href="{url}" class="search-link">🔍︎ {self.text}</a>'
