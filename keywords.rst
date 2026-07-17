@@ -12096,7 +12096,7 @@ LR_TDDFT_CG_THRESHOLD
 
 sets convergence tolerance for CG routine
 
-The keyword specifies the convergence tolerance on the sum of the n TDDFT excitation energies. If the sum of excitation energies changes by less than :ref:`lr-tddft-cg-threshold` in two consecutive iterations, the calculation is taken to be converged.
+The keyword specifies the convergence tolerance on the sum of the n TDDFT excitation energies. If the sum of excitation energies changes by less than :ref:`lr-tddft-cg-threshold` in two consecutive iterations, the calculation is taken to be converged.
 
 .. note::
    :collapsible: closed
@@ -12228,7 +12228,7 @@ LR_TDDFT_KERNEL_CUTOFF
 
 sets cutoff on the effective response density kernel
 
-Keyword sets a truncation radius on all response density kernels in order to achieve linear scaling computational effort with system size.
+Keyword sets a truncation radius on all response density kernels in order to achieve linear scaling computational effort with system size.
 
 .. note::
    :collapsible: closed
@@ -12287,7 +12287,7 @@ LR_TDDFT_MAXIT_PEN
 
 sets the maximum number of iterations for penalty functional routine
 
-The maximum number purification iterations performed per conjugate gradient step.
+The maximum number purification iterations performed per conjugate gradient step.
 
 .. note::
    :collapsible: closed
@@ -12374,7 +12374,7 @@ LR_TDDFT_NUM_STATES
 
 Sets the number of excitation energies we want to solve for
 
-The keyword specifies how many excitations we want to converge. If set to a positive integer n, the TDDFT algorithm will converge the n lowest excitations of the system.
+The keyword specifies how many excitations we want to converge. If set to a positive integer n, the TDDFT algorithm will converge the n lowest excitations of the system.
 
 .. note::
    :collapsible: closed
@@ -12419,7 +12419,7 @@ LR_TDDFT_PENALTY_TOL
 
 sets the convergence tolerance for the Penalty functional routine
 
-Keyword sets a tolerance for the penalty functional. If the penalty functional is larger than LR_TDDFT_PENALTY_TOL, the algorithm will perform purification iterations in order to decrease the penalty value and force towards the correct idempotency behaviour.
+Keyword sets a tolerance for the penalty functional. If the penalty functional is larger than LR_TDDFT_PENALTY_TOL, the algorithm will perform purification iterations in order to decrease the penalty value and force towards the correct idempotency behaviour.
 
 .. note::
    :collapsible: closed
@@ -12520,7 +12520,7 @@ LR_TDDFT_PROJECTOR
 
 Use projector onto unoccupied subspace
 
-If the flag is set to True, the conduction density matrix is redefined to be a projector onto the entire unoccupied subspace.
+If the flag is set to True, the conduction density matrix is redefined to be a projector onto the entire unoccupied subspace.
 
 .. note::
    :collapsible: closed
@@ -12700,7 +12700,7 @@ LR_TDDFT_WRITE_DENSITIES
 
 Determines whether to write out TDDFT response densities
 
-If the flag is set to True, the response density, electron density and hole density for each excitation is computed and written into a .cube file.
+If the flag is set to True, the response density, electron density and hole density for each excitation is computed and written into a .cube file.
 
 .. note::
    :collapsible: closed
@@ -12731,7 +12731,7 @@ LR_TDDFT_WRITE_KERNELS
 
 writes out response kernels after each iteration
 
-If the flag is set to T, the TDDFT response density kernels are printed out at every conjugate gradient iteration. These files are necessary to restart a LR-TDDFT calculation.
+If the flag is set to T, the TDDFT response density kernels are printed out at every conjugate gradient iteration. These files are necessary to restart a LR-TDDFT calculation.
 
 .. note::
    :collapsible: closed
@@ -20289,7 +20289,7 @@ THERMOSTAT
 
 Thermostat for MD in NVT ensemble
 
-Defines the molecular dynamics THERMOSTAT. For each THERMOSTAT, the first line should contain the following mandatory parameters, time_start (integer): the time step at which the :ref:`thermostat` is initialized; time_stop (integer): the time step at which the :ref:`thermostat` is closed; thermo_type (text): the kind of :ref:`thermostat` to be used, currently NONE, ANDERSEN, LANGEVIN, or NOSEHOOVER; thermo_temp (physical): the :ref:`thermostat` temperature in physical units. Each :ref:`thermostat` may also be tuned using the options, tgrad (physical)(Default = 0 K): Discrete variation of temperature T per MD step. group (integer)(Default = 0): Index of the group of atoms (as defined in POSITION_ABS ) to which the :ref:`thermostat` is coupled. If no group of atoms is specfied, the :ref:`thermostat` is applied to the full system (i.e. group index 0). tau (Physical)(Default = 10.0* :ref:`md-delta-t` ): Characteristic time scale of the THERMOSTAT. Depending on the type of THERMOSTAT, it may relate either to the average collision frequency or the :ref:`thermostat` fluctuation frequency or to the coupling with the heat bath; damp (real)(Default = 0.2): Langevin damping parameter. mix (real)(Default = 1.0): Collision amplitude of the Andersen THERMOSTAT. nchain (integer)(Default = 0): Number of THERMOSTATs in the Nose-Hoover chain. nstep (integer)(Default = 20): Number of substeps used to integrate the equation of motion of the Nose-Hoover coordinates. update (logical)(Default = False): Impose to update the effective masses of the Nose-Hoover coordinates when the temperature is modified.
+Defines the molecular dynamics THERMOSTAT. For each THERMOSTAT, the first line should contain the following mandatory parameters, time_start (integer): the time step at which the :ref:`thermostat` is initialized; time_stop (integer): the time step at which the :ref:`thermostat` is closed; thermo_type (text): the kind of :ref:`thermostat` to be used, currently NONE, ANDERSEN, LANGEVIN, or NOSEHOOVER; thermo_temp (physical): the :ref:`thermostat` temperature in physical units. Each :ref:`thermostat` may also be tuned using the options, tgrad (physical)(Default = 0 K): Discrete variation of temperature T per MD step. group (integer)(Default = 0): Index of the group of atoms (as defined in POSITION_ABS ) to which the :ref:`thermostat` is coupled. If no group of atoms is specfied, the :ref:`thermostat` is applied to the full system (i.e. group index 0). tau (Physical)(Default = 10.0* :ref:`md-delta-t` ): Characteristic time scale of the THERMOSTAT. Depending on the type of THERMOSTAT, it may relate either to the average collision frequency or the :ref:`thermostat` fluctuation frequency or to the coupling with the heat bath; damp (real)(Default = 0.2): Langevin damping parameter. mix (real)(Default = 1.0): Collision amplitude of the Andersen THERMOSTAT. nchain (integer)(Default = 0): Number of THERMOSTATs in the Nose-Hoover chain. nstep (integer)(Default = 20): Number of substeps used to integrate the equation of motion of the Nose-Hoover coordinates. update (logical)(Default = False): Impose to update the effective masses of the Nose-Hoover coordinates when the temperature is modified.
 
 .. note::
    :collapsible: closed
@@ -20310,7 +20310,7 @@ Defines the molecular dynamics THERMOSTAT. For each THERMOSTAT, the first line s
    .. code::
 
       Let us set an NVT calculation at 300K with Langevin THERMOSTAT for
-      the equilibration (3000 steps) and Nose-Hoover THERMOSTAT for the
+      the equilibration (3000 steps) and Nose-Hoover THERMOSTAT for the
       thermodynamical sampling (10000 steps).
       The input parameters could look like.
       
@@ -21109,7 +21109,7 @@ VDW_PARAMS
 
 Replacement VDW parameters (atomic number, c6coeff, radzero, neff)
 
-This option allows the user to specify parameters for elements and functionals for which values are not given. The atom-dependent variables C6_i (used to calculate C6_ij),R0_i (related to the atomic vdW radius of an atom i), and n_eff (used in the calculation of C6_ij for all damping functions excluding the D2 correction of Grimme) are modified using the :ref:`vdw-params` block. This override block applies the parameter changes to atoms by their atomic number (nzatom).
+This option allows the user to specify parameters for elements and functionals for which values are not given. The atom-dependent variables C6_i (used to calculate C6_ij),R0_i (related to the atomic vdW radius of an atom i), and n_eff (used in the calculation of C6_ij for all damping functions excluding the D2 correction of Grimme) are modified using the :ref:`vdw-params` block. This override block applies the parameter changes to atoms by their atomic number (nzatom).
 
 .. note::
    :collapsible: closed
