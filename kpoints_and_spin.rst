@@ -9,8 +9,50 @@ Setting up k-points and spin in ONETEP
 Spin-polarisation in ONETEP
 ===========================
 
-TBC
+ONETEP supports two approaches to spin-polarisation. Until recent work, ONETEP’s
+NGWF formalism used a shared set of NGWFs used to represent both spin channels,
+combined with a spin-dependent density kernel, and hence spin-dependent eigenstates
+and state-filling. This restriction constrained the NGWFs to a compromise of orbital
+shape and limited their ability to represent spatial differences between spin-up and
+spin-down eigenstates. This is referred to in this document as using a spin-dependent
+kernel only.
 
+The development of a spin-dependent NGWF framework enables unrestricted variational
+freedom by allowing each spin channel to be described by its own independently optimized
+set of NGWFs. This was shown in [EscobarAzor2026] to provide a more faithful treatment
+of exchange splitting, spin localization, and spin-resolved energetics, particularly
+in systems with open-shell configurations and localized magnetic moments. This approach
+will be referred to as using spin-dependent NGWFs.
+
+Spin polarisation is automatically enabled if the initial electron counting determines there
+to be a net spin on the system. This is either set explicitly by the user by the via a
+nonzero value for the keyword ``spin``, or implicitly determined by the atomic species present
+in the simulation cell and the net charge (keyword ``charge``). If the electron count
+is found to be either non-integer or an odd number, spin polarisation is enabled. Finally,
+the user can control explicitly explicitly whether the system is treated as spin-polarised
+via the boolean keyword ``spin_polarised``.
+
+The spin-dependent NGWFs approach is not enabled by default and must be chosen
+explicitly, by setting the boolean keyword ``ngwfs_spin_polarised`` to ``true``.
+
+If only the kernel is spin-dependent (``spin_polarised: true`` and ``ngwfs_spin_polarised: false``)
+then the density kernel is expressed as:
+
+.. math::
+   :label: rhodef_spin_indep
+
+   \rho^{\sigma}(\mathbf{r},\mathbf{r}') = \phi_{\alpha}(\mathbf{r}) K_{\sigma}^{\alpha\beta} \phi^{*}_{\beta}(\mathbf{r}').
+
+If the NGWFs are also spin-dependent (``spin_polarised: true`` and ``ngwfs_spin_polarised: true``)
+
+.. math::
+   :label: rhodef_spin_dep
+
+   \rho^\sigma(\mathbf{r},\mathbf{r}') = \phi^{\sigma}_{\alpha}(\mathbf{r}) K_{\sigma}^{\alpha\beta} \phi^{\sigma*}_{\beta}(\mathbf{r}').
+
+Both the above schemes are compatible with most functionality in ONETEP (eg Hubbard, EMFT, PAW)
+but currently spin-dependent NGWFs are not compatible with Exact Exchange. For further
+discussion of the impact of spin-dependent NGWFs, see [EscobarAzor2026].
 
 k-points and Brillouin zone sampling in ONETEP
 ==============================================
@@ -482,3 +524,8 @@ Keywords
 
 - ``num_kpars`` [Basic int, default ``1``\ ] The number of k-parallelisation
   groups.
+
+References
+==========
+
+[EscobarAzor2026] M. Escobar Azor, D. D. O’Regan, A. Safavi, J. Dziedzic, C.-K. Skylaris, N. D. M. Hine, J. Chem. Phys. 164, 174119 (2026)
