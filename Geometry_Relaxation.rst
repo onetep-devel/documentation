@@ -4,8 +4,9 @@ Geometry Relaxation
 
 :Author: Loukas Kollias, University of Southampton, United Kingdom
 :Author: Chris-Kriton Skylaris, University of Southampton, United Kingdom
+:Author: Brad Ayers, University of Southampton, United Kingdom
 
-:Date: November 2022
+:Date: November 2022 (revised August 2026)
 
 .. role:: raw-latex(raw)
    :format: latex
