@@ -6650,9 +6650,9 @@ Defines the atoms that form the leads for the calculation of the transport coeff
    .. code::
 
       In this example, three leads are defined containing 36, 60 and 20 atoms.
-      
-      
-      
+
+
+
       %BLOCK ETRANS_LEADS
         037 072 073 108
        241 300 301 360
@@ -6856,9 +6856,9 @@ Defines the atoms used for the calculation of the transport coefficients. The bl
       In this example, all atoms between 37 and 640 will be used.
       All other atoms are considered as buffer atoms.
       Note: This syntax is not compatible with versions earlier than ONETEP 3.3.4
-      
-      
-      
+
+
+
       %BLOCK ETRANS_SETUP
         037 640
        %ENDBLOCK ETRANS_SETUP
@@ -14724,15 +14724,15 @@ The list of :ref:`nbo-plot-orbtype` orbitals to be plotted, identified by their 
    .. code::
 
       GENNBO output indices specified on separate lines:
-      
-      
-      
+
+
+
       %BLOCK NBO_LIST_PLOTNBO
-      
+
        8
-      
+
        10
-      
+
       %ENDBLOCK NBO_LIST_PLOTNBO
 
 .. _nbo-plot-orbtype:
@@ -14894,15 +14894,15 @@ Optional user-defined (false) lm-label for NGWFs according to gennbo convention.
    .. code::
 
       Species not specified will default to AUTO:
-      
-      
-      
+
+
+
       %BLOCK NBO_SPECIES_NGWFLABEL
-      
+
        C1 "1N 151N 152N 153N"
-      
+
        H1 "AUTO"
-      
+
       %ENDBLOCK NBO_SPECIES_NGWFLABEL
 
 .. _nbo-write-dipole:
@@ -15033,15 +15033,15 @@ Block of lists of species to be included in the partial matrix output of seednam
    .. code::
 
       If specified will default to AUTO:
-      
-      
-      
+
+
+
       %BLOCK NBO_WRITE_SPECIES
-      
+
        C1
-      
+
        H1
-      
+
       %ENDBLOCK NBO_WRITE_SPECIES
 
 .. _neb-ci-delay:
@@ -16386,15 +16386,15 @@ List of Gamma-point modes (where 1 is the lowest) for which to write xyz animati
    .. code::
 
       %BLOCK PHONON_ANIMATE_LIST
-      
+
       2
-      
+
       6
-      
+
       33
-      
+
       34
-      
+
       %ENDBLOCK PHONON_ANIMATE_LIST
 
 .. _phonon-animate-scale:
@@ -16494,13 +16494,13 @@ List of force constant calculations to perform for Stage 2 in phonon calculation
    .. code::
 
       %BLOCK PHONON_DISP_LIST
-      
+
       1
-      
+
       3
-      
+
       5
-      
+
       %ENDBLOCK PHONON_DISP_LIST
 
 .. _phonon-dos:
@@ -16698,24 +16698,24 @@ This is a block in which the user can list specific ion-coordinate pairs with op
       PHONON_SAMPLING
       , and
       PHONON_FINITE_DISP
-      
+
        as such: the displacement of ion 10 in the z-direction (3) is switched
       on (1), with a value of phonon_sampling of 2, and a value of
       phonon_finite_disp of 0.9 times the global value; displacement of ion 15
        in the x-direction (1) is switched off (0), with the last two
       parameters not being read; displacement of ion 36 in the y-direction (2)
        is switched off (0), with the last two parameters not being read.
-      
-      
-      
+
+
+
       %BLOCK PHONON_EXCEPTION_LIST
-      
+
       10 3 1 2 0.9
-      
+
       15 1 0 1 1.0
-      
+
       36 2 0 1 1.0
-      
+
       %ENDBLOCK PHONON_EXCEPTION_LIST
 
 .. _phonon-farming-task:
@@ -16843,13 +16843,13 @@ Definition of the regular grid of q-points used in phonon calculations for the c
    .. code::
 
       In this example, we define a 10x10x10 sampling grid (over b1, b2 and b3 respectively), instead of the 1x1x1 default grid.
-      
-      
-      
+
+
+
       %BLOCK PHONON_GRID
-      
+
       10 10 10
-      
+
       %ENDBLOCK PHONON_GRID
 
 .. _phonon-min-freq:
@@ -16918,19 +16918,19 @@ List of additional q-points for which to calculate the phonon frequencies, in fr
    .. code::
 
       %BLOCK PHONON_QPOINTS
-      
+
       0.0 0.0 0.0
-      
+
       0.0 0.0 0.1
-      
+
       0.0 0.0 0.2
-      
+
       0.0 0.0 0.3
-      
+
       0.0 0.0 0.4
-      
+
       0.0 0.0 0.5
-      
+
       %ENDBLOCK PHONON_QPOINTS
 
 .. _phonon-sampling:
@@ -18196,7 +18196,7 @@ Specifies the spacing between psinc grid points in the simulation cell by three 
 
       PSINC_SPACING 0.4 0.5 0.5
       or
-      
+
       PSINC_SPACING 0.25 0.25 0.25 ang
 
 .. _pspot-bc:
@@ -19868,16 +19868,16 @@ Within this block, the first line gives the shape of the :ref:`supercell` (2x2x2
       Si), with the ions of index 1 and 9 defining the "base" unit cell.
       Of course, a small SUPERCELL will not give sensible results for a phonon calculation.
       However, a good example would be a 1000-atom cubic SUPERCELL of Si, which gives excellent results.
-      
-      
+
+
       %BLOCK SUPERCELL
-      
+
       2 2 2
-      
+
       1
-      
+
       9
-      
+
       %ENDBLOCK SUPERCELL
 
 .. _swri:
@@ -20313,21 +20313,21 @@ Defines the molecular dynamics THERMOSTAT. For each THERMOSTAT, the first line s
       the equilibration (3000 steps) and Nose-Hoover THERMOSTAT for the
       thermodynamical sampling (10000 steps).
       The input parameters could look like.
-      
-      
-      
+
+
+
       %BLOCK THERMOSTAT
-      
+
       1 3000 langevin 300.0 K
-      
+
          damp = 0.2
-      
+
       3001 13000 nosehoover 300.0 K
-      
+
          nchain = 4
-      
+
          tau = 800 aut
-      
+
       %ENDBLOCK THERMOSTAT
 
 .. _thole-polarisabilities:
@@ -21129,15 +21129,15 @@ This option allows the user to specify parameters for elements and functionals f
    .. code::
 
       For example, to override the disp ersion parameters asso ciated with nitrogen:
-      
-      
-      
+
+
+
       %BLOCK VDW_PARAMS
-      
+
       ! nzatom, c6coeff, radzero, neff
-      
+
       7 21.1200 2.6200 2.51
-      
+
       %ENDBLOCK VDW_PARAMS
 
 .. _vdw-radial-cutoff:
@@ -21797,3 +21797,44 @@ Forces the total ionic force to be zero by subtracting the average ionic force f
    .. code::
 
       ZERO_TOTAL_FORCE F
+
+.. _species-mass:
+
+SPECIES_MASS
+------------
+
+:Type: Block
+:Default: None
+:Unit: amu
+:Level: Basic
+:Group: None
+:Search: :searchlink:`SPECIES_MASS`
+
+Variable ionic masses for each species (symbol, mass)
+
+Defines the masses of ions. The atomic species details must match those given in the :ref:`species` block, although not all species need listing. Omitted species retain their default ionic masses. By default, the masses will be interpreted as being in atomic mass units (amu).
+
+.. note::
+   :collapsible: closed
+
+   :Syntax:
+
+   .. code::
+
+      %BLOCK SPECIES_MASS
+      S1 M1
+      S2 M2
+       .  .  .  .  .
+       .  .  .  .  .
+      SN MN
+      %ENDBLOCK SPECIES_MASS
+
+   :Example:
+
+   .. code::
+
+      %BLOCK species
+        H    2.014102 ; use deuterium instead of protium
+        C    13.00335 ; use :sup:`13`\ C instead of :sup:`12`\ C
+        O    17.99916 ; use :sup:`18`\ O instead of :sup:`16`\ O
+      %ENDBLOCK SPECIES_MASS
