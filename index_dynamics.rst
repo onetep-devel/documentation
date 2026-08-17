@@ -12,3 +12,4 @@ Dynamics
 
    BOMD.rst
    phonons.rst
+   variable_masses.rst
