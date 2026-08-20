@@ -228,6 +228,10 @@ Fast density requires more memory than slow density, particularly with ``fast_de
 control memory use more tightly, since GPUs typically have much less RAM available.
 
 Keywords that might help you are:
+  - ``trimmed_boxes_batch_size n`` (since v8.2.0) -- which controls the batch size when trimming boxes in fast density
+   (and in fast local potential integrals, and fast NGWF gradient). The default is 16. Reducing this value will decrease
+    memory use on the CPU. The lowest you can go is 1.
+    You will likely experience a performance hit if you go below 16.
   - ``fast_density_batch_size n`` -- which controls the batch size over FFTs in fast density. The default is 64.
     We need to keep a coarse-grid FFT-box for each element of the batch, both on the CPU and GPU (if in use),
     per MPI rank. This setting is not affected by the number of OpenMP threads. Reducing this value will decrease
@@ -244,6 +248,13 @@ Keywords that might help you are:
     Setting to ``F`` will reduce memory use, particularly on the GPU. When running on CPU, you should be
     using ``F`` anyway, as there will likely be no performance gain from using ``T``. On GPUs ``T`` should be faster.
     The default is ``T`` when running on a GPU, and ``F`` otherwise.
+  - ``gpu_fft_scheme BATCHED/THREADED`` (since v8.2.0) -- which controls how FFTs are done on the GPU (and thus has 
+    no bearing
+    on any CPU-only calculations). In ``THREADED`` mode (default) every OpenMP thread issues FFTs to the GPU.
+    In ``BATCHED`` mode only the master OpenMP thread issues FFTs to the GPU, but using a batched-FFT API.
+    Benchmarks show that performance is near-identical between these two approaches (at least in 2026, on A100 and
+    GH200 cards), but ``BATCHED`` requires less memory. You might want to give it a go if you are running out
+    of memory, particularly GPU memory. However, this approach has not been tested as thoroughly as ``THREADED``.
 
 Remaining options
 -----------------
