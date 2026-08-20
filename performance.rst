@@ -229,7 +229,7 @@ control memory use more tightly, since GPUs typically have much less RAM availab
 
 Keywords that might help you are:
   - ``trimmed_boxes_batch_size n`` (since v8.2.0) -- which controls the batch size when trimming boxes in fast density
-   (and in fast local potential integrals, and fast NGWF gradient). The default is 16. Reducing this value will decrease
+    (and in fast local potential integrals, and fast NGWF gradient). The default is 16. Reducing this value will decrease
     memory use on the CPU. The lowest you can go is 1.
     You will likely experience a performance hit if you go below 16.
   - ``fast_density_batch_size n`` -- which controls the batch size over FFTs in fast density. The default is 64.
