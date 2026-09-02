@@ -350,7 +350,7 @@ slightly stricter – to divide work more evenly ONETEP tries to give each
 processes a similar number of NGWFs, not atoms. For instance, for a
 water molecule run on two processes, it makes sense to assign the O atom
 and its 4 NGWFs to one process, and both H atoms (1 NGWF each) to the
-second process. If you try to run a calculation on H:sub:`2`O on *three* processes,
+second process. If you try to run a calculation on H\ :sub:`2`\ O on *three* processes,
 it’s very likely that ONETEP will do the same thing – assign O to one
 processes, both H’s to another process and the third process will wind
 up with no atoms. This will cause the calculation to abort. So, one

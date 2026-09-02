@@ -244,11 +244,11 @@ Keywords that might help you are:
     significantly reduce GPU memory use. The default is the same as ``threads_max``, and so is the same as
     what you pass in the ``-t`` option to ``onetep_launcher`` or set your ``OMP_NUM_THREADS`` to. You will likely
     experience a performance hit when decreasing it.
-  - ``fast_density_fast_ngwfs T/F``. For more details, see :ref:`user_fast_ngwfs`.
+  - ``fast_ngwfs T/F``. For more details, see :ref:`user_fast_ngwfs`.
     Setting to ``F`` will reduce memory use, particularly on the GPU. When running on CPU, you should be
-    using ``F`` anyway, as there will likely be no performance gain from using ``T``. On GPUs ``T`` should be faster.
+    using ``F`` anyway, as there will likely be no performance gain from using ``T``. On GPUs ``T`` will definitely be faster.
     The default is ``T`` when running on a GPU, and ``F`` otherwise.
-  - ``gpu_fft_scheme BATCHED/THREADED`` (since v8.2.0) -- which controls how FFTs are done on the GPU (and thus has 
+  - ``gpu_fft_scheme BATCHED/THREADED`` (since v8.2.0) -- which controls how FFTs are done on the GPU (and thus has
     no bearing
     on any CPU-only calculations). In ``THREADED`` mode (default) every OpenMP thread issues FFTs to the GPU.
     In ``BATCHED`` mode only the master OpenMP thread issues FFTs to the GPU, but using a batched-FFT API.
@@ -363,8 +363,7 @@ it on is sufficient. For pointers about about settings, see the suggested settin
 in :ref:`user_fast_density`, just add `fast_locpot_int T` to any of them.
 
 The additional setting is:
- - ``fast_locpot_int_fast_ngwfs T/F`` -- which turns *fast NGWFs* on or off in
-   the calculation of local potential integrals. On a CPU these are expected
+ - ``fast_ngwfs T/F`` -- which turns *fast NGWFs* on or off. On a CPU this is expected
    to offer a marginal boost in performance. On a GPU the gain should be more
    significant. The default is ``T`` when running on a GPU, and ``F`` otherwise.
 
@@ -420,8 +419,8 @@ it on is sufficient. For pointers about about settings, see the suggested settin
 in :ref:`user_fast_density`, just add `fast_ngwf_gradient T` to any of them.
 
 The additional setting is:
- - ``fast_ngwf_gradient_fast_ngwfs T/F`` -- which turns *fast NGWFs* on or off in
-   the calculation of local potential integrals. On a CPU these are expected
+ - ``fast_ngwfs T/F`` -- which turns *fast NGWFs* on or off.
+   On a CPU this is expected
    to offer a marginal boost in performance. On a GPU the gain should be quite
    significant. The default is ``T`` when running on a GPU, and ``F`` otherwise.
 
@@ -436,24 +435,33 @@ Fast NGWFs (for users)
 This is a user-level explanation -- for developer-oriented material,
 see :ref:`dev_fast_ngwfs`.
 
-This is an experimental feature at this point (February 2025).
-The PPD representation of NGWFs in ONETEP can be replaced by a faster representation
-known as the *rod* representation. This can be done with:
+The PPD representation of NGWFs in ONETEP can be replaced by a faster
+representation known as the *rod* representation, but only in the scope
+of "fast" algorithms (described above).
 
- - ``fast_density_fast_ngwfs T`` -- in the fast density calculation,
- - ``fast_locpot_int_fast_ngwfs T`` -- in the fast local potential integral calculation,
- - ``fast_locpot_int_fast_ngwfs T`` -- in the fast NGWF gradient calculation,
+To activate it this faster *rod* representation, simply add ``fast_ngwfs T``.
 
-or with:
-
- - ``fast_ngwfs T`` -- which over-rides all of the above to ``T``.
-
-The default is ``fast_density_fast_ngwfs F``, ``fast_locpot_int_fast_ngwfs F``,
-and ``fast_ngwf_gradient_fast_ngwfs F`` when running on a CPU, and
-``fast_density_fast_ngwfs T``, ``fast_locpot_int_fast_ngwfs T``, and
-``fast_ngwf_gradient_fast_ngwfs T`` when running on a GPU.
+The default is ``fast_ngwfs F`` when running on a CPU, and
+``fast_ngwfs T`` when running on a GPU.
 
 On a CPU the performance gain will likely be marginal or non-existent. On a GPU
-you should see a modest improvement. The memory cost of ``fast_locpot_int_fast_ngwfs T``
-should be negligible on both CPU and GPU. The memory cost of ``fast_density_fast_ngwfs T``
-is significant, particularly on a GPU.
+you should see quite the improvement. The memory cost of ``fast_ngwfs T``
+is *lower* in terms of CPU RAM, and *higher* in terms of GPU RAM.
+
+The table below can give you a rough idea of what to expect, in terms
+of performance and memory use. Tests were done on a 434-atom protein scoop
+(ran to SCF convergence), on 8 CPU cores and an old Quadro GP100 card.
+
+.. table:: Performance comparison of ``fast_ngwfs``.
+
+   +--------+----------------+--------------+---------------+--------------+-----------+
+   | Ran on | ``fast_ngwfs`` | peak CPU RAM | peak GPU RAM  | Walltime (s) | Speed-up* |
+   +========+================+==============+===============+==============+===========+
+   | CPU    | F              | 17.7 GiB     | 0.0 GiB       | 6043s        | 1.00x     |
+   +--------+----------------+--------------+---------------+--------------+-----------+
+   | CPU    | T              | 15.6 GiB     | 0.0 GiB       | 6045s        | 1.00x     |
+   +--------+----------------+--------------+---------------+--------------+-----------+
+   | GPU    | F              | 17.7 GiB     | 10.9 GiB      | 1935s        | 3.12x     |
+   +--------+----------------+--------------+---------------+--------------+-----------+
+   | GPU    | T              | 17.5 GiB     | 12.9 GiB      | 1598s        | 3.78x     |
+   +--------+----------------+--------------+---------------+--------------+-----------+

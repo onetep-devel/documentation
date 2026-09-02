@@ -7175,22 +7175,6 @@ FAST_DENSITY_FLATTEN_METHOD
 
 MPI flattening method to use for fast density
 
-.. _fast-density-gpu-copy-ahead:
-
-FAST_DENSITY_GPU_COPY_AHEAD
----------------------------
-
-:Type: Boolean
-:Default: TRUE
-:Unit: None
-:Level: Expert
-:Group: None
-:Search: :searchlink:`FAST_DENSITY_GPU_COPY_AHEAD`
-
-Copy stuff to the GPU ahead of time for performance?
-
-.. _fast-density-method:
-
 FAST_DENSITY_METHOD
 -------------------
 

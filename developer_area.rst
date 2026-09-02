@@ -1785,7 +1785,7 @@ We proceed as follows:
 
 When using CPUs only, much of the time is spent in the Fourier filtering.
 With a GPU, this becomes much faster. Copyin is avoided at all times. Copyout
-is avoided when ``fast_locpot_int_fast_ngwfs T`` is in use.
+is avoided when ``fast_ngwfs T`` is in use.
 
 Performance
 -----------
@@ -1812,8 +1812,8 @@ Fast NGWFs (for developers)
 This section describes the "fast ngwfs" approach introduced in ONETEP 7.3.26
 in December 2024. This is developer-oriented material -- for a user manual,
 see :ref:`user_fast_ngwfs`.
-This documentation pertains to ONETEP 7.3.50 and later. If you are using a version of
-ONETEP older than 7.3.50, please update -- not everything you read here will be
+This documentation pertains to ONETEP 8.2.0 and later. If you are using a version of
+ONETEP older than 8.2.0, please update -- not everything you read here will be
 applicable otherwise.
 
 
@@ -1842,11 +1842,9 @@ is actually a periodic image and needs to be unwrapped back from the box to the
 image. Such PPDs are sometimes termed *improper*. The limited contiguity (a PPD
 is typically only 5-7 points long) and no GPU support are further drawbacks.
 
-With ``fast_density_fast_ngwfs T`` we switch to a *rod* representation for NGWFs
-in the calculation of fast density.
-
-With ``fast_locpot_int_fast_ngwfs T`` we switch to a *rod* representation for NGWFs
-in the calculation of fast local potential integrals.
+With ``fast_ngwfs T`` we switch to a *rod* representation for NGWFs
+in the calculation of fast density, fast local potential integrals, fast NGWF
+gradient and fast kinetic.
 
 A *rod* is
 oriented along the *a1* direction and spans an integer number of PPDs.
@@ -1866,11 +1864,12 @@ and handling of periodicity are described.
 State of the art
 ----------------
 
-Currently (February 2025, v7.3.50), fast NGWFs can be used in fast local potential
-integrals (``fast_locpot_int T``), and in the fast
-density calculation (``fast_density T``).
+Currently (August 2026, v8.2.0), fast NGWFs can be used in fast local potential
+integrals (``fast_locpot_int T``), fast density calculation (``fast_density T``),
+fast NGWF gradient (``fast_ngwf_gradient T``) and fast kinetic (used when
+fast NGWF gradient is on).
 
-The rest of ONETEP certainly does not benefit from fast NGWFs, yet.
+The rest of ONETEP, which is a rapidly shrinking set, does not benefit from fast NGWFs, yet.
 
 Performance
 -----------
