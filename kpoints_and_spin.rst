@@ -487,17 +487,50 @@ number of occupied states.
 Additional notes
 ================
 
-Currently, full Brillouin zone sampling is only tested for norm-conserving
-pseudopotentials. Here's a brief list of supported functionalities:
+Brillouin zone sampling has been tested with norm-conserving
+pseudopotentials and with PAW. The k-points can be reduced by the point
+group of the crystal with ``use_symmetry`` (see :doc:`symmetry`), and divided
+between k-point parallelisation groups with ``num_kpars``.
+
+The following are supported with more than one k-point:
 
 - Ground state energy calculation with LNV (``exact_lnv : T``) and EDFT
-  (``edft : T``). 
-- Geometry optimisation (but no cell-optimisation).
-- Parts of the properties module (e.g., charge density outputs, eigenvalue
-  outputs).
+  (``edft : T``, with any of the smearing schemes), with or without spin
+  polarisation.
+- DFT+U, with the occupancy matrices symmetrised when ``use_symmetry`` is
+  used.
+- Forces and geometry optimisation (but no cell optimisation).
+- Conduction NGWF optimisation (``task : COND``), in PW mode only.
 - Bandstructures along a path in PW mode, with NGWFs optimised at each
   k-point of the path (tasks ``BANDSTRUCTURE`` and
   ``PROPERTIES_BANDSTRUCTURE``, see :doc:`bandstructure_pw`).
+- In the properties module:
+
+  - charge density, spin density and potential outputs, and the electric
+    field;
+  - eigenvalue outputs, and the density of states and local density of
+    states, with the Fermi level found from the eigenvalues of all
+    k-points;
+  - Mulliken and Löwdin atomic populations, and DDEC charges;
+  - optical spectra (joint density of states and imaginary part of the
+    dielectric function) from conduction calculations, and optical matrix
+    elements for OptaDOS, including the PAW terms;
+  - EELS matrix elements for OptaDOS; with ``use_symmetry``, these are
+    unfolded onto the full k-point mesh, as OptaDOS requires.
+
+The following are not yet available with more than one k-point, and either
+stop with an error or are skipped:
+
+- kernel DIIS, Mermin and penalty-functional density kernel optimisation;
+- calculations with more than one subsystem (``species_ngwf_regions``);
+- meta-GGA functionals and other quantities that need the kinetic energy
+  density (including electron localisation descriptors);
+- LR-TDDFT, RT-TDDFT, linear-response phonons and DMFT;
+- in the properties module: Mulliken bond populations, NGWF analysis and
+  spreads, polarisation, the Hubbard-projected local density of states, the
+  bandstructure in the ground-state NGWF basis (``bs_method``) and its
+  unfolding, NBO and NPA, distributed multipole analysis, and electronic
+  transport.
 
 Keywords
 ========

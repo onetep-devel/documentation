@@ -4,7 +4,8 @@
 Bandstructures with k-points (PW mode)
 =====================================================
 
-:Author: Nicholas Hine, University of Warwick
+:Author: Nicholas Hine, University of Warwick, and Claude (Anthropic),
+         which wrote much of the text
 :Date: October 2026
 
 Overview
