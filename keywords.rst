@@ -540,6 +540,37 @@ BS_PERTURBATIVE_SOC
 
 Add perturbative spin-orbit couplings to the bandstructure calculation.
 
+.. _bs-projections:
+
+BS_PROJECTIONS
+--------------
+
+:Type: String
+:Default: 'NONE'
+:Unit: None
+:Level: Intermediate
+:Group: BS
+:Search: :searchlink:`BS_PROJECTIONS`
+
+Band weights for bandstructure NGWF calculations
+
+Weights of each atom or pseudoatomic orbital in each band along the path, for tasks BANDSTRUCTURE and PROPERTIES_BANDSTRUCTURE, written to <root>_BS.pdos_weights. One of NONE, ATOM_MULLIKEN, ATOM_LOWDIN (Mulliken or Lowdin populations of the NGWFs on each atom), PAO_LOWDIN or PAO_MULLIKEN (projections onto the pseudoatomic orbitals of the species_cond block). See :ref:`bandstructure_pw`.
+
+.. note::
+   :collapsible: closed
+
+   :Syntax:
+
+   .. code::
+
+      BS_PROJECTIONS [Text]
+
+   :Example:
+
+   .. code::
+
+      BS_PROJECTIONS PAO_LOWDIN
+
 .. _bs-unfold:
 
 BS_UNFOLD
@@ -553,6 +584,37 @@ BS_UNFOLD
 :Search: :searchlink:`BS_UNFOLD`
 
 Number of times to unfold Brillouin zone in each lattice direction
+
+.. _bs-write-agr:
+
+BS_WRITE_AGR
+------------
+
+:Type: Boolean
+:Default: FALSE
+:Unit: None
+:Level: Intermediate
+:Group: BS
+:Search: :searchlink:`BS_WRITE_AGR`
+
+Write bandstructure NGWF bands in xmgrace format
+
+Write the bands from tasks BANDSTRUCTURE and PROPERTIES_BANDSTRUCTURE to <root>_BS.agr, in xmgrace format, as well as to <root>_BS.bands. See :ref:`bandstructure_pw`.
+
+.. note::
+   :collapsible: closed
+
+   :Syntax:
+
+   .. code::
+
+      BS_WRITE_AGR [Boolean]
+
+   :Example:
+
+   .. code::
+
+      BS_WRITE_AGR T
 
 .. _cache-limit-for-dknblks:
 
@@ -1921,7 +1983,7 @@ COND_ENERGY_RANGE
 
 Energy range of optimised cond states measured from HOMO
 
-Energy range of states that will be optimised during a conduction NGWF optimisation. This is counted as the number of states measured from the highest occupied molecular orbital (HOMO). Negative values mean this range is not used in determining the occupancy of the conduction kernel.
+Energy range of states that will be optimised during a conduction NGWF optimisation. This is counted as the number of states measured from the highest occupied molecular orbital (HOMO). Negative values mean this range is not used in determining the occupancy of the conduction kernel. For tasks BANDSTRUCTURE and PROPERTIES_BANDSTRUCTURE with COND_NUM_STATES 0, the number of bands of each spin is the largest number of ground-state eigenvalues at any k-point below the highest occupied eigenvalue (insulators) or the Fermi energy (metals) plus this range, see :ref:`bandstructure_pw`.
 
 .. note::
    :collapsible: closed
@@ -2154,7 +2216,7 @@ COND_NUM_STATES
 
 Number of conduction states to be optimised for
 
-The number of conduction states to be optimised (spin up + down). For non-spin-polarised calculations, this should be an even number.
+The number of conduction states to be optimised (spin up + down). For non-spin-polarised calculations, this should be an even number. For tasks BANDSTRUCTURE and PROPERTIES_BANDSTRUCTURE, this is the number of bands (spin up + down) at each k-point of the path; with 0, COND_ENERGY_RANGE sets the number of bands, see :ref:`bandstructure_pw`.
 
 .. note::
    :collapsible: closed
@@ -20060,7 +20122,7 @@ TASK
 
 Type of calculation
 
-Specifies the :ref:`task` to be carried out, currently one of: SINGLEPOINT - single point energy calculation COND - Conduction NGWF optimisation calculation PROPERTIES - properties using results from a previous calculation of the ground state. PROPERTIES_COND - properties using results from a previous calculation of the conduction NGWFs. GEOMETRYOPTIMIZATION - geometry optimization using Cartesian or delocalized internal coordinates. MOLECULARDYNAMICS - molecular dynamics simulation. TRANSITIONSTATESEARCH - transition state search PHONON - a phonon frequencies and thermodynamics calculation. HUBBARDSCF - a projector-self-consistent DFT+U calculation.
+Specifies the :ref:`task` to be carried out, currently one of: SINGLEPOINT - single point energy calculation COND - Conduction NGWF optimisation calculation PROPERTIES - properties using results from a previous calculation of the ground state. PROPERTIES_COND - properties using results from a previous calculation of the conduction NGWFs. GEOMETRYOPTIMIZATION - geometry optimization using Cartesian or delocalized internal coordinates. MOLECULARDYNAMICS - molecular dynamics simulation. TRANSITIONSTATESEARCH - transition state search PHONON - a phonon frequencies and thermodynamics calculation. HUBBARDSCF - a projector-self-consistent DFT+U calculation. BANDSTRUCTURE - optimisation of NGWFs at the k-points of a bandstructure path, with k-points in PW mode (see :ref:`bandstructure_pw`). PROPERTIES_BANDSTRUCTURE - bandstructure output using results from a previous BANDSTRUCTURE calculation.
 
 .. note::
    :collapsible: closed

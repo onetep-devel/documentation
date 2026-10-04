@@ -14,5 +14,6 @@ Spectroscopy and Transport
    lr_tddft.rst
    eels_in_onetep.rst
    transport.rst
+   bandstructure_pw.rst
    spectral_function_unfolding.rst
    ci.rst

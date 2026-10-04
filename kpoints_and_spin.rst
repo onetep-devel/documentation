@@ -495,6 +495,9 @@ pseudopotentials. Here's a brief list of supported functionalities:
 - Geometry optimisation (but no cell-optimisation).
 - Parts of the properties module (e.g., charge density outputs, eigenvalue
   outputs).
+- Bandstructures along a path in PW mode, with NGWFs optimised at each
+  k-point of the path (tasks ``BANDSTRUCTURE`` and
+  ``PROPERTIES_BANDSTRUCTURE``, see :doc:`bandstructure_pw`).
 
 Keywords
 ========
