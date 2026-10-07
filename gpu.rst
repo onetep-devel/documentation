@@ -237,7 +237,9 @@ The following compile-time options are recognized by the GPU port.
 |                          |                                                           |
 |                          | block can be skipped). To automate this ``-DGPU_SPARSE``  |
 |                          |                                                           |
-|                          | sets ``dense_threshold`` to 1.e-6 by default.             |
+|                          | sets ``dense_threshold`` to 1.e-6 by default. Do not set  |
+|                          |                                                           |
+|                          | it to 0.0 for the reason explained in ``-DGPU_DGEMM``.    |
 |                          |                                                           |
 |                          | The speed-ups achieved with either ``-DGPU_DGEMM`` or     |
 |                          |                                                           |

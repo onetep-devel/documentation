@@ -1903,10 +1903,12 @@ sparse (only some entries filled) and blank (all entries are zero). An entry is 
 if the respective basis functions do not spatially overlap. A block is considered
 dense or sparse depending on how many of its entries are non-zero as a fraction of the
 total number of entries, and this is controlled by ``dense_threshold`` using its
-internal defaults or via the input file. In operations involving blocks the type
-of block is taken into account to perform the calculation as quickly as possible
-(for instance, a blank block will make no contribution and so it can be skipped
-when accumulating the result).
+internal defaults or via the input file. Setting ``dense_threshold`` to a very low
+value, e.g. 1.e-6, typically results in all blocks being classified as either
+dense or blank, and setting it to 0.0 marks all blocks as dense (useful only
+for testing). In operations involving blocks the type of block is taken into account
+to perform the calculation as quickly as possible (for instance, a blank block will
+make no contribution and so it can be skipped when accumulating the result).
 
 When performing an operation such as a matrix multiplication, each MPI rank will
 have on its own memory some of the required blocks but will also need to request
@@ -1919,10 +1921,10 @@ cores into MPI ranks the associated MPI comms can be skipped and the memory shar
 directly also between ranks using MPI shared memory. By default ONETEP does not do
 this (``sparse_shared_comms = .false.``) but this can be overridden through the
 input file. One can set ``sparse_shared_comms = .true.``, which also toggles
-``sparse_shared_data = .true.``, and so enables skipping MPI comms which are
+``sparse_shared_data = .true.``, and so enables skipping those MPI comms which can
 instead replaced by MPI shared memory access. There is also a separate option,
 ``sparse_preshared_comms = .true.``, which has the same effect as ``sparse_shared_comms``
-but in addition does not overlap comms and computation, which all the data that
+but in addition does not overlap comms and computation, with all the data that
 an MPI rank needs being fetched before starting on the respective block computations.
 This has the side effect of needing larger buffers to hold data from other MPI ranks
 and so might play a role in out-of-memory crashes if the buffers become too large.
