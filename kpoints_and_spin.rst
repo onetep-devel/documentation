@@ -264,7 +264,7 @@ Tight-binding (TB) mode
 =======================
 
 The tight-binding (TB) mode is designed to use fully localised NGWFs ( 
-``extended_ngwf : F F F``) and the k-point sampling is performed by augmenting
+``extend_ngwf : F F F``) and the k-point sampling is performed by augmenting
 the Hamiltonian, overlap and other matrices with k-dependent phase factors.
 
 Specifically, in the TB mode, we adopt the Bloch sum form of the Bloch function:
@@ -448,11 +448,11 @@ Hybrid and extended NGWFs
 =========================
 
 In the PW mode, NGWFs needs to be extended. This is turned on by using the 
-keyword ``extended_ngwf`` in the input file. e.g.,
+keyword ``extend_ngwf`` in the input file. e.g.,
 
 ::
 
-   extended_ngwf : T T T
+   extend_ngwf : T T T
 
 It is also possible to only allow NGWFs to be extended along certain directions,
 hence utlising the periodicity of the system **only** along those directions via
@@ -465,7 +465,7 @@ calculation with only one k-point (i.e., the :math:`\Gamma` point).
 Fixed kernel calculation
 ========================
 
-When using fully extended NGWFs (``extended_ngwf : T T T``) it is possible to 
+When using fully extended NGWFs (``extend_ngwf : T T T``) it is possible to 
 perform fixed kernel calculation where the number of NGWFs used is the same as 
 the number of **occupied** states. Since we are not optimising the density 
 kernel, this will only work with known insulators (i.e., all NGWFs are fully 
@@ -535,7 +535,7 @@ stop with an error or are skipped:
 Keywords
 ========
 
--  ``extended_ngwf`` [Basic, bool bool bool, default ``F F F``\ ] Turn on 
+-  ``extend_ngwf`` [Basic, bool bool bool, default ``F F F``\ ] Turn on 
    extended NGWFs along the three directions.
 
 -  ``kpoint_method`` [Basic, string, default ``None``\ ] The method used to generate 
