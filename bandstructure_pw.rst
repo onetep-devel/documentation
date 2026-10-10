@@ -80,7 +80,11 @@ calculation:
    ``cond_energy_range`` (see `Number of bands`_).
 
 The NGWFs are complex at the path k-points, so ``use_cmplx_ngwfs`` is set
-automatically.
+automatically for the whole run, including a ground-state calculation in the
+same run. A ``BANDSTRUCTURE`` task that reads the results of a separate
+ground-state calculation needs complex NGWFs and density kernel in those
+files: if that calculation sampled only the :math:`\Gamma` point, it must
+have been run with ``use_cmplx_ngwfs : T``.
 
 The NGWF optimisation is controlled by the same keywords as the
 ground-state NGWF optimisation (``maxit_ngwf_cg``, ``ngwf_threshold_orig``
@@ -286,8 +290,9 @@ Restrictions
 
 -  Hybrid functionals and spin-orbit coupling are not supported.
 
--  ``edft`` is set to F, and ``ngwf_cg_type : NGWF_LBFGS`` is replaced by
-   ``NGWF_FLETCHER``, for these tasks, with a warning: the bandstructure
+-  ``edft`` and ``edft_grand_canonical`` are set to F, and
+   ``ngwf_cg_type : NGWF_LBFGS`` is replaced by ``NGWF_FLETCHER``, for these
+   tasks, with a warning: the bandstructure
    NGWFs are optimised for a fixed number of bands at each k-point. The
    ground-state calculation in the same run can use EDFT.
 
