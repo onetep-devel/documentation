@@ -247,6 +247,160 @@ element) overlap strongly with the orbitals of neighbouring atoms, and can
 take weight that would more naturally be assigned to those orbitals: the
 weights of such shells should be interpreted with care.
 
+Spin-orbit coupling
+===================
+
+With ``bs_perturbative_soc : T``, spin-orbit coupling (SOC) is added to the
+bands at each path k-point. The NGWFs, and the ground state, are calculated
+without SOC, in the scalar-relativistic approximation and with collinear
+spin; SOC is included only when the bands are written, as for the
+perturbative SOC of ``PROPERTIES`` bandstructure calculations. This is a
+second-variation approach: SOC mixes the states within the span of the
+bandstructure NGWFs.
+
+At each path k-point, the basis is the bandstructure NGWFs
+:math:`\{\phi_\alpha\}` times the two spin states, giving :math:`2N` spinor
+basis functions for :math:`N` NGWFs. The spinor Hamiltonian and overlap are
+
+.. math::
+
+   H = \begin{pmatrix} H_0^{\uparrow} + \Delta^{\uparrow\uparrow} & \Delta^{\uparrow\downarrow} \\
+       \Delta^{\downarrow\uparrow} & H_0^{\downarrow} + \Delta^{\downarrow\downarrow} \end{pmatrix},
+   \qquad
+   S_{\mathrm{so}} = \begin{pmatrix} S & 0 \\ 0 & S \end{pmatrix},
+
+where :math:`H_0^{\sigma}` is the Hamiltonian of the bandstructure NGWFs
+without SOC (the same for both spins without spin polarisation), :math:`S`
+their overlap matrix, and
+
+.. math::
+
+   \Delta^{\sigma\sigma'}_{\alpha\beta} = \sum_{ij} \langle \phi_\alpha | p_i \rangle
+   D^{\mathrm{so},\sigma\sigma'}_{ij} \langle p_j | \phi_\beta \rangle
+
+is the SOC term, from the projectors :math:`p_i` and on-site SOC
+coefficients :math:`D^{\mathrm{so}}`. :math:`D^{\mathrm{so}}` couples only
+projectors on the same atom with the same angular momentum :math:`l \neq
+0`, and is written below for projectors :math:`i = (n, l, m_i)` and
+:math:`j = (n', l, m_j)` of one atom, with :math:`m` labelling the real
+spherical harmonics :math:`S_{lm}` of the projectors. Both forms involve
+the matrix elements of :math:`\mathbf{L} \cdot \boldsymbol{\sigma}` in the
+basis :math:`S_{lm} \chi_\sigma`, which in spin blocks are
+
+.. math::
+
+   \langle l m_i \sigma | \mathbf{L} \cdot \boldsymbol{\sigma} | l m_j \sigma' \rangle =
+   \begin{pmatrix}
+   \langle S_{l m_i} | L_z | S_{l m_j} \rangle & \langle S_{l m_i} | L_- | S_{l m_j} \rangle \\
+   \langle S_{l m_i} | L_+ | S_{l m_j} \rangle & -\langle S_{l m_i} | L_z | S_{l m_j} \rangle
+   \end{pmatrix}_{\sigma\sigma'} .
+
+**PAW.** :math:`D^{\mathrm{so}}` is calculated from the all-electron partial
+waves :math:`\phi_{nl}(r)` (radial parts) and the spherical part
+:math:`V(r)` of the all-electron potential inside the augmentation sphere
+of radius :math:`r_c`:
+
+.. math::
+
+   D^{\mathrm{so},\sigma\sigma'}_{ij} = \frac{\alpha^2}{4}
+   \int_0^{r_c} \phi_{nl}(r) \, \phi_{n'l}(r) \,
+   \frac{1}{1 - \alpha^2 V(r)} \frac{1}{r} \frac{dV}{dr} \, dr \;
+   \langle l m_i \sigma | \mathbf{L} \cdot \boldsymbol{\sigma} | l m_j \sigma' \rangle ,
+
+in atomic units, with :math:`\alpha` the fine-structure constant (so that
+:math:`\alpha^2/4 \; (1/r)(dV/dr) \, \mathbf{L} \cdot \boldsymbol{\sigma}`
+is the spin-orbit operator :math:`(1/2c^2)(1/r)(dV/dr) \, \mathbf{L} \cdot
+\mathbf{S}`, with :math:`\mathbf{S} = \boldsymbol{\sigma}/2`), and
+:math:`1/(1 - \alpha^2 V)` a relativistic (ZORA-type) correction near the
+nucleus. :math:`V` is the potential of the nucleus, the Hartree potential
+of the on-site all-electron valence density (from the density matrix
+:math:`\rho_{ij}` of the ground state) and the core density, and the
+exchange-correlation potential; with spin polarisation, it is averaged
+over the two spins.
+
+**Norm-conserving pseudopotentials.** The pseudopotentials must be fully
+relativistic: UPF files with projectors for total angular momentum
+:math:`J = l \pm 1/2`, with coefficients :math:`D_{nlJ}`. In the basis of
+real spherical harmonics and spins, the projectors onto the two values of
+:math:`J` are
+
+.. math::
+
+   P_{l+1/2} = \frac{l + 1 + \mathbf{L} \cdot \boldsymbol{\sigma}}{2l + 1}, \qquad
+   P_{l-1/2} = \frac{l - \mathbf{L} \cdot \boldsymbol{\sigma}}{2l + 1},
+
+and
+
+.. math::
+
+   D^{\mathrm{so},\sigma\sigma'}_{ij} = \delta_{nn'} \left(
+   \sum_{J = l \pm 1/2} D_{nlJ} \, \langle l m_i \sigma | P_J | l m_j \sigma' \rangle
+   - D^{\mathrm{SR}}_{nl} \, \delta_{m_i m_j} \delta_{\sigma\sigma'} \right),
+
+where :math:`D^{\mathrm{SR}}_{nl}` is the scalar-relativistic coefficient
+already included in :math:`H_0`.
+
+:math:`D^{\mathrm{so}}` is independent of k; the projector overlaps
+:math:`\langle \phi_\alpha | p_i \rangle` are those at the path k-point.
+
+The generalised eigenvalue problem gives :math:`2N` spinor bands at each
+k-point, of which :math:`2N_b` are written, with :math:`N_b` the number of
+bands of each spin chosen as in `Number of bands`_ (with spin
+polarisation, the sum of the numbers of bands of the two spins). The number
+of bands, and the check for degenerate states at the top of the set, refer
+to the bands without SOC, which are the bands that the NGWFs are optimised
+for.
+
+**Accuracy.** The SOC is exact within the space spanned by the NGWFs. The
+bands are accurate where SOC mainly mixes bands within the set and the
+NGWFs describe them well; bands near the top of the set, which SOC mixes
+with bands above it, are less accurate. The approach is suited to systems
+in which SOC is a perturbation on the scalar-relativistic bands; the
+density and the NGWFs do not respond to SOC.
+
+**Spin polarisation.** With spin polarisation, the up and down Hamiltonians
+differ, and the magnetisation is along the :math:`z` axis of the cell. This
+case is less well tested than the unpolarised one, and a warning is
+printed.
+
+**Projections.** For an eigenvector :math:`c = (c^{\uparrow}, c^{\downarrow})`,
+the overlaps :math:`S`, :math:`O` and :math:`\Lambda` do not couple the two
+spins, so each of the formulas of `Band projections`_ gives the sum of its
+values for :math:`c^{\uparrow}` and :math:`c^{\downarrow}`. These sums are
+written as the band weights. The expectation value of the spin along
+:math:`z`,
+
+.. math::
+
+   \langle S_z \rangle = \frac{1}{2} \left( c^{\uparrow\dagger} S c^{\uparrow}
+   - c^{\downarrow\dagger} S c^{\downarrow} \right),
+
+is written as the last column of ``<root>_BS.pdos_weights``.
+
+In a system with inversion symmetry, every band is doubly degenerate at
+every k-point (Kramers degeneracy), as it is at the time-reversal-invariant
+k-points of any system. Within a degenerate pair, the split of the states
+is arbitrary: :math:`\langle S_z \rangle` of an individual band is not
+meaningful, and nor are the weights of individual atoms that inversion
+maps onto each other, although their sums over such atoms are. Without
+inversion symmetry, as in a monolayer of 2H-MoS\ :sub:`2`, the bands away
+from these k-points are not degenerate, and :math:`\langle S_z \rangle`
+gives their spin polarisation.
+
+**Example.** SOC can be added to bandstructure NGWFs optimised in an
+earlier ``BANDSTRUCTURE`` run without SOC, with ``PROPERTIES_BANDSTRUCTURE``,
+which reads the NGWFs and only calculates the bands::
+
+    task : PROPERTIES_BANDSTRUCTURE
+    bs_perturbative_soc : T
+    bs_projections : ATOM_MULLIKEN
+
+with the rest of the input as for the ``BANDSTRUCTURE`` run. Equally,
+``bs_perturbative_soc : T`` can be set in the ``BANDSTRUCTURE`` run itself.
+For example, for a monolayer of 2H-MoS\ :sub:`2` with the 13 valence bands
+(``cond_num_states : 26``), the top valence band at K is split by about
+0.15 eV into two bands with :math:`\langle S_z \rangle \approx \pm 1/2`.
+
 Output files
 ============
 
@@ -255,7 +409,9 @@ Output files
    in the format of the ``.bands`` files of ``PROPERTIES`` bandstructure
    calculations (and CASTEP). The Fermi energy is the highest occupied
    eigenvalue along the path or, for a metal (see `Number of bands`_), the
-   Fermi energy of the ground state.
+   Fermi energy of the ground state. With ``bs_perturbative_soc : T``, there
+   is a single set of :math:`2N_b` spinor bands (one independent spin
+   component).
 
 ``<root>_BS.pdos_weights``
    With ``bs_projections``, the band weights. The header gives the
@@ -267,7 +423,10 @@ Output files
    ``px`` or ``dxy``). Then, for each k-point and spin, a line
    ``# K-point`` with the index, the fractional coordinates of the k-point
    and the spin, followed by one line for each band, with the band index,
-   the energy (Ha), the spilling and the weights.
+   the energy (Ha), the spilling and the weights. With
+   ``bs_perturbative_soc : T``, a header line marks the file as containing
+   spinor bands, and each band line ends with :math:`\langle S_z \rangle`
+   (see `Spin-orbit coupling`_).
 
 ``<root>_BS.agr``
    With ``bs_write_agr : T``, the bands in xmgrace format.
@@ -288,7 +447,10 @@ the root name, as for the ground-state files.
 Restrictions
 ============
 
--  Hybrid functionals and spin-orbit coupling are not supported.
+-  Hybrid functionals are not supported.
+
+-  Spin-orbit coupling is perturbative only: it is not included in the
+   ground state or in the NGWF optimisation (see `Spin-orbit coupling`_).
 
 -  ``edft`` and ``edft_grand_canonical`` are set to F, and
    ``ngwf_cg_type : NGWF_LBFGS`` is replaced by ``NGWF_FLETCHER``, for these
@@ -329,6 +491,9 @@ Keywords
 -  ``bs_projections`` [Intermediate, string, default ``NONE``] The band
    weights: ``NONE``, ``ATOM_MULLIKEN``, ``ATOM_LOWDIN``, ``PAO_LOWDIN`` or
    ``PAO_MULLIKEN``.
+
+-  ``bs_perturbative_soc`` [Basic, logical, default ``F``] Add spin-orbit
+   coupling perturbatively to the bands (see `Spin-orbit coupling`_).
 
 -  ``bs_write_agr`` [Intermediate, logical, default ``F``] Write the bands
    in xmgrace format.
