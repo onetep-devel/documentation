@@ -4,6 +4,7 @@ ONETEP using GPUs
 
 :Author: Jacek Dziedzic, University of Southampton
 :Author: Gianluca Seaford, University of Warwick
+:Author: Manuel dos Santos Dias, STFC
 
 Introduction
 ============
@@ -17,7 +18,7 @@ At this moment, the following key algorithms have been GPU ported:
  - fast local potential integrals (see :ref:`user_fast_locpot_int`),
  - fast NGWF gradient (see :ref:`user_fast_ngwf_gradient`),
  - Hartree-Fock exchange (not completely),
- - sparse matrix products (work is very much in progress).
+ - sparse matrix products (now available, further optimisation needed).
  - dense linear algebra (via ELSI interface, optimisation is in progress).
 
 Note that the usual ("slow") calculation of density, local potential integrals,
@@ -27,9 +28,9 @@ potential integrals, and fast NGWF gradient, except if you use
 use Hartree-Fock exchange, as this does not require any extra keywords.
 The improvement in sparse matrix products is currently modest and only if you
 have many (hundreds) of atoms per MPI rank. This does not require any extra
-keywords, either. Similarly, the improvement to the dense linear algebra routines
-via the ELSI interface is system dependent, and typically requires large numbers 
-of atoms per GPU.
+keywords, either, but some are available for fine-tuning. Similarly, the
+improvement to the dense linear algebra routines via the ELSI interface is system
+dependent, and typically requires large numbers of atoms per GPU.
 
 Implementation
 ==============
@@ -182,15 +183,17 @@ The following compile-time options are recognized by the GPU port.
 |                          |                                                           |
 |                          | multiplications to GPUs. Anytime dense blocks that are    |
 |                          |                                                           |
-|                          | larger than 256x256 are multiplied, the multiplication is |
+|                          | larger than 256x256 are multiplied, (this default size can|
 |                          |                                                           |
-|                          | offloaded to the GPU(s). This is only modestly faster than|
+|                          | be controlled through ``gpu_min_block_size``) the         |
 |                          |                                                           |
-|                          | CPU BLAS because of copyin and copyout. The associated    |
+|                          | multiplication is offloaded to the GPU(s). This is only   |
 |                          |                                                           |
-|                          | reduction in ``dense_threshold`` helps move more matmuls  |
+|                          | modestly faster than CPU BLAS because of copyin and       |
 |                          |                                                           |
-|                          | to the GPU.                                               |
+|                          | copyout. The associated reduction in ``dense_threshold``  | 
+|                          |                                                           |
+|                          | helps move more matmuls to the GPU.                       |
 |                          |                                                           |
 |                          | If your nodes have a lot of CPU power compared to GPU     |
 |                          |                                                           |
@@ -214,7 +217,37 @@ The following compile-time options are recognized by the GPU port.
 |                          |                                                           |
 |                          | machine. If you find good speed-ups, you may consider     |
 |                          |                                                           |
-|                          | reducing ``dense_threshold`` further, even to 0.0.        |
+|                          | reducing ``dense_threshold`` further, e.g. to 1.e-6 (do   |
+|                          |                                                           |
+|                          | not set it to 0.0 or the code will also multiply blocks   |
+|                          |                                                           |
+|                          | which consist only of zeros and this is unnecessary).     |
++--------------------------+-----------------------------------------------------------+
+| ``-DGPU_SPARSE``         | This enables the same type of functionality as            |
+|                          |                                                           |
+|                          | ``-DGPU_DGEMM`` but with additional book-keeping to avoid |
+|                          |                                                           |
+|                          | transfering matrix blocks to and from the GPU more than   |
+|                          |                                                           |
+|                          | is actually necessary. To help keeping track of things    |
+|                          |                                                           |
+|                          | only two types of matrix blocks are accepted: dense (all  |
+|                          |                                                           |
+|                          | entries filled) or blank (all entries zero and so the     |
+|                          |                                                           |
+|                          | block can be skipped). To automate this ``-DGPU_SPARSE``  |
+|                          |                                                           |
+|                          | sets ``dense_threshold`` to 1.e-6 by default. Do not set  |
+|                          |                                                           |
+|                          | it to 0.0 for the reason explained in ``-DGPU_DGEMM``.    |
+|                          |                                                           |
+|                          | The speed-ups achieved with either ``-DGPU_DGEMM`` or     |
+|                          |                                                           |
+|                          | ``-DGPU_SPARSE`` are usually similar but also hardware    |
+|                          |                                                           |
+|                          | dependent, so some testing is required to achieve         |
+|                          |                                                           |
+|                          | optimal performance.                                      |
 +--------------------------+-----------------------------------------------------------+
 | ``-DGPU_ELPA``           | Moves dense linear algebra operations to the GPU in the   |
 |                          |                                                           |
@@ -243,7 +276,7 @@ The following compile-time options are recognized by the GPU port.
 |                          | Ignored outside of Hartree-Fock exchange.                 |
 +--------------------------+-----------------------------------------------------------+
 
-There is also one runtime option (specified in the input file) that controls
+There are two runtime options (specified in the input file) that control
 the GPU port:
 
  - ``threads_gpu`` -- can be used to adjust the number of OpenMP threads in loops
@@ -255,6 +288,11 @@ the GPU port:
    This will vastly reduce the requirement on GPU memory while the reduction in
    performance should not be dramatic -- FFTs are expensive, and even with fewer
    threads it is often possible to saturate the GPU.
+
+ - ``gpu_min_block_size`` -- can be used to control the matrix block dimensions
+   (default is 256) above which the corresponding block matrix multiplications is 
+   offloaded to the GPU. This is operative if ONETEP is compiled with ``-DGPU_DGEMM``
+   or ``-DGPU_SPARSE``.
 
 
 Hartree-Fock exchange
