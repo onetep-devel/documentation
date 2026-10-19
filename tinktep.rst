@@ -292,7 +292,7 @@ dimer example you could use this bare-bones ``.dat.template`` file:
      cutoff_energy 1000 eV
      charge 0
      xc_functional PBE
-     dispersion 1
+     dispersion ELSTNER
 
      ! --- cutoff Coulomb to enforce OBCs in ONETEP ---
      coulomb_cutoff_type SPHERE
