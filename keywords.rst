@@ -16125,6 +16125,37 @@ Activates the Projector Augmented Wave Formalism: :ref:`paw` potentials must the
 
       PAW : T
 
+.. _paw-core-den-taper-gvec-frac:
+
+PAW_CORE_DEN_TAPER_GVEC_FRAC
+----------------------------
+
+:Type: Double-Precision
+:Default: -1.0
+:Unit: None
+:Level: Expert
+:Group: PAW
+:Search: :searchlink:`PAW_CORE_DEN_TAPER_GVEC_FRAC`
+
+Start of PAW pseudo-core taper as fraction of max G (<0: off)
+
+Tapers the Fourier transform of the PAW pseudo-core density smoothly (cos²) to zero between G1 = x G2 and G2, the radius of the sphere inscribed in the fine grid's reciprocal box, to remove the ringing that truncation at the box edge spreads into vacuum. This reduces the egg-box effect and improves energy/force consistency, especially with optB88-vdW and other gradient-corrected functionals in systems with vacuum. G1 is never allowed below the valence density's band limit, so the keyword has no effect at FINE_GRID_SCALE 2; use FINE_GRID_SCALE 3 or more. A negative value (the default) means no taper; otherwise the value must lie strictly between 0 and 1, and 0.8 is recommended. Where forces are needed to a few meV/Å, also converge the density kernel tightly (e.g. EDFT_COMMUTATOR_THRES 1.0e-7 Hartree).
+
+.. note::
+   :collapsible: closed
+
+   :Syntax:
+
+   .. code::
+
+      PAW_CORE_DEN_TAPER_GVEC_FRAC [Real]
+
+   :Example:
+
+   .. code::
+
+      PAW_CORE_DEN_TAPER_GVEC_FRAC 0.8
+
 .. _paw-output-detail:
 
 PAW_OUTPUT_DETAIL
