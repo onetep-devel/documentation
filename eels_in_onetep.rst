@@ -152,8 +152,13 @@ example):
 - An OptaDoS input file, ``silene.odi`` is needed.
 
 To assist in these tasks a utility script, ``prep_optados_eels``, is provided in the
-utils folder of the onetep distribution. Run it with the calculation seed name
-as its argument and the steps listed above will be completed automatically.
+utils-devel folder of the onetep distribution. Run it with the calculation seed name
+as its argument and the steps listed above will be completed automatically,
+for the joint basis. Note that the script replaces the ``-out.cell`` file
+written by ONETEP with a copy of the input file and an identity symmetry
+block. For the unprojected conduction states or spin-orbit coupling (see
+below), copy ``seed_cond_grad.elnes_bin`` and ``seed.proj_bands`` instead
+of the joint files, and set ``EFERMI : file`` in the ``.odi`` file.
 
 The .odi file produced should be regarded as a basic template, consult the
 OptaDoS documentation[6] if you wish to use more advanced features. Note
