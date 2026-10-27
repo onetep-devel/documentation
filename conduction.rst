@@ -3,8 +3,11 @@ Conduction NGWF optimisation and optical absorption spectra
 =====================================================================
 
 :Author: Laura E. Ratcliff, Imperial College London
-	 
-:Date:   July 2011
+:Author: Nicholas Hine, University of Warwick, assisted by Claude Opus 5.5
+         (unprojected conduction NGWFs, metals, k-points, spin-orbit
+         coupling and the quantum geometric tensor)
+
+:Date:   July 2011, updated October 2026
 
 Conduction calculations
 =======================
@@ -276,6 +279,101 @@ keyword is\_separate\_restart\_files: T. This triggers the use of the
 .vacuum files to set up the correct solvation cavity at the beginning of
 the COND calculation.
 
+.. _cond_unprojected:
+
+Unprojected conduction NGWFs
+============================
+
+The projected Hamiltonian above assumes that the valence density matrix
+is idempotent, with occupancies of exactly 0 or 1. With ensemble DFT
+(EDFT) the valence kernel has fractional occupancies, and the projection
+no longer separates the occupied from the unoccupied states. For such
+cases a second route is available, in which a single set of conduction
+NGWFs is optimised to describe *all* the states up to the top of an
+energy window, valence and conduction together, with the unprojected
+Hamiltonian :math:`\mathbf{H_\chi}`. This is the route already used for
+bandstructure NGWFs (see :ref:`bandstructure_pw`).
+
+The unprojected route is used
+
+-  automatically, when ``edft : T`` (metals, or any calculation with
+   smeared occupancies);
+-  automatically, for ``task : BANDSTRUCTURE``;
+-  on request, with ``cond_unprojected : T``, for insulators and
+   semiconductors with an integer-occupied (LNV) ground state.
+
+No joint valence-conduction basis is built: the properties (eigenvalues,
+DOS, optical spectra, EELS and the quantum geometric tensor) are
+calculated from the eigenstates of the conduction NGWFs alone. The output
+shows the banner "Conduction NGWF diagonalisation (all states, no
+projection)", and the files of these states carry ``cond`` in their names
+(e.g. ``seed_cond_OPT_SPEC.txt``, ``seed_cond_grad.elnes_bin``), with the
+eigenvalues in ``seed.proj_bands``.
+
+Number of states in the window
+------------------------------
+
+Because the window contains the valence states as well as the conduction
+states, the number of states is counted from the bottom of the valence
+band:
+
+``cond_num_states``
+   The number of states in the window, counting both spins, as for
+   bandstructure NGWFs: without spin polarisation each spin channel
+   holds ``cond_num_states``/2 states, *including* the occupied ones. For
+   example, a system with 26 valence electrons (13 occupied bands) and 6
+   empty bands of interest needs ``cond_num_states : 38``.
+
+``cond_energy_range`` (with ``cond_num_states : 0``)
+   The window ends ``cond_energy_range`` above the highest occupied
+   valence eigenvalue (insulators) or the Fermi energy (metals), as
+   described for bandstructures in :ref:`bandstructure_pw`. The number
+   of states in the window is printed and written as QC output
+   (``bs_window_bands``).
+
+The ``species_cond`` block must provide at least as many conduction NGWFs
+as there are states in the window, and in practice a margin of NGWFs
+above it. The states near the top of the window are the least accurate,
+so the window should extend above the highest state of interest and,
+for an LNV kernel, end in a gap in the density of states.
+
+Smearing at the top of the window
+---------------------------------
+
+With EDFT, the conduction kernel is itself an EDFT kernel for the states
+of the window, all fully occupied except near the top, where the
+occupancies are smeared with a width ``cond_window_smearing`` (by default
+equal to ``edft_smearing_width``). This avoids the stalling of the NGWF
+optimisation that occurs when the top of a sharp window falls between
+degenerate or crossing bands, which is unavoidable in a metal. Without
+EDFT (``cond_unprojected : T`` for an insulator), the conduction kernel is
+optimised with LNV for the integer-occupied window.
+
+Occupancies of the conduction states
+------------------------------------
+
+The occupancies used for the spectra are not those of the window: the
+valence electrons of each spin channel are taken from the valence kernel,
+:math:`\text{tr}[\mathbf{KS}]` averaged over k-points, and distributed
+over the eigenstates of the conduction NGWFs with the Fermi level found
+using ``edft_smearing_width``. The output reports this Fermi level
+("Fermi level of COND states") and the number of electrons, and the
+``.proj_bands`` file gives the valence electron count and Fermi level, as
+needed by OptaDoS.
+
+Practical notes
+---------------
+
+-  The conduction NGWF gradient can stall at around
+   :math:`10^{-5}`--:math:`10^{-6}` when the window kernel is not fully
+   converged at each NGWF step, although the energy is converged to
+   :math:`10^{-7}` Ha or better. A threshold of
+   ``ngwf_threshold_orig : 1e-5`` is usually sufficient for spectra; the
+   valence NGWFs, read from the ground state, are not re-optimised.
+-  For insulators, the projected (joint) route and the unprojected route
+   give the same spectra to within the accuracy of the conduction NGWFs
+   (for bulk Si, :math:`\varepsilon_2` agrees to 0.2%).
+
 Optical absorption spectra
 ==========================
 
@@ -295,8 +393,17 @@ respectively, :math:`|\psi_{\mathbf{k}}^{n}\rangle` is the :math:`n`\ th
 eigenstate at a given :math:`\mathbf{k}`-point with a corresponding
 energy :math:`E_{\mathbf{k}}^n`, :math:`\Omega` is the cell volume,
 :math:`\mathbf{\hat{q}}` is the direction of polarization of the photon
-and :math:`\hbar\omega` its energy. Currently only the :math:`\Gamma`
-point is included in the sum over :math:`\mathbf{k}`-points.
+and :math:`\hbar\omega` its energy. The sum over :math:`\mathbf{k}`-points
+runs over the k-points of the calculation with their weights.
+
+More generally, each transition from a state :math:`n` to a higher state
+:math:`m` is weighted by the difference of their occupancies,
+:math:`f_n-f_m` (between 0 and 1 per spin channel), in place of the sum
+over valence :math:`v` and conduction :math:`c`. For integer occupancies
+this is the expression above; with fractional occupancies (metals, with
+EDFT and the :ref:`unprojected route <cond_unprojected>`) it includes the
+interband transitions between partially occupied states. The intraband
+(Drude) contribution of a metal is not included.
 
 As the position operator is ill-defined in periodic boundary conditions,
 this should instead be calculated using a momentum operator formalism,
@@ -343,7 +450,15 @@ specified using COND\_SPEC\_NONLOC\_COMM\_SHIFT.
 Outputs
 -------
 
-If the input filename is seed.dat then the matrix elements will be
+If the input filename is seed.dat, the joint density of states and the
+imaginary part of the dielectric function (with Gaussian broadening
+COND\_SPEC\_OPT\_SMEAR) are written to seed\_val\_JDOS.txt and
+seed\_val\_OPT\_SPEC.txt for the valence basis, and to the corresponding
+seed\_joint\_ files for the joint basis (seed\_cond\_ files for the
+:ref:`unprojected route <cond_unprojected>`). With spin polarisation,
+\_UP and \_DN are added before \_JDOS and \_OPT\_SPEC.
+
+If COND\_SPEC\_PRINT\_MAT\_ELS is true, the matrix elements are also
 written to seed\_val\_OPT\_MAT\_ELS.txt and
 seed\_joint\_OPT\_MAT\_ELS.txt. These contain the matrix elements
 between all states in the :math:`x`, :math:`y` and :math:`z` directions,
@@ -351,6 +466,110 @@ and the energies of each state, as well as the transition energy, are
 also printed. For calculations in the momentum representation, the real
 and imaginary components of the matrix element are printed in the
 additional two columns at the end.
+
+.. _quantum_geometric_tensor:
+
+Quantum geometric tensor
+========================
+
+With ``optics_write_qgt : T``, the optical matrix elements are also used
+to calculate the quantum geometric tensor of the occupied states at each
+k-point,
+
+.. math::
+
+   Q_{ab}(\mathbf{k}) = \sum_{n,m:\,E_m>E_n} \left(f_n-f_m\right)
+   r^a_{nm}\, r^b_{mn},
+   \qquad
+   r_{nm} = \frac{i\, v_{nm}}{E_m-E_n} ,
+
+where :math:`v=i[H,\mathbf{r}]` are the momentum (velocity) matrix
+elements between eigenstates at the same k-point, :math:`f` the
+occupancies per spin channel and :math:`a,b` Cartesian directions.
+Pairs of states closer in energy than :math:`10^{-6}` Ha are excluded.
+The real part is the quantum metric, :math:`g_{ab}=\text{Re}\,Q_{ab}`,
+and the imaginary part gives the Berry curvature,
+:math:`\Omega_{ab}=-2\,\text{Im}\,Q_{ab}` (e.g. :math:`\Omega_{xy}`), both
+in bohr\ :sup:`2` and per spin channel. For integer occupancies
+:math:`Q` is the sum over occupied :math:`n` and unoccupied :math:`m`,
+and its Brillouin-zone average :math:`\text{Tr}\,g` is the
+gauge-invariant part of the spread of the Wannier functions.
+
+The sum runs over the eigenstates of the basis (valence, joint, or the
+conduction NGWFs of the unprojected route), so the metric :math:`g`
+converges only as the basis describes enough unoccupied states; the Berry
+curvature is usually dominated by states near the gap and converges much
+faster. The tensor is calculated for each basis for which optical spectra
+are calculated, and requires momentum matrix elements
+(``cond_spec_calc_mom_mat_els : T``) except for Gamma-point calculations
+of isolated systems.
+
+Outputs:
+
+-  the Brillouin-zone average of :math:`g` and of the Berry curvature, in
+   the output file, symmetrised over the point group when the k-points
+   are reduced by symmetry. If the k-points are folded by time reversal
+   (``use_time_reversal : T``), :math:`\Omega(-\mathbf{k})=-\Omega(\mathbf{k})`
+   is not represented and the average Berry curvature is not reported;
+-  seed\_<basis>\_QGT.txt, with one line per k-point and spin: k-point
+   index, spin, Cartesian k-point (1/bohr), weight, :math:`g_{xx}`,
+   :math:`g_{yy}`, :math:`g_{zz}`, :math:`g_{xy}`, :math:`g_{xz}`,
+   :math:`g_{yz}`, :math:`\Omega_{yz}`, :math:`\Omega_{zx}` and
+   :math:`\Omega_{xy}`. The values are those of the k-points of the
+   calculation (irreducible, if reduced by symmetry).
+
+To see the Berry curvature of each valley, e.g. at K and K' of a
+hexagonal 2D material, use a Gamma-centred mesh that contains both points
+with ``use_symmetry : F`` and ``use_time_reversal : F``. For monolayer
+MoSe\ :sub:`2`, :math:`\Omega_{xy}` at K and K' agrees with abinit to
+within 1%, with opposite signs in the two valleys.
+
+.. _eigenstates_perturbative_soc:
+
+Perturbative spin-orbit coupling in eigenstates and spectra
+===========================================================
+
+With ``eigenstates_perturbative_soc : T``, spin-orbit coupling (SOC) is
+added perturbatively to the eigenstates of the valence and joint bases,
+and of the conduction NGWFs of the :ref:`unprojected route
+<cond_unprojected>`, as it is to bandstructures with
+``bs_perturbative_soc`` (see :ref:`bandstructure_pw`). The spinor
+Hamiltonian, in the basis of up and down copies of the :math:`N` NGWFs,
+with the spin-orbit terms of the (PAW or norm-conserving) pseudopotential
+in its four spin blocks, is diagonalised at each k-point, giving
+:math:`2N` spinor states, each holding at most one electron. The ground
+state and the NGWFs are not changed. The spinor states are then used
+for
+
+-  the eigenvalues printed in the output, with their occupancies and the
+   Fermi level of the spinor states;
+-  the density of states (each spinor state with half the weight of a
+   state of the spin-unpolarised calculation, so that the DOS is the same
+   in the limit of zero coupling);
+-  the ``.bands`` files, which then list the :math:`2N` spinor
+   eigenvalues for one spin component, with the total number of
+   electrons;
+-  optical spectra, the JDOS and the quantum geometric tensor, with each
+   spinor transition counted with half the weight. For PAW, the on-site
+   spin-orbit term of the velocity operator, :math:`[H_{\rm so},\mathbf{r}]`,
+   is included in the momentum matrix elements;
+-  EELS matrix elements (see the EELS documentation).
+
+It is most easily applied in a ``task : PROPERTIES_COND`` calculation
+reading the NGWFs and kernels of an earlier ``COND`` calculation, so that
+the spectra with and without SOC can be compared.
+
+Restrictions:
+
+-  spin-unpolarised calculations only;
+-  requires ``cond_spec_calc_mom_mat_els : T`` for optical spectra;
+-  not available with ``cond_spec_print_mat_els``, ``species_ldos_groups``
+   or ``cond_spec_scissor_op``;
+-  the LDOS and PDOS do not include SOC (a warning is printed).
+
+For bulk fcc Au, :math:`\varepsilon_2` with SOC agrees with abinit
+(``pawspnorb 1``) to 8% rms over 0.3-10 eV; without SOC the agreement is
+3.5%.
 
 [Clark2005] S. J. Clark, M. D. Segall, C. J. Pickard, P. J. Hasnip, M. J. Probert, K. Refson and M. C. Payne, Z. Kristallogr. **220**, 567 (2005).
 
