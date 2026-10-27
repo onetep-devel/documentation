@@ -154,11 +154,20 @@ example):
 To assist in these tasks a utility script, ``prep_optados_eels``, is provided in the
 utils-devel folder of the onetep distribution. Run it with the calculation seed name
 as its argument and the steps listed above will be completed automatically,
-for the joint basis. Note that the script replaces the ``-out.cell`` file
-written by ONETEP with a copy of the input file and an identity symmetry
-block. For the unprojected conduction states or spin-orbit coupling (see
-below), copy ``seed_cond_grad.elnes_bin`` and ``seed.proj_bands`` instead
-of the joint files, and set ``EFERMI : file`` in the ``.odi`` file.
+for the joint basis:
+
+::
+
+    prep_optados_eels silene [joint|val|cond] [soc]
+
+The optional second argument chooses the basis: ``joint`` (the default),
+``val``, or ``cond`` for the unprojected conduction states (see below),
+whose ``seed_cond_grad.elnes_bin`` and ``seed.proj_bands`` files are then
+used. Add ``soc`` if the calculation used
+``eigenstates_perturbative_soc``. For the ``cond`` basis and with ``soc``,
+the ``.odi`` file has ``EFERMI : file``, otherwise ``EFERMI : insulator``.
+The ``-out.cell`` file written by ONETEP is kept; if there is none, one is
+made from the input file with an identity symmetry block.
 
 The .odi file produced should be regarded as a basic template, consult the
 OptaDoS documentation[6] if you wish to use more advanced features. Note
