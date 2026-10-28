@@ -2216,7 +2216,7 @@ COND_NUM_STATES
 
 Number of conduction states to be optimised for
 
-The number of conduction states to be optimised (spin up + down). For non-spin-polarised calculations, this should be an even number. For tasks BANDSTRUCTURE and PROPERTIES_BANDSTRUCTURE, this is the number of bands (spin up + down) at each k-point of the path; with 0, COND_ENERGY_RANGE sets the number of bands, see :ref:`bandstructure_pw`.
+The number of conduction states to be optimised (spin up + down). For non-spin-polarised calculations, this should be an even number. For tasks BANDSTRUCTURE and PROPERTIES_BANDSTRUCTURE, this is the number of bands (spin up + down) at each k-point of the path; with 0, COND_ENERGY_RANGE sets the number of bands, see :ref:`bandstructure_pw`. With unprojected conduction NGWFs (COND_UNPROJECTED, or EDFT), it is the number of states of the window, including the occupied states, and with 0, COND_ENERGY_RANGE sets the window, see :ref:`cond_unprojected`.
 
 .. note::
    :collapsible: closed
@@ -2538,6 +2538,68 @@ COND_SPEC_SCISSOR_OP
 :Search: :searchlink:`COND_SPEC_SCISSOR_OP`
 
 Scissor operator for JDOS and imag. diel. fn.
+
+.. _cond-unprojected:
+
+COND_UNPROJECTED
+----------------
+
+:Type: Boolean
+:Default: FALSE
+:Unit: None
+:Level: Intermediate
+:Group: COND
+:Search: :searchlink:`COND_UNPROJECTED`
+
+Unprojected COND NGWFs for all states up to a window
+
+Optimise a single set of conduction NGWFs for all the states up to the top of a window, valence and conduction together, with the unprojected Hamiltonian, instead of the conduction states with the projected Hamiltonian and a joint valence-conduction basis. This route is always used with EDFT and for BANDSTRUCTURE; this keyword selects it for insulators with an LNV ground state. COND_NUM_STATES then counts all the states of the window, including the occupied ones, and properties (DOS, optical spectra, EELS, quantum geometric tensor) are calculated from the eigenstates of the conduction NGWFs, in files with "cond" in their names. See :ref:`cond_unprojected`.
+
+.. note::
+   :collapsible: closed
+
+   :Syntax:
+
+   .. code::
+
+      COND_UNPROJECTED [Boolean]
+
+   :Example:
+
+   .. code::
+
+      COND_UNPROJECTED : T
+
+.. _cond-window-smearing:
+
+COND_WINDOW_SMEARING
+--------------------
+
+:Type: Physical
+:Default: EDFT_SMEARING_WIDTH
+:Unit: hartree
+:Level: Intermediate
+:Group: COND
+:Search: :searchlink:`COND_WINDOW_SMEARING`
+
+Smearing at top of window of unprojected COND states
+
+With EDFT, the width of the smearing of the occupancies at the top of the window of states of the unprojected conduction NGWFs (conduction calculations, see :ref:`cond_unprojected`) or of the bandstructure NGWFs (see :ref:`bandstructure_pw`). A negative value (the default) means EDFT_SMEARING_WIDTH.
+
+.. note::
+   :collapsible: closed
+
+   :Syntax:
+
+   .. code::
+
+      COND_WINDOW_SMEARING [Physical]
+
+   :Example:
+
+   .. code::
+
+      COND_WINDOW_SMEARING : 0.1 eV
 
 .. _confined-ngwfs:
 
@@ -6187,6 +6249,37 @@ Indicates the precision to which the ScaLapack PDSYGVX eigensolver will reorthon
    .. code::
 
       eigensolver_abstol 1.0e-3
+
+.. _eigenstates-perturbative-soc:
+
+EIGENSTATES_PERTURBATIVE_SOC
+----------------------------
+
+:Type: Boolean
+:Default: FALSE
+:Unit: None
+:Level: Intermediate
+:Group: COND
+:Search: :searchlink:`EIGENSTATES_PERTURBATIVE_SOC`
+
+Perturbative spin-orbit coupling in eigenstates
+
+Add spin-orbit coupling perturbatively to the eigenstates of the valence and joint bases and of unprojected conduction NGWFs: the spinor Hamiltonian in the basis of the up and down copies of the NGWFs is diagonalised at each k-point, and the spinor states are used for the eigenvalue printout, the DOS, the .bands files, optical spectra (with the on-site PAW spin-orbit term of the velocity operator), the quantum geometric tensor and EELS. The ground state and the NGWFs are unchanged. Spin-unpolarised calculations only; not available with COND_SPEC_PRINT_MAT_ELS, SPECIES_LDOS_GROUPS or COND_SPEC_SCISSOR_OP. See :ref:`eigenstates_perturbative_soc`.
+
+.. note::
+   :collapsible: closed
+
+   :Syntax:
+
+   .. code::
+
+      EIGENSTATES_PERTURBATIVE_SOC [Boolean]
+
+   :Example:
+
+   .. code::
+
+      EIGENSTATES_PERTURBATIVE_SOC : T
 
 .. _eld-calculate:
 
@@ -15964,6 +16057,37 @@ Sets the value of a unitless numerical parameter npts_x used in the calculation 
    .. code::
 
       OPENBC_PSPOT_FINETUNE_NPTS_X 500000
+
+.. _optics-write-qgt:
+
+OPTICS_WRITE_QGT
+----------------
+
+:Type: Boolean
+:Default: FALSE
+:Unit: None
+:Level: Intermediate
+:Group: COND
+:Search: :searchlink:`OPTICS_WRITE_QGT`
+
+Write the quantum geometric tensor of the occupied states
+
+Calculate the quantum geometric tensor of the occupied states, Q_ab(k), from the optical matrix elements of each basis for which optical spectra are calculated (COND_CALC_OPTICAL_SPECTRA): the quantum metric g = Re Q and the Berry curvature Omega = -2 Im Q, in bohr^2 per spin channel. The Brillouin-zone average is written to the output and the values at each k-point to <seed>_<basis>_QGT.txt. Requires COND_SPEC_CALC_MOM_MAT_ELS : T except for Gamma-point calculations of isolated systems. See :ref:`quantum_geometric_tensor`.
+
+.. note::
+   :collapsible: closed
+
+   :Syntax:
+
+   .. code::
+
+      OPTICS_WRITE_QGT [Boolean]
+
+   :Example:
+
+   .. code::
+
+      OPTICS_WRITE_QGT : T
 
 .. _output-detail:
 

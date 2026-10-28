@@ -205,6 +205,18 @@ normally and the bands agree with a plane-wave calculation to within the
 difference between the two ground-state calculations, although the NGWF
 gradient decreases slowly in the later iterations.
 
+**Metals with EDFT.** With ``edft : T``, the density kernel of the
+bandstructure NGWFs is instead built with the occupancies of the bands
+smeared at the top of the window, with a width ``cond_window_smearing``
+(by default ``edft_smearing_width``), and :math:`N_b` is not reduced to
+avoid degenerate states, either initially or after
+``cond_num_extra_its``. The top of the window can then fall between
+degenerate or crossing bands without stalling the NGWF optimisation. For
+bcc Fe as above, all 20 bands per spin in the window are kept, the lower
+19 agree with the plane-wave calculation exactly as before, and the
+optimisation takes 173 s instead of 275 s. The same smeared window is
+used for conduction calculations with EDFT (see :ref:`cond_unprojected`).
+
 Band projections
 ================
 
@@ -452,11 +464,11 @@ Restrictions
 -  Spin-orbit coupling is perturbative only: it is not included in the
    ground state or in the NGWF optimisation (see `Spin-orbit coupling`_).
 
--  ``edft`` and ``edft_grand_canonical`` are set to F, and
+-  ``edft_grand_canonical`` is set to F, and
    ``ngwf_cg_type : NGWF_LBFGS`` is replaced by ``NGWF_FLETCHER``, for these
    tasks, with a warning: the bandstructure
-   NGWFs are optimised for a fixed number of bands at each k-point. The
-   ground-state calculation in the same run can use EDFT.
+   NGWFs are optimised for a fixed number of bands at each k-point. With
+   ``edft : T`` the top of the window is smeared (see `Number of bands`_).
 
 -  The density kernel represents a fixed number of bands at each path
    k-point. For metals with no gap above the bands of interest, see
@@ -487,6 +499,10 @@ Keywords
 -  ``cond_num_extra_its`` [Intermediate, integer, default ``0``] NGWF
    iterations before the density kernel is re-initialised and the number of
    bands is checked again.
+
+-  ``cond_window_smearing`` [Intermediate, physical, default
+   ``edft_smearing_width``] With ``edft : T``, the smearing width of the
+   occupancies at the top of the window of bands.
 
 -  ``bs_projections`` [Intermediate, string, default ``NONE``] The band
    weights: ``NONE``, ``ATOM_MULLIKEN``, ``ATOM_LOWDIN``, ``PAO_LOWDIN`` or

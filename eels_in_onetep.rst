@@ -145,15 +145,29 @@ are the ``.elnes_bin`` files, which contain OptaDoS compatible matrix elements.
 A little more setup is needed before we can run OptaDoS (using the silene
 example):
 
-- A dummy castep ``silene-out.cell`` file must be produced, and it must contain a symmetry block
+- A castep ``silene-out.cell`` file is needed, containing a symmetry block. ONETEP writes it with the EELS output (with k-point parallelism, under the base rootname, without the k-point group number); copy it to ``silene.cell`` if your version of OptaDoS reads that file
 - By default two ``.elnes bin`` files are produced, one based on Kohn-Sham wavefunctions represented using only the valence NGWFs (``silene_val_grad.elnes_bin``) and a second which makes use of the joint basis of valence and conduction NGWFs (``silene_joint_grad.elnes_bin``)
 - As per the discussion above, you should choose the latter and copy it to ``silene.elnes bin``.
 - A ``silene.bands`` file must be produced, this is best done by copying ``silene.joint bands`` to ``silene.bands``.
 - An OptaDoS input file, ``silene.odi`` is needed.
 
 To assist in these tasks a utility script, ``prep_optados_eels``, is provided in the
-utils folder of the onetep distribution. Run it with the calculation seed name
-as its argument and the steps listed above will be completed automatically.
+utils-devel folder of the onetep distribution. Run it with the calculation seed name
+as its argument and the steps listed above will be completed automatically,
+for the joint basis:
+
+::
+
+    prep_optados_eels silene [joint|val|cond] [soc]
+
+The optional second argument chooses the basis: ``joint`` (the default),
+``val``, or ``cond`` for the unprojected conduction states (see below),
+whose ``seed_cond_grad.elnes_bin`` and ``seed.proj_bands`` files are then
+used. Add ``soc`` if the calculation used
+``eigenstates_perturbative_soc``. For the ``cond`` basis and with ``soc``,
+the ``.odi`` file has ``EFERMI : file``, otherwise ``EFERMI : insulator``.
+The ``-out.cell`` file written by ONETEP is kept; if there is none, one is
+made from the input file with an identity symmetry block.
 
 The .odi file produced should be regarded as a basic template, consult the
 OptaDoS documentation[6] if you wish to use more advanced features. Note
@@ -163,6 +177,61 @@ with your calculation seed name as the argument. All being well, you should
 see a .dat file which you can plot with your favorite tool. Individual edges are
 listed sequentially in the file, so a little post processing with awk or python is
 needed to separate the edges for individual plotting
+
+Unprojected conduction states
+-----------------------------
+
+EELS matrix elements are also calculated for the conduction NGWFs of the
+unprojected route (``cond_unprojected : T``, or any conduction
+calculation with ``edft : T``; see :ref:`cond_unprojected`), which
+describe the valence and conduction states together. The matrix elements
+are then written to ``seed_cond_grad.elnes_bin``, and the eigenvalues to
+``seed.proj_bands``, which gives the number of valence electrons and the
+valence Fermi level (rather than the occupancy of the window of conduction
+states), so that OptaDoS can be used with ``EFERMI : file``.
+
+Spin-orbit coupling
+-------------------
+
+With ``eigenstates_perturbative_soc : T`` (see
+:ref:`eigenstates_perturbative_soc`), the matrix elements are those of
+the :math:`2N` spinor eigenstates, for the valence, joint and unprojected
+conduction bases. The core orbitals and the dipole operator do not depend
+on spin, so for core orbital :math:`c` with core spin :math:`\sigma`
+
+.. math::
+
+   \langle c\,\sigma|\hat{\mathbf{O}}|\psi_n\rangle
+   = \sum_\alpha \langle c|\hat{\mathbf{O}}|\phi_\alpha\rangle\,
+   M^\sigma_{\alpha n} ,
+
+where :math:`M^\uparrow` and :math:`M^\downarrow` are the coefficients of
+the up and down copies of the NGWFs in the spinor eigenvector. In the
+``.elnes_bin`` file each core orbital then appears twice, once for each
+core spin, for a single spin component, with :math:`2N` bands, and the
+``.bands`` file lists the spinor eigenvalues, each state holding one
+electron. Since OptaDoS averages each edge over its core orbitals and
+counts two electrons per state of a single spin component, this gives the
+spectrum of the spinor states, which reduces to that of the
+spin-unpolarised calculation in the limit of zero coupling.
+
+When using OptaDoS with spinor states:
+
+-  set ``EFERMI : file``: with the default (``optados``) or ``insulator``,
+   OptaDoS assumes two electrons per state and places the Fermi level too
+   low;
+-  OptaDoS allows at most 7 core orbitals per edge, so the K (2 entries)
+   and L\ :sub:`2,3` (6 entries) edges are available, but not
+   M\ :sub:`4,5` (10 entries);
+-  the core states are those of the scalar-relativistic PAW dataset,
+   without spin-orbit splitting of the core level: L\ :sub:`2` and
+   L\ :sub:`3` are not separated, and only the effect of SOC on the
+   final states is included. For K edges this is complete.
+
+For an insulator, the Fermi level in the ``.bands`` file is the highest
+occupied eigenvalue, and OptaDoS includes states at the Fermi level in
+an absorption spectrum, so a small artificial peak can appear at the
+valence band maximum.
 
 OptaDoS
 =======
