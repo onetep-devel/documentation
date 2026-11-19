@@ -4319,7 +4319,7 @@ DISPERSION
 
 Select dispersion correction
 
-Specifies the empirical dispersion correction to be used: 0 - No dispersion correction; ELSTNER - Damping function from Elstner [J. Chem. Phys. 114(12), 5149-5155, 2001]; WUYANG1 - First damping function from Wu and Yang (I) [J. Chem. Phys. 116(2), 515-524, 2002]; WUYANG2 - Second damping function from Wu and Yang (II) [J. Chem. Phys. 116(2), 515-524, 2002]; GRIMMED2 - Damping function of D2 correction of Grimme [S. Grimme, J. Comput. Chem. 27(15), 1787-1799, 2006]. Grimme's D3 corrections (D3, D3BJ, D3M, D3MBJ, optionally with the -ATM suffix) and D4 corrections (D4, D4S, optionally with the -NOATM suffix) are available if ONETEP is compiled with -DDFTD3 and/or -DDFTD4. See Proceedings of the Royal Society A 465(2103), 669-683 and the empirical dispersion correction documentation for more details.
+Specifies the dispersion correction to be used: 0 - No dispersion correction; ELSTNER - Damping function from Elstner [J. Chem. Phys. 114(12), 5149-5155, 2001]; WUYANG1 - First damping function from Wu and Yang (I) [J. Chem. Phys. 116(2), 515-524, 2002]; WUYANG2 - Second damping function from Wu and Yang (II) [J. Chem. Phys. 116(2), 515-524, 2002]; GRIMMED2 - Damping function of D2 correction of Grimme [S. Grimme, J. Comput. Chem. 27(15), 1787-1799, 2006]. Grimme's D3 corrections (D3, D3BJ, D3M, D3MBJ, optionally with the -ATM suffix) and D4 corrections (D4, D4S, optionally with the -NOATM suffix) are available if ONETEP is compiled with -DDFTD3 and/or -DDFTD4. See Proceedings of the Royal Society A 465(2103), 669-683 and the dispersion correction documentation for more details.
 
 .. note::
    :collapsible: closed
