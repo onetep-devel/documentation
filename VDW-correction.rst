@@ -1,6 +1,6 @@
-=============================================
-Empirical Dispersion Correction
-=============================================
+======================
+Dispersion Corrections
+======================
 
 :Author: Max Phipps, University of Southampton
 :Author: Arihant Bhandari, University of Southampton
@@ -8,11 +8,15 @@ Empirical Dispersion Correction
 
 :Date:   October 2026
 
-ONETEP offers two families of empirical dispersion correction: four
+ONETEP offers two families of dispersion corrections: four
 built-in pairwise models (Elstner, two variants of Wu-Yang, and
 Grimme's D2); and Grimme's D3 and D4 dispersion corrections implemented
 via the simple-DFTD3 and DFTD4 external libraries respectively
-and distributed with ONETEP.
+and distributed with ONETEP. Please note, Grimme's D3 and D4 corrections
+are only available for elements up to Lawrencium (Z = 103).
+
+For dispersion included in the exchange-correlation functional
+itself, see :doc:`VDW-DF`.
 
 Theory
 ======
@@ -20,22 +24,17 @@ Theory
 Energy
 ------
 
-Both families of dispersion corrections add an empirical correction
+Both families of dispersion corrections add a correction
 to the Kohn-Sham total energy,
 
-.. math::
-   :label: disp_corr
+.. math:: E_{tot} = E_{KS-DFT} + E_{disp}
 
-   E_{DFT-D} = E_{KS-DFT} + E_{disp}
-
+to account for the missing long-range non-covalent interactions.
 The leading dispersion energy correction to :math:`E_{disp}`, common to
 all models, is a damped pairwise sum of :math:`C_6/R^6` terms over atoms
 and their periodic images [Vasp]_, [Hill2009]_:
 
-.. math::
-   :label: E^{(6)}_{disp}
-
-   E^{(6)}_{disp} = -\frac{1}{2}\cdot s_6\cdot \sum^{N_{at}}_{i=1} \sum^{N_{at}}_{j=1}
+.. math:: E^{(6)}_{disp} = -\frac{1}{2}\cdot s_6\cdot \sum^{N_{at}}_{i=1} \sum^{N_{at}}_{j=1}
    \sum_{L}^* \dfrac{C_{6,ij}}{R^6_{ij}} f_{damp}( R_{ij} ) g_{smooth}(R_{ij})
 
 Here:
@@ -68,49 +67,41 @@ corrections have an additional dependence on atomic partial charges from
 an electronegativity-equilibration model [Caldeweyher2019]_.
 
 Grimme's D3 and D4 corrections also include both an additional pairwise
-:math:`C_{8,ij}` term and an optional three-body Axilrod-Teller-Muto (ATM)
-term :eq:`E^{ATM}_{disp}`, and thus
+:math:`C_{8,ij}` term and an optional contribution from a three-body
+Axilrod-Teller-Muto (ATM) term, and thus
 
-.. math::
-   :label: E_disp_d3d4
-
-   E_{disp} = E^{(6)}_{disp} + E^{(8)}_{disp} + E^{ATM}_{disp}
+.. math:: E_{disp} = E^{(6)}_{disp} + E^{(8)}_{disp} + E^{ATM}_{disp}
 
 where
 
 .. math::
-   :label: E^{(8)}_{disp}
-
-   E^{(8)}_{disp} = -\frac{1}{2}\cdot s_8\cdot \sum^{N_{at}}_{i=1} \sum^{N_{at}}_{j=1}
+   E^{(8)}_{disp} = -\frac{1}{2}\cdot s_8\cdot\sum^{N_{at}}_{i=1}\sum^{N_{at}}_{j=1}
    \sum_{L}^* \dfrac{C_{8,ij}}{R^8_{ij}} f_{damp,8}( R_{ij} ) g_{smooth}(R_{ij})
 
 for some functional-dependent scaling factor :math:`s_8`. Here,
 :math:`C_{8,ij} = 3\sqrt{Q_i Q_j}\,C_{6,ij}` is obtained from the
 :math:`C_{6,ij}` coefficients and
 
-.. math::
-   :label: Q_i
-
-   Q_i = \tfrac{1}{2}\sqrt{Z_i}\,\langle r^4\rangle_i/\langle r^2\rangle_i.
+.. math:: Q_i = \tfrac{1}{2}\sqrt{Z_i}\,\langle r^4\rangle_i/\langle r^2\rangle_i.
 
 The Axilrod-Teller-Muto term is given by
 
 .. math::
-   :label: E^{ATM}_{disp}
 
-   E^{ATM}_{disp} = s_9 \sum_{ijk} C_{9,ijk}\,A_{ijk}\,f_{ijk},
-   \qquad
-   A_{ijk} = \frac{3\cos\theta_{ij}\cos\theta_{jk}\cos\theta_{ik} + 1}
+   E^{ATM}_{disp} &= s_9 \sum_{ijk} C_{9,ijk}\,A_{ijk}\,f_{ijk},
+
+   A_{ijk} &= \frac{3\cos\theta_{ij}\cos\theta_{jk}\cos\theta_{ik} + 1}
                   {\left(R_{ij}R_{jk}R_{ik}\right)^3},
-   \qquad
-   f_{ijk} = \frac{1}{1 + 6\left(\bar{R}_{0,ijk}/\bar{R}_{ijk}\right)^{16}}
+
+   f_{ijk} &= \frac{1}{1 + 6\left(\bar{R}_{0,ijk}/\bar{R}_{ijk}\right)^{16}}
 
 where the sum runs over unique triples of atoms, including periodic
 images within :math:`R_{cut}`. Here, :math:`\theta_{ij}` denotes the angle
 formed between atoms :math:`i`, :math:`j`, and :math:`k` that lies
 opposite the side :math:`R_{ij}` in the summation;
-:math:`C_{9,ijk} = \sqrt{C_{6,ij}C_{6,ik}C_{6,jk}}`; and
-:math:`\bar{R}_{ijk}` is the geometric mean of the three distances.
+:math:`C_{9,ijk} = \sqrt{C_{6,ij}C_{6,ik}C_{6,jk}}`;
+and :math:`\bar{R}_{ijk}` denotes the geometric mean of the three distances.
+
 Additionally, :math:`\bar{R}_{0,ijk}` denotes the geometric mean of the
 pair radii: for Grimme's D3 corrections a value of :math:`\tfrac{4}{3}`
 times the tabulated cutoff radii :math:`R_{0,ij}` is used, while Grimme's
@@ -119,17 +110,14 @@ D4 corrections use the Becke-Johnson radii
 when the three-body term is included and 0 otherwise, and the three-body
 term uses a cutoff that is the smaller of :math:`R_{cut}` and 40 bohr.
 
-For the in-built dispersion corrections, :math:`E^{(8)}_{disp}` and
+For the built-in dispersion corrections, :math:`E^{(8)}_{disp}` and
 :math:`E^{ATM}_{disp}` are zero, and thus
 
-.. math::
-   :label: E_disp_inbuilt
-
-   E_{disp} = E^{(6)}_{disp}
+.. math:: E_{disp} = E^{(6)}_{disp}
 
 where the dispersion coefficients and the form of the damping function
-are dependent upon the desired empirical vdW correction model. Damping
-functions for the in-built dispersion corrections are given below:
+are dependent upon the desired vdW correction model. Damping functions
+for the built-in dispersion corrections are given below:
 
 .. list-table::
    :widths: 14 30 32 20
@@ -162,8 +150,8 @@ within the literature of Grimme [Grimme2006]_ and
 :math:`R_{0,ij}` is determined by the vdW radii of the atomic pair
 :math:`i` and :math:`j`.
 
-The smoothing function for in-built dispersion corrections has the
-following form:
+The smoothing function for built-in dispersion corrections
+is given by:
 
 .. math:: g_{smooth}(R_{ij})=1-e^{-\left(R_{ij}-R_{cut}\right)^2}
 
@@ -220,19 +208,15 @@ derivative of the dispersion energy with respect to the ionic coordinates
 :math:`\{\mathbf{s}_i\}`. For a given dispersion correction, the
 corresponding force correction can be expressed as:
 
-.. math::
-   :label: F_total
+.. math:: \mathbf{F}_i = -\frac{dE_{disp}}{d\mathbf{s}_i}
 
-   \mathbf{F}_i = -\frac{dE_{disp}}{d\mathbf{s}_i}
-
-For the four in-built dispersion corrections, the total force correction
+For the built-in dispersion corrections, the total force correction
 is thus
 
 .. math::
-   :label: F_total_inbuilt
 
-   \mathbf{F}_i = -\frac{\partial E^{(6)}_{disp}}{\partial \mathbf{s}_i} = s_6
-   \sum^{N_{at}}_{j=1} \sum_{L}^* \dfrac{C_{6,ij}}{R^6_{ij}}
+   \mathbf{F}_i = -\frac{\partial E^{(6)}_{disp}}{\partial \mathbf{s}_i}
+   = s_6 \sum^{N_{at}}_{j=1} \sum_{L}^* \dfrac{C_{6,ij}}{R^6_{ij}}
    \left[f_{damp}(R_{ij})\,g'_{smooth}(R_{ij}) + g_{smooth}(R_{ij})
    \left(f'_{damp}(R_{ij}) - \frac{6f_{damp}(R_{ij})}{R_{ij}}\right)\right]
    \frac{\partial R_{ij}}{\partial \mathbf{s}_i}
@@ -243,28 +227,27 @@ to the forces is more complicated, with additional contributions from
 position dependence of the dispersion coefficients:
 
 .. math::
-   :label: F_total_d3d4
 
    \mathbf{F}_i = -\left( \frac{dE^{(6)}_{disp}}{d\mathbf{s}_i}
                   + \frac{dE^{(8)}_{disp}}{d\mathbf{s}_i}
                   + \frac{dE^{ATM}_{disp}}{d\mathbf{s}_i} \right)
 
-Here, the :math:`C_{6,ij}` term is given by :eq:`F_total_inbuilt` when
-evaluated with :math:`g_{smooth} = 1`, ensuring :math:`g'_{smooth} = 0`,
-and :math:`f_{damp} = f_{damp,6}`. Hence, the force correction contains
+
+
+Here, the :math:`C_{6,ij}` term is given by evaluating
+:math:`-\frac{\partial E^{(6)}_{disp}}{\partial \mathbf{s}_i}` with
+:math:`f_{damp} = f_{damp,6}` and :math:`g_{smooth} = 1`, thus
+ensuring :math:`g'_{smooth} = 0`. Hence, the force correction contains
 three additional contributions.
 
 1. A contribution originating with the additional :math:`C_{8,ij}` term
-   in :eq:`E^{(8)}_{disp}`, with similar form to the :math:`C_{6,ij}`
-   term:
+   which has similar form to the :math:`C_{6,ij}` term:
 
    .. math::
-      :label: F^{(8)}_{disp}
 
-      \frac{\partial E^{(8)}_{disp}}{\partial \mathbf{s}_i}\bigg|_{CN,q} =
+      \left.\frac{\partial E^{(8)}_{disp}}{\partial \mathbf{s}_i}\right|_{CN,q} =
       -s_8 \sum^{N_{at}}_{j=1} \sum_{L}^* \dfrac{C_{8,ij}}{R^8_{ij}}
-      \left(f'_{damp,8}(R_{ij})
-      - \frac{8f_{damp,8}(R_{ij})}{R_{ij}}\right)
+      \left(f'_{damp,8}(R_{ij}) - \frac{8f_{damp,8}(R_{ij})}{R_{ij}}\right)
       \frac{\partial R_{ij}}{\partial \mathbf{s}_i}
 
    Here :math:`\vert_{CN,q}` denotes a derivative taken at fixed
@@ -273,14 +256,14 @@ three additional contributions.
 
 2. A contribution due to the dependence of :math:`C_{6,ij}` coefficients
    on the coordination numbers :math:`CN_k` and, for Grimme's D4
-   corrections, on the atomic partial charges :math:`q_k`, which both
-   change as the atoms move. Applying the chain rule yields:
+   corrections, an additional dependence on the atomic partial charges
+   :math:`q_k` is present. Since :math:`CN_k` and :math:`q_k`, where present,
+   change as the atoms move, applying the chain rule yields:
 
    .. math::
-      :label: F^{CN,q}_{disp}
 
       \frac{dE_{disp}}{d\mathbf{s}_i} =
-      \frac{\partial E_{disp}}{\partial \mathbf{s}_i}\bigg|_{CN,q}
+      \left.\frac{\partial E_{disp}}{\partial \mathbf{s}_i}\right|_{CN,q}
       + \sum^{N_{at}}_{k=1} \left(
       \frac{\partial E_{disp}}{\partial CN_k}
       \frac{\partial CN_k}{\partial \mathbf{s}_i}
@@ -288,38 +271,34 @@ three additional contributions.
       \frac{\partial q_k}{\partial \mathbf{s}_i}
       \right)
 
-   where the first term is the sum of the explicit contributions, and the
+   Here, the first term is the sum of the explicit contributions, and the
    third term is present for Grimme's D4 corrections only. For Grimme's
    D3 corrections, the coordination number
 
-   .. math::
+   .. math:: CN_k = \sum_{j \ne k} \frac{1}{1 + e^{-k_1\left(k_2(R_{cov,k}+R_{cov,j})/R_{kj} - 1\right)}}
 
-      CN_k = \sum_{j \ne k} \frac{1}{1 + e^{-k_1\left(k_2
-      (R_{cov,k}+R_{cov,j})/R_{kj} - 1\right)}}
-
-   is a summation over neighbouring atoms and their periodic images, with
-   covalent radii :math:`R_{cov}`, :math:`k_1 = 16` and
+   is calculated by a summation over neighbouring atoms and their periodicS
+   images, with covalent radii :math:`R_{cov}`, :math:`k_1 = 16` and
    :math:`k_2 = 4/3` [Grimme2010]_. Grimme's D4 corrections use an
    error-function counting function weighted by electronegativity
    differences, with the charges :math:`q_k` obtained from an
    electronegativity-equilibration model [Caldeweyher2019]_.
 
 3. A contribution from the three-body ATM term, if included, which arises
-   from the explicit dependence of :eq:`E^{ATM}_{disp}` on the interatomic
+   from the explicit dependence of :math:`E^{ATM}_{disp}` on the interatomic
    distances, of which only :math:`R_{ij}` and :math:`R_{ik}` depend on
    the position of atom :math:`i`:
 
    .. math::
-      :label: F^{ATM}_{disp}
 
-      \frac{\partial E^{ATM}_{disp}}{\partial \mathbf{s}_i}\bigg|_{CN,q}
+      \left.\frac{\partial E^{ATM}_{disp}}{\partial \mathbf{s}_i}\right|_{CN,q}
       = s_9 \sum_{jk} C_{9,ijk} \sum_{ab \in \{ij,\,ik\}}
       \left(\frac{\partial A_{ijk}}{\partial R_{ab}}\, f_{ijk}
       + A_{ijk}\,\frac{\partial f_{ijk}}{\partial R_{ab}}\right)
       \frac{\partial R_{ab}}{\partial \mathbf{s}_i}
 
    where :math:`A_{ijk}` and :math:`f_{ijk}` are the angular and damping
-   factors of :eq:`E^{ATM}_{disp}`, with
+   factors of :math:`E^{ATM}_{disp}`, with
 
    .. math::
 
@@ -332,8 +311,8 @@ three additional contributions.
 All of these contributions are computed analytically by the simple-DFTD3
 and DFTD4 libraries.
 
-Activating the dispersion corrections
-=====================================
+Activating Dispersion Corrections
+=================================
 
 Activation of dispersion corrections is achieved using the
 
@@ -375,15 +354,15 @@ for the dispersion models are given below:
      - BLYP, PBE, REVPBE, RPBE, PBESOL, AM05, PW91, XLYP, B1LYP, B1PW91,
        B3LYP, B3PW91, PBE0, X3LYP, HF, RSCAN
 
-The :math:`C_{6,ij}` coefficients and the coefficients of the Elstner and
-Wu-Yang damping functions are optimized for each xc
-functional to minimize the root mean square difference of the
-interaction energy from the literature values for a selection of
-dispersion-dominant biological complexes from the JSCH-2005 and S22
-sets [Jurecka2006]_ and the database of
-Morgado [Morgado2007]_. For the D2 correction of
-Grimme the parameters are optimized as described in the
-literature [Grimme2006]_.
+The :math:`C_{6,ij}` coefficients and the coefficients of the Elstner
+and Wu-Yang damping functions are optimized for each
+exchange-correlation functional by minimizing the root-mean-square
+difference between the calculated and literature interaction energies
+for a selection of dispersion-dominant biological complexes from the
+JSCH-2005 and S22 datasets [Jurecka2006]_ and the database of Morgado
+[Morgado2007]_. The optimization procedure for Grimme's D2 correction
+parameters is outlined in [Grimme2006]_.
+
 
 The :math:`s_6` parameters are unity for the Elstner and Wu-Yang models
 and are fitted by least squares optimization of interaction energy error
@@ -392,9 +371,8 @@ for 40 noncovalently bound complexes for the D2 correction of Grimme.
 In the case of using an unoptimized functional not given within the
 list, default unoptimized :math:`c_{damp}`, :math:`C_{6,ij}`, and
 :math:`R_{0,i}` values are adopted for the damping functions of Elstner
-or Wu and Yang as described by Hill [Hill2009]_ and a
-default :math:`s_6` value of 1.00 is adopted for Grimme's D2 correction
-model.
+or Wu and Yang as described by Hill [Hill2009]_, while Grimme's D2
+correction defaults to :math:`s_6=1.00`.
 
 Grimme's D3 dispersion corrections are available in both zero damping
 [Grimme2010]_ (``D3``) and Becke-Johnson damping [Grimme2011]_ (``D3BJ``)
@@ -432,27 +410,24 @@ tensor is not yet included.
    an error if this is requested.
 
 
-Overriding dispersion correction parameters
+Overriding Dispersion Correction Parameters
 ===========================================
 .. note::
-   These overrides apply only to the in-built dispersion corrections; the
+   These overrides apply only to the built-in dispersion corrections; the
    D3/D4 parameters are taken from the simple-DFTD3 and DFTD4 libraries and
    cannot be changed.
 
-It is possible to override the default parameters of the in-built dispersion
+It is possible to override the default parameters of the built-in dispersion
 damping functions. This option allows the user to specify parameters for
 elements and functionals for which values are not given. The
-atom-dependent variables :math:`C_{6,i}` (used to calculate
-:math:`C_{6,ij}`), :math:`R_{0,i}` (related to the atomic vdW radius of
-an atom :math:`i`), and :math:`n_{eff}` (used in the calculation of
-:math:`C_{6,ij}` for all damping functions excluding the D2 correction
-of Grimme) are modified using the
-
-``vdw_params``
-
-block. This override block applies the parameter changes to atoms by
-their atomic number (nzatom). eg. To override the dispersion parameters
-associated with nitrogen,
+atom-dependent variables :math:`C_{6,i}` (used to calculate :math:`C_{6,ij}`),
+:math:`R_{0,i}` (related to the atomic vdW radius of atom :math:`i`),
+and :math:`n_{eff}` (used in the calculation of :math:`C_{6,ij}`
+for all damping functions excluding the D2 correction of Grimme)
+are modified using the ``vdw_params`` block. This override block applies
+the parameter changes to atoms by their atomic number (nzatom). For
+example, the dispersion parameters associated with nitrogen can be
+modified using the block:
 
 ::
 
@@ -466,40 +441,42 @@ damping function, the keyword
 
 ``vdw_dcoeff``
 
-followed by the modified damping constant parameter is used. eg.
+followed by the modified damping constant parameter is used. For example,
 
 ``vdw_dcoeff 11.0``
+
+sets :math:`c_{damp}` to be 11.0 for the selected damping function.
 
 Boundary Conditions
 ===================
 
-The boundary conditions are set by the following keyword:
+Boundary conditions for the desired dispersion correction are set
+using the ``vdw_bc P/O P/O P/O`` keyword, which accepts a string
+containing three characters (which may be separated by spaces)
+specifying the BCs along the :math:`x`, :math:`y` and :math:`z`
+directions of the simulation cell. Periodic and open boundary
+conditions are indicated by ‘P’ and ‘O’ respectively. Where
+``vdw_bc`` is not provided, those of ``ion_ion_bc`` are used.
 
-``vdw_bc P/O P/O P/O``
+.. note::
+   Grimme's D4 corrections support only fully periodic or fully open
+   boundary conditions. If a mixed boundary condition is requested
+   with Grimme's D4 dispersion corrections, ONETEP stops with an error.
 
-which accepts a string which should contain three characters (which may
-be separated by spaces), specifying the BCs along the :math:`x`,
-:math:`y` and :math:`z` directions of the simulation cell. ‘P’ for
-periodic and ‘O’ for open. In case, the keyword is not specified, BCs
-set same as
-
-``ion_ion_bc``. The same boundary conditions are used for Grimme's D3
-and D4 corrections.
-
-Compilation and linking
-=======================
+Compiling Grimme's D3 and D4 corrections
+========================================
 
 Grimme's D3 and D4 corrections are optional at compile time, and are
-enabled by adding the following flags to ``FFLAGS`` in your
-``config/conf.*`` file:
+enabled by adding the following ``FFLAGS`` to your config file:
 
- - ``-DDFTD3`` to enable Grimme's D3 corrections (simple-DFTD3),
- - ``-DDFTD4`` to enable Grimme's D4 corrections (DFTD4).
+ - ``-DDFTD3`` (enables Grimme's D3 corrections via simple-DFTD3),
+ - ``-DDFTD4`` (enables Grimme's D4 corrections via DFTD4).
 
-The libraries, distributed in ``dftd/``, are then compiled as part of the
-usual build, using the ``F90`` and ``OPTFLAGS`` of the config file, and
-with OpenMP if ``FFLAGS`` contains an OpenMP flag. The following optional
-settings can also be added to the config file:
+The libraries, distributed in ``dftd/``, are then compiled as part of
+the usual build with the ``F90`` and ``FFLAGS`` of the config file,
+together with ``OPTFLAGS`` (or ``DEBUGFLAGS`` for ``make debug``).
+The libraries are rebuilt automatically when these flags change.
+The following optional settings can also be added to the config file:
 
  - ``DFTD_OPENMP = OFF`` to compile the libraries without OpenMP,
  - ``DFTD_FFLAGS`` to pass extra compiler flags to the libraries.
