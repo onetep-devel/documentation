@@ -5,7 +5,7 @@ Bandstructures with k-points (PW mode)
 =====================================================
 
 :Author: Nicholas Hine, University of Warwick, assisted by Claude Opus 5.5
-:Date: October 2026
+:Date: October 2026, updated November 2026 for task ``NSCF``
 
 Overview
 ========
@@ -35,25 +35,37 @@ calculation.
 Tasks
 =====
 
-Two tasks perform the calculation:
+The calculation is the NSCF stage of ONETEP with ``nscf_kpoints : PATH``.
+The same stage at the k-points of the ground state (``nscf_kpoints : SCF``,
+or ``task : COND``) optimises conduction NGWFs (see :doc:`conduction`).
+Two tasks perform it:
 
--  ``BANDSTRUCTURE`` optimises the bandstructure NGWFs, then writes the
-   bands and, optionally, their projections. It can follow a ground-state
-   calculation in the same run, for example
-   ``task : SINGLEPOINT BANDSTRUCTURE``, or read the ground-state NGWFs and
-   density kernel from a previous run (``read_tightbox_ngwfs : T`` and
-   ``read_denskern : T``).
+-  ``NSCF`` optimises the bandstructure NGWFs, then writes the bands and,
+   optionally, their projections. It can follow a ground-state calculation
+   in the same run, for example ``task : SINGLEPOINT NSCF``, or read the
+   ground-state NGWFs and density kernel from a previous run
+   (``read_tightbox_ngwfs : T`` and ``read_denskern : T``).
 
--  ``PROPERTIES_BANDSTRUCTURE`` reads the bandstructure NGWFs and density
-   kernel written by a previous ``BANDSTRUCTURE`` run, and only writes the
-   bands and projections. It is a quick way to calculate projections of a
-   different type, or to repeat the output, without optimising the NGWFs
-   again. The path must be the same as in the run that wrote the files;
-   this is checked (see `Output files`_).
+-  ``PROPERTIES_NSCF`` reads the bandstructure NGWFs and density kernel
+   written by a previous ``NSCF`` task, and only writes the bands and
+   projections. It is a quick way to calculate projections of a different
+   type, or to repeat the output, without optimising the NGWFs again. It
+   can follow ``NSCF`` in the same run
+   (``task : SINGLEPOINT NSCF PROPERTIES_NSCF``). The path must be the same
+   as in the run that wrote the files; this is checked (see
+   `Output files`_).
 
-Both tasks require ``kpoint_method : PW``. Without it, they are replaced by
-``PROPERTIES``, which calculates the bandstructure in the ground-state NGWF
-basis (see ``bs_method`` and :ref:`bsunfold` for those calculations).
+With ``nscf_kpoints : PATH``, both tasks require ``kpoint_method : PW``.
+The bandstructure in the ground-state NGWF basis is calculated instead by
+``PROPERTIES``, with ``%block bs_kpoint_path`` (see ``bs_method`` and
+:ref:`bsunfold` for those calculations).
+
+With ``bsunfld_calculate : T``, ``NSCF`` also unfolds the spectral
+function of the states of the bandstructure NGWFs, for a supercell built
+along lattice vectors along which the NGWFs are not extended and the path
+has no components, onto the primitive cell, along any unfolding path whose
+components along the other lattice vectors lie on the bandstructure path
+(see :ref:`bsunfold`).
 
 Input
 =====
@@ -65,12 +77,14 @@ calculation:
    species, in the same format as ``%block species``. There must be at
    least as many bandstructure NGWFs as bands to be calculated, and a few
    more is better. The PAOs used as the initial NGWFs, and as the
-   projections for ``bs_projections : PAO_LOWDIN`` or ``PAO_MULLIKEN``,
+   projections for ``nscf_projections : PAO_LOWDIN`` or ``PAO_MULLIKEN``,
    are those of this block.
 
--  ``%block bs_kpoint_path``, the vertices of the path in fractional
-   coordinates of the reciprocal lattice vectors, and optionally
-   ``bs_kpoint_path_spacing``, the spacing of the k-points along it.
+-  ``nscf_kpoints : PATH`` and ``%block nscf_kpoint_path``, the vertices
+   of the path in fractional coordinates of the reciprocal lattice vectors,
+   with ``BREAK`` lines between disconnected sections, and optionally
+   ``nscf_kpoint_path_spacing``, the maximum spacing of the k-points along
+   it.
 
 -  ``extend_ngwf : T`` along every direction in which the path moves. For
    a slab with ``extend_ngwf : T T F``, for example, all the vertices of
@@ -81,7 +95,7 @@ calculation:
 
 The NGWFs are complex at the path k-points, so ``use_cmplx_ngwfs`` is set
 automatically for the whole run, including a ground-state calculation in the
-same run. A ``BANDSTRUCTURE`` task that reads the results of a separate
+same run. An ``NSCF`` task that reads the results of a separate
 ground-state calculation needs complex NGWFs and density kernel in those
 files: if that calculation sampled only the :math:`\Gamma` point, it must
 have been run with ``use_cmplx_ngwfs : T``.
@@ -98,26 +112,27 @@ An example, after a ground-state calculation of bulk silicon (two atoms
 in the primitive face-centred cubic cell) with k-points, for the four
 valence bands, which lie below the band gap along the whole path::
 
-    task : BANDSTRUCTURE
+    task : NSCF
     kpoint_method : PW
     extend_ngwf : T T T
     read_tightbox_ngwfs : T
     read_denskern : T
 
     cond_num_states : 8
-    bs_projections : PAO_LOWDIN
-    bs_kpoint_path_spacing : 0.05 1/bohr
+    nscf_kpoints : PATH
+    nscf_projections : PAO_LOWDIN
+    nscf_kpoint_path_spacing : 0.05 1/bohr
 
     %block species_cond
     Si Si 14 9 8.0
     %endblock species_cond
 
-    %block bs_kpoint_path
+    %block nscf_kpoint_path
     0.0 0.0 0.0
     0.5 0.0 0.5
     0.5 0.25 0.75
     0.0 0.0 0.0
-    %endblock bs_kpoint_path
+    %endblock nscf_kpoint_path
 
 QC test ``test135`` contains two complete examples, one of them with
 k-point parallelisation.
@@ -220,7 +235,7 @@ used for conduction calculations with EDFT (see :ref:`cond_unprojected`).
 Band projections
 ================
 
-``bs_projections`` gives the weight of each atom or each PAO in each band,
+``nscf_projections`` gives the weight of each atom or each PAO in each band,
 at each path k-point. With :math:`M` the eigenvectors of the Hamiltonian in
 the bandstructure NGWF basis (in columns), :math:`S` the overlap matrix of
 the NGWFs, :math:`O` the overlap matrix of the PAOs with the NGWFs, and
@@ -241,6 +256,13 @@ the NGWFs, :math:`O` the overlap matrix of the PAOs with the NGWFs, and
 
 ``PAO_MULLIKEN``
    :math:`w_{\mu n} = \mathrm{Re}\left[ (\Lambda^{-1} O M)^*_{\mu n} (O M)_{\mu n} \right]`.
+
+``PAO_LOWDIN_AMPLITUDES``
+   The ``PAO_LOWDIN`` weights, and in addition the complex amplitudes
+   :math:`A_{\mu n} = (\Lambda^{-1/2} O M)_{\mu n}` in
+   ``<root>_BS.pao_amplitudes`` (see `Output files`_), for building
+   tight-binding Hamiltonians in the Löwdin-orthogonalised PAOs. Not
+   available with ``bs_perturbative_soc``.
 
 ``NONE`` (the default) gives no projections. All the overlaps include the
 PAW augmentation terms when PAW is used. For the PAO projections, the
@@ -400,18 +422,56 @@ from these k-points are not degenerate, and :math:`\langle S_z \rangle`
 gives their spin polarisation.
 
 **Example.** SOC can be added to bandstructure NGWFs optimised in an
-earlier ``BANDSTRUCTURE`` run without SOC, with ``PROPERTIES_BANDSTRUCTURE``,
-which reads the NGWFs and only calculates the bands::
+earlier ``NSCF`` run without SOC, with ``PROPERTIES_NSCF``, which reads the
+NGWFs and only calculates the bands::
 
-    task : PROPERTIES_BANDSTRUCTURE
+    task : PROPERTIES_NSCF
     bs_perturbative_soc : T
-    bs_projections : ATOM_MULLIKEN
+    nscf_projections : ATOM_MULLIKEN
 
-with the rest of the input as for the ``BANDSTRUCTURE`` run. Equally,
-``bs_perturbative_soc : T`` can be set in the ``BANDSTRUCTURE`` run itself.
+with the rest of the input as for the ``NSCF`` run. Equally,
+``bs_perturbative_soc : T`` can be set in the ``NSCF`` run itself.
 For example, for a monolayer of 2H-MoS\ :sub:`2` with the 13 valence bands
 (``cond_num_states : 26``), the top valence band at K is split by about
 0.15 eV into two bands with :math:`\langle S_z \rangle \approx \pm 1/2`.
+
+Other k-points: meshes and lists
+================================
+
+The same stage can optimise NGWFs at the k-points of a Monkhorst-Pack mesh
+or of an explicit list, instead of a path, for example to obtain the
+eigenvalues of all the bands of interest on a denser mesh than that of the
+ground state:
+
+-  ``nscf_kpoints : MESH``, with ``nscf_kpoint_grid_size`` (or
+   ``nscf_kpoint_mp_spacing``), ``nscf_kpoint_grid_shift`` and
+   ``nscf_kpoint_gamma_centred``, as for the ground state. The full mesh is
+   used, with equal weights, unless ``nscf_kpoint_symmetry : T``, which
+   reduces it by the symmetry of the calculation.
+
+-  ``nscf_kpoints : LIST``, with ``%block nscf_kpoint_list``, as
+   ``%block kpoints_list`` for the ground state.
+
+Everything else is as for a path: the NGWFs, the number of bands, the
+restart files (with ``_bs`` in their names) and the ``.bands`` and
+``.pdos_weights`` files, in which each k-point has its own weight. The
+output table of the eigenvalues along the path and the ``.agr`` file are
+written only for a path.
+
+For a mesh or a list, ``PROPERTIES_NSCF`` (or ``NSCF`` with
+``do_properties : T``) calculates the properties of the states of the NSCF
+NGWFs, as for unprojected conduction NGWFs (see :doc:`conduction`), but
+not those of the ground-state NGWFs, which are at the k-points of the
+ground state; ``task : SINGLEPOINT NSCF PROPERTIES_NSCF`` does all three
+stages in one run. These properties include the Wannier90 files
+(``w90_write_mmn``, ``w90_write_amn``, ``w90_write_eig``,
+``w90_write_unk``), which are then written by this stage only, at its
+k-points. Wannier90 needs the full unshifted mesh in its own order, (i/n1,
+j/n2, l/n3) with i slowest: a ``nscf_kpoint_list`` in that order, or a
+``nscf_kpoint_grid_size`` with ``nscf_kpoint_gamma_centred : T`` (or, for
+odd sizes, no shift) and ``nscf_kpoint_symmetry : F``. Without symmetry, the
+mesh is generated in that order (modulo 1, each fractional coordinate in
+(-1/2,1/2]). The Wannier90 files are not available with PAW.
 
 Output files
 ============
@@ -426,7 +486,7 @@ Output files
    component).
 
 ``<root>_BS.pdos_weights``
-   With ``bs_projections``, the band weights. The header gives the
+   With ``nscf_projections``, the band weights. The header gives the
    projection type, the numbers of k-points, spins, bands and
    projections, the number of bands of each spin, the reference energy
    (in Ha, see `Number of bands`_), and a table describing each
@@ -440,12 +500,28 @@ Output files
    spinor bands, and each band line ends with :math:`\langle S_z \rangle`
    (see `Spin-orbit coupling`_).
 
+``<root>_BS.pao_amplitudes``
+   With ``nscf_projections : PAO_LOWDIN_AMPLITUDES``, the amplitudes
+   :math:`A_{\mu n}(\mathbf{k})` of each band on the Löwdin-orthogonalised
+   PAOs, in the layout of ``<root>_BS.pdos_weights``. Each ``# K-point``
+   line also gives the weight of the k-point, and each band line gives the
+   band index, the energy (Ha), the spilling, and the real and imaginary
+   parts of :math:`A_{\mu n}` for each PAO in turn. The Bloch sums of the
+   PAOs are centred on their atoms,
+   :math:`\chi_\mu(\mathbf{k}) = \sum_{\mathbf{R}} e^{i\mathbf{k}\cdot(\mathbf{R}+\boldsymbol{\tau}_\mu)} \phi_\mu(\mathbf{r}-\mathbf{R}-\boldsymbol{\tau}_\mu)`
+   (before Löwdin orthogonalisation), so that
+   :math:`H_{\mu\nu}(\mathbf{R}) = \sum_{\mathbf{k}} w_{\mathbf{k}} e^{-i\mathbf{k}\cdot(\mathbf{R}+\boldsymbol{\tau}_\nu-\boldsymbol{\tau}_\mu)} \sum_n A_{\mu n} \epsilon_n A^*_{\nu n}`
+   on a full mesh.
+   Each band has an arbitrary phase, and degenerate bands an arbitrary
+   mixing, so only quantities such as
+   :math:`\sum_n A_{\mu n} \epsilon_n A^*_{\nu n}` are meaningful.
+
 ``<root>_BS.agr``
-   With ``bs_write_agr : T``, the bands in xmgrace format.
+   With ``nscf_write_agr : T``, the bands in xmgrace format.
 
 ``<root>.tightbox_ngwfs_bs``, ``<root>.dkn_bs``
    The bandstructure NGWFs and density kernel, for
-   ``PROPERTIES_BANDSTRUCTURE``. They are written with
+   ``PROPERTIES_NSCF``. They are written with
    ``write_tightbox_ngwfs : T`` and ``write_denskern : T``.
 
 ``<root>.kpoints_bs``
@@ -477,14 +553,18 @@ Restrictions
 Keywords
 ========
 
--  ``task`` [Basic, string] ``BANDSTRUCTURE`` or
-   ``PROPERTIES_BANDSTRUCTURE``.
+-  ``task`` [Basic, string] ``NSCF`` or ``PROPERTIES_NSCF``.
 
--  ``bs_kpoint_path`` [Basic, block] The vertices of the path, in
-   fractional coordinates of the reciprocal lattice vectors.
+-  ``nscf_kpoints`` [Basic, string, default ``SCF``] ``PATH`` for a
+   bandstructure along ``nscf_kpoint_path``.
 
--  ``bs_kpoint_path_spacing`` [Intermediate, physical, default
-   ``0.1889727 1/bohr``] The spacing of the k-points along the path.
+-  ``nscf_kpoint_path`` [Basic, block] The vertices of the path, in
+   fractional coordinates of the reciprocal lattice vectors, with ``BREAK``
+   lines between disconnected sections.
+
+-  ``nscf_kpoint_path_spacing`` [Intermediate, physical, default
+   ``0.1889727 1/bohr``] The maximum spacing of the k-points along the
+   path.
 
 -  ``species_cond`` [Basic, block] The bandstructure NGWFs of each
    species.
@@ -504,14 +584,14 @@ Keywords
    ``edft_smearing_width``] With ``edft : T``, the smearing width of the
    occupancies at the top of the window of bands.
 
--  ``bs_projections`` [Intermediate, string, default ``NONE``] The band
-   weights: ``NONE``, ``ATOM_MULLIKEN``, ``ATOM_LOWDIN``, ``PAO_LOWDIN`` or
-   ``PAO_MULLIKEN``.
+-  ``nscf_projections`` [Intermediate, string, default ``NONE``] The band
+   weights: ``NONE``, ``ATOM_MULLIKEN``, ``ATOM_LOWDIN``, ``PAO_LOWDIN``,
+   ``PAO_MULLIKEN`` or ``PAO_LOWDIN_AMPLITUDES``.
 
 -  ``bs_perturbative_soc`` [Basic, logical, default ``F``] Add spin-orbit
    coupling perturbatively to the bands (see `Spin-orbit coupling`_).
 
--  ``bs_write_agr`` [Intermediate, logical, default ``F``] Write the bands
+-  ``nscf_write_agr`` [Intermediate, logical, default ``F``] Write the bands
    in xmgrace format.
 
 -  ``num_kpars`` [Basic, integer, default ``1``] The number of k-point

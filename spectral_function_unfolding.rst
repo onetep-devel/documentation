@@ -5,6 +5,7 @@ Bandstructure (spectral-function) unfolding
 =====================================================
 
 :Author: Gabriel Constantinescu, University of Cambridge
+:Author: Nicholas Hine, University of Warwick, assisted by Claude Opus 5.5
 
 | As described in the Supplementary Information in the work of
   Constantinescu and Hine [Constantinescu2015]_,
@@ -15,7 +16,9 @@ Bandstructure (spectral-function) unfolding
   [Constantinescu2015]_.
 | In this documentation, I will give a short explanation of the
   procedures required to unfold the bandstructure in a ONETEP
-  “Properties” calculation. We strongly suggest that one reads the
+  “Properties” calculation, and, from the section `Conduction states`_
+  onwards, how to unfold the states of conduction NGWFs and how to use
+  k-points. We strongly suggest that one reads the
   entire document carefully before attempting any calculations, as there
   are some stringent requirements along the way. Essentially,
   all one will need is the following group of keywords and blocks:
@@ -95,7 +98,11 @@ For each in turn:
      restart keyword is set to true, the code will read in the previously
      calculated values and skip them in the current computations. The
      final output file (“unfolded\ :math:`\_`\ specfunc.dat”) will only be
-     written once all the k-points have been dealt with.
+     written once all the k-points have been dealt with. The files are
+     ``<seedname>_unfolded_specfunc_red.txt`` and
+     ``<seedname>_unfolded_specfunc.txt``, with ``_G<n>`` before ``.txt``
+     for the groups of ``SPECIES_BSUNFLD_GROUPS`` after the first. Restarting
+     is not available with ``NUM_KPARS`` greater than 1.
 
    | Each line in final output file or the restart file contains 8
      numbers: the eigenvalue (in eV), the real part of the unfolded
@@ -104,7 +111,10 @@ For each in turn:
      to :math:`2\cdot` BSUNFLD\ :math:`\_`\ NUM\ :math:`\_`\ EIGENVALUES,
      the x, y, and z component of the current primitive-cell k-point
      (:math:`\AA^{-1}`), and the index of the k-point (from 1 to the total
-     number of considered k-points).
+     number of considered k-points). Summed over all the states of the
+     supercell, the spectral function at each k-point is the number of
+     NGWFs in the primitive cell, which is a useful check when
+     ``BSUNFLD_NUM_EIGENVALUES`` includes all the states.
 
    | After the final output file has been obtained, one can discretize
      the result by convolving with a gaussian with a suitably-chosen width
@@ -126,4 +136,82 @@ For each in turn:
      the ``BSUNFLD_KPOINT_PATH`` block. This number includes the endpoints of each path. Default:
      2 (the endpoints only)
 
-[Constantinescu2015] Constantinescu, G. C.; Hine, N. D. M. *Phys. Rev. B* **2015**, *91*, 195416
+Conduction states
+=================
+
+In a conduction calculation (``TASK : COND`` or ``PROPERTIES_COND``, or
+``NSCF`` or ``PROPERTIES_NSCF``), the
+spectral function is that of the states of the conduction stage, and the
+states of the valence NGWFs are not unfolded. With unprojected conduction
+NGWFs (``COND_UNPROJECTED : T``, or a conduction calculation with EDFT; see
+:ref:`cond_unprojected`), the conduction NGWFs describe all the states up to the
+top of the conduction window, occupied by the valence electrons. The
+occupied states are then counted from the valence electrons, and
+``BSUNFLD_NUM_EIGENVALUES`` may extend up to the top of the window; by
+default all the states of the window are unfolded. The energies are not
+shifted: the Fermi energy or valence-band maximum is in the
+``.proj_bands`` file of the conduction calculation.
+
+k-points and extended NGWFs
+===========================
+
+Spectral function unfolding needs the supercell states at the supercell
+k-point :math:`\mathbf{K}` to which each primitive-cell k-point of the path
+folds. With localised NGWFs, these are obtained from the Hamiltonian and
+overlap matrices of the calculation by a phase for each pair of NGWFs that
+overlap through a periodic image, which requires the NGWF diameter to be
+smaller than half of the lattice vector along which the phase acts.
+
+Along lattice vectors along which the primitive cell repeats exactly, as in
+a multilayer stack or a superlattice, or a defect in a slab, the supercell
+need not be larger than the primitive cell: the NGWFs may be extended along
+them (``EXTEND_NGWF``) and the Brillouin zone sampled with k-points
+(``KPOINT_METHOD : PW``), with the supercell built only along the other
+lattice vectors. Each k-point of the path is then matched to the k-point
+of the calculation with the same components along the extended lattice
+vectors (modulo reciprocal lattice vectors), whose matrices are used, with
+the phases acting only along the other lattice vectors. If there is no such
+k-point, the k-point of the calculation at :math:`-\mathbf{K}` is used,
+since the spectral function of a system with time-reversal symmetry is the
+same at :math:`\mathbf{k}` and :math:`-\mathbf{k}`. The calculation stops
+if neither is present.
+
+The k-points of the calculation can come from:
+
+-  the k-point mesh of the ground state, or of a conduction calculation.
+   The mesh must include the components of the path along the extended
+   lattice vectors, so ``KPOINT_GAMMA_CENTRED : T`` is usually needed, and
+   any segment of the path along an extended lattice vector must have
+   ``BSUNFLD_NUM_KPTS_PATH`` such that its points fall on the mesh.
+
+-  the k-point path of a conduction bandstructure calculation
+   (``TASK : NSCF`` with ``NSCF_KPOINTS : PATH``, see
+   :ref:`bandstructure_pw`), along the
+   extended lattice vectors. The spectral function can then be unfolded
+   along any path whose components along the extended lattice vectors lie
+   on that path, with ``BSUNFLD_CALCULATE : T`` in the same calculation.
+
+The requirements are:
+
+-  ``BSUNFLD_TRANSFORMATION`` must be 1 along the extended lattice vectors
+   and must not mix them with the others.
+
+-  the NGWFs must not be extended along the lattice vectors of the
+   supercell, and must satisfy the size condition along them, and the
+   k-points of the calculation must have no components along them (which
+   ONETEP requires in any case).
+
+-  the calculation must not be spin-polarised, and perturbative spin-orbit
+   coupling (``BS_PERTURBATIVE_SOC``) requires a single k-point.
+
+With ``NUM_KPARS`` greater than 1, each kpar unfolds the k-points of the
+path matched to its own k-points, and the output files are written once,
+without the kpar index in their names.
+
+The weights of path points that fold to a supercell k-point other than
+:math:`\Gamma` were incorrect in versions before October 2026 (ONETEP
+pull request 1035), which omitted the phase of the overlap of NGWFs across
+the supercell boundary from the projection, mostly affecting the weights
+of the higher conduction states. The energies were not affected.
+
+.. [Constantinescu2015] Constantinescu, G. C.; Hine, N. D. M. *Phys. Rev. B* **2015**, *91*, 195416

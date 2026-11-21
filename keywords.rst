@@ -258,7 +258,10 @@ BSUNFLD_CALCULATE
 :Group: BS_UNFOLDING
 :Search: :searchlink:`BSUNFLD_CALCULATE`
 
-Logical flag for bandstructure unfolding calculation
+Logical flag for bandstructure unfolding calculation. In a conduction
+calculation, the states of the conduction stage are unfolded, including
+those of the bandstructure NGWFs of ``TASK : NSCF`` with ``NSCF_KPOINTS PATH``; see
+:ref:`bsunfold`.
 
 .. _bsunfld-kpoint-path:
 
@@ -325,7 +328,10 @@ BSUNFLD_NUM_EIGENVALUES
 :Group: BS_UNFOLDING
 :Search: :searchlink:`BSUNFLD_NUM_EIGENVALUES`
 
-Enforce provided number of kpts per path
+Number of states unfolded on either side of the highest occupied state.
+If negative, the number of occupied states, or, for unprojected conduction
+NGWFs, the number of states in the conduction window. It is limited to
+these numbers.
 
 .. _bsunfld-num-kpts-path:
 
@@ -353,7 +359,7 @@ BSUNFLD_RESTART
 :Group: BS_UNFOLDING
 :Search: :searchlink:`BSUNFLD_RESTART`
 
-Restart a bs-unfolding calculation
+Restart a bs-unfolding calculation (requires ``NUM_KPARS`` 1)
 
 .. _bsunfld-transformation:
 
@@ -367,7 +373,7 @@ BSUNFLD_TRANSFORMATION
 :Group: BS_UNFOLDING
 :Search: :searchlink:`BSUNFLD_TRANSFORMATION`
 
-Transformation matrix (flattened) between primitive-cell and supercell lattice vectors
+Integer transformation matrix (flattened) between primitive-cell and supercell lattice vectors
 
 Transformation matrix (flattened) between primitive-cell and supercell lattice vectors when unfolding bandstructure
 
@@ -540,37 +546,6 @@ BS_PERTURBATIVE_SOC
 
 Add perturbative spin-orbit couplings to the bandstructure calculation.
 
-.. _bs-projections:
-
-BS_PROJECTIONS
---------------
-
-:Type: String
-:Default: 'NONE'
-:Unit: None
-:Level: Intermediate
-:Group: BS
-:Search: :searchlink:`BS_PROJECTIONS`
-
-Band weights for bandstructure NGWF calculations
-
-Weights of each atom or pseudoatomic orbital in each band along the path, for tasks BANDSTRUCTURE and PROPERTIES_BANDSTRUCTURE, written to <root>_BS.pdos_weights. One of NONE, ATOM_MULLIKEN, ATOM_LOWDIN (Mulliken or Lowdin populations of the NGWFs on each atom), PAO_LOWDIN or PAO_MULLIKEN (projections onto the pseudoatomic orbitals of the species_cond block). See :ref:`bandstructure_pw`.
-
-.. note::
-   :collapsible: closed
-
-   :Syntax:
-
-   .. code::
-
-      BS_PROJECTIONS [Text]
-
-   :Example:
-
-   .. code::
-
-      BS_PROJECTIONS PAO_LOWDIN
-
 .. _bs-unfold:
 
 BS_UNFOLD
@@ -584,37 +559,6 @@ BS_UNFOLD
 :Search: :searchlink:`BS_UNFOLD`
 
 Number of times to unfold Brillouin zone in each lattice direction
-
-.. _bs-write-agr:
-
-BS_WRITE_AGR
-------------
-
-:Type: Boolean
-:Default: FALSE
-:Unit: None
-:Level: Intermediate
-:Group: BS
-:Search: :searchlink:`BS_WRITE_AGR`
-
-Write bandstructure NGWF bands in xmgrace format
-
-Write the bands from tasks BANDSTRUCTURE and PROPERTIES_BANDSTRUCTURE to <root>_BS.agr, in xmgrace format, as well as to <root>_BS.bands. See :ref:`bandstructure_pw`.
-
-.. note::
-   :collapsible: closed
-
-   :Syntax:
-
-   .. code::
-
-      BS_WRITE_AGR [Boolean]
-
-   :Example:
-
-   .. code::
-
-      BS_WRITE_AGR T
 
 .. _cache-limit-for-dknblks:
 
@@ -1983,7 +1927,7 @@ COND_ENERGY_RANGE
 
 Energy range of optimised cond states measured from HOMO
 
-Energy range of states that will be optimised during a conduction NGWF optimisation. This is counted as the number of states measured from the highest occupied molecular orbital (HOMO). Negative values mean this range is not used in determining the occupancy of the conduction kernel. For tasks BANDSTRUCTURE and PROPERTIES_BANDSTRUCTURE with COND_NUM_STATES 0, the number of bands of each spin is the largest number of ground-state eigenvalues at any k-point below the highest occupied eigenvalue (insulators) or the Fermi energy (metals) plus this range, see :ref:`bandstructure_pw`.
+Energy range of states that will be optimised during a conduction NGWF optimisation. This is counted as the number of states measured from the highest occupied molecular orbital (HOMO). Negative values mean this range is not used in determining the occupancy of the conduction kernel. For tasks NSCF and PROPERTIES_NSCF with NSCF_KPOINTS PATH and COND_NUM_STATES 0, the number of bands of each spin is the largest number of ground-state eigenvalues at any k-point below the highest occupied eigenvalue (insulators) or the Fermi energy (metals) plus this range, see :ref:`bandstructure_pw`.
 
 .. note::
    :collapsible: closed
@@ -2216,7 +2160,7 @@ COND_NUM_STATES
 
 Number of conduction states to be optimised for
 
-The number of conduction states to be optimised (spin up + down). For non-spin-polarised calculations, this should be an even number. For tasks BANDSTRUCTURE and PROPERTIES_BANDSTRUCTURE, this is the number of bands (spin up + down) at each k-point of the path; with 0, COND_ENERGY_RANGE sets the number of bands, see :ref:`bandstructure_pw`. With unprojected conduction NGWFs (COND_UNPROJECTED, or EDFT), it is the number of states of the window, including the occupied states, and with 0, COND_ENERGY_RANGE sets the window, see :ref:`cond_unprojected`.
+The number of conduction states to be optimised (spin up + down). For non-spin-polarised calculations, this should be an even number. For tasks NSCF and PROPERTIES_NSCF with NSCF_KPOINTS PATH, this is the number of bands (spin up + down) at each k-point of the path; with 0, COND_ENERGY_RANGE sets the number of bands, see :ref:`bandstructure_pw`. With unprojected conduction NGWFs (COND_UNPROJECTED, or EDFT), it is the number of states of the window, including the occupied states, and with 0, COND_ENERGY_RANGE sets the window, see :ref:`cond_unprojected`.
 
 .. note::
    :collapsible: closed
@@ -15689,6 +15633,353 @@ Calculates the residual non self-consistent forces due to the NGWF gradient.
 
       NONSC_FORCES true
 
+.. _nscf-kpoints:
+
+NSCF_KPOINTS
+------------
+
+:Type: String
+:Default: 'SCF'
+:Unit: None
+:Level: Basic
+:Group: NSCF
+:Search: :searchlink:`NSCF_KPOINTS`
+
+K-points of the NSCF stage
+
+The k-points at which tasks NSCF and PROPERTIES_NSCF optimise or read their NGWFs: SCF, the k-points of the ground state (as for task COND); PATH, those along NSCF_KPOINT_PATH, for a bandstructure; MESH, those of a Monkhorst-Pack mesh given by NSCF_KPOINT_GRID_SIZE (or NSCF_KPOINT_MP_SPACING), NSCF_KPOINT_GRID_SHIFT, NSCF_KPOINT_GAMMA_CENTRED and NSCF_KPOINT_SYMMETRY; or LIST, those of NSCF_KPOINT_LIST (see :ref:`bandstructure_pw`). The keywords of the other choices are errors. Tasks COND and PROPERTIES_COND always use the SCF k-points, and this keyword is not allowed with them.
+
+.. note::
+   :collapsible: closed
+
+   :Syntax:
+
+   .. code::
+
+      NSCF_KPOINTS [Text]
+
+   :Example:
+
+   .. code::
+
+      NSCF_KPOINTS PATH
+
+.. _nscf-kpoint-gamma-centred:
+
+NSCF_KPOINT_GAMMA_CENTRED
+-------------------------
+
+:Type: Boolean
+:Default: FALSE
+:Unit: None
+:Level: Intermediate
+:Group: NSCF
+:Search: :searchlink:`NSCF_KPOINT_GAMMA_CENTRED`
+
+Gamma-centred NSCF k-point mesh
+
+With NSCF_KPOINTS MESH, shift even meshes to include the Gamma point, as KPOINT_GAMMA_CENTRED for the ground state.
+
+.. note::
+   :collapsible: closed
+
+   :Syntax:
+
+   .. code::
+
+      NSCF_KPOINT_GAMMA_CENTRED [Logical]
+
+   :Example:
+
+   .. code::
+
+      NSCF_KPOINT_GAMMA_CENTRED T
+
+.. _nscf-kpoint-grid-shift:
+
+NSCF_KPOINT_GRID_SHIFT
+----------------------
+
+:Type: String
+:Default: '0 0 0'
+:Unit: None
+:Level: Intermediate
+:Group: NSCF
+:Search: :searchlink:`NSCF_KPOINT_GRID_SHIFT`
+
+Shift of the NSCF k-point mesh
+
+With NSCF_KPOINTS MESH, the shift (0 or 1) of the mesh along each reciprocal lattice vector, as KPOINT_GRID_SHIFT for the ground state.
+
+.. note::
+   :collapsible: closed
+
+   :Syntax:
+
+   .. code::
+
+      NSCF_KPOINT_GRID_SHIFT [Text]
+
+   :Example:
+
+   .. code::
+
+      NSCF_KPOINT_GRID_SHIFT 0 0 1
+
+.. _nscf-kpoint-grid-size:
+
+NSCF_KPOINT_GRID_SIZE
+---------------------
+
+:Type: String
+:Default: '1 1 1'
+:Unit: None
+:Level: Basic
+:Group: NSCF
+:Search: :searchlink:`NSCF_KPOINT_GRID_SIZE`
+
+Size of the NSCF k-point mesh
+
+With NSCF_KPOINTS MESH, the number of k-points of the Monkhorst-Pack mesh along each reciprocal lattice vector, as KPOINT_GRID_SIZE for the ground state.
+
+.. note::
+   :collapsible: closed
+
+   :Syntax:
+
+   .. code::
+
+      NSCF_KPOINT_GRID_SIZE [Text]
+
+   :Example:
+
+   .. code::
+
+      NSCF_KPOINT_GRID_SIZE 8 8 8
+
+.. _nscf-kpoint-list:
+
+NSCF_KPOINT_LIST
+----------------
+
+:Type: Block
+:Default: None
+:Unit: None
+:Level: Basic
+:Group: NSCF
+:Search: :searchlink:`NSCF_KPOINT_LIST`
+
+K-point list of the NSCF stage
+
+With NSCF_KPOINTS LIST, one k-point per line, in fractional coordinates of the reciprocal lattice vectors, optionally followed by its weight (default 1; the weights are normalised), as KPOINTS_LIST for the ground state.
+
+.. note::
+   :collapsible: closed
+
+   :Syntax:
+
+   .. code::
+
+      %BLOCK NSCF_KPOINT_LIST
+
+   :Example:
+
+   .. code::
+
+      %BLOCK NSCF_KPOINT_LIST
+      0.0 0.0 0.0 1.0
+      0.0 0.0 0.5 1.0
+      %ENDBLOCK NSCF_KPOINT_LIST
+
+.. _nscf-kpoint-mp-spacing:
+
+NSCF_KPOINT_MP_SPACING
+----------------------
+
+:Type: Physical
+:Default: 0.0
+:Unit: 1/bohr
+:Level: Intermediate
+:Group: NSCF
+:Search: :searchlink:`NSCF_KPOINT_MP_SPACING`
+
+Minimum spacing of the NSCF k-point mesh
+
+With NSCF_KPOINTS MESH, the minimum spacing of the mesh along each reciprocal lattice vector, in place of NSCF_KPOINT_GRID_SIZE, as KPOINT_MP_SPACING for the ground state.
+
+.. note::
+   :collapsible: closed
+
+   :Syntax:
+
+   .. code::
+
+      NSCF_KPOINT_MP_SPACING [Physical]
+
+   :Example:
+
+   .. code::
+
+      NSCF_KPOINT_MP_SPACING 0.03 1/bohr
+
+.. _nscf-kpoint-path:
+
+NSCF_KPOINT_PATH
+----------------
+
+:Type: Block
+:Default: None
+:Unit: None
+:Level: Basic
+:Group: NSCF
+:Search: :searchlink:`NSCF_KPOINT_PATH`
+
+K-point path of the NSCF stage
+
+With NSCF_KPOINTS PATH, the vertices of the path, one per line, in fractional coordinates of the reciprocal lattice vectors. A line containing BREAK starts a new, disconnected section of the path. See :ref:`bandstructure_pw`.
+
+.. note::
+   :collapsible: closed
+
+   :Syntax:
+
+   .. code::
+
+      %BLOCK NSCF_KPOINT_PATH
+
+   :Example:
+
+   .. code::
+
+      %BLOCK NSCF_KPOINT_PATH
+      0.0 0.0 0.0
+      0.5 0.0 0.5
+      %ENDBLOCK NSCF_KPOINT_PATH
+
+.. _nscf-kpoint-path-spacing:
+
+NSCF_KPOINT_PATH_SPACING
+------------------------
+
+:Type: Physical
+:Default: 0.1889727 1/bohr
+:Unit: 1/bohr
+:Level: Intermediate
+:Group: NSCF
+:Search: :searchlink:`NSCF_KPOINT_PATH_SPACING`
+
+Maximum k-point spacing along the NSCF path
+
+With NSCF_KPOINTS PATH, the maximum spacing of the k-points along each segment of NSCF_KPOINT_PATH.
+
+.. note::
+   :collapsible: closed
+
+   :Syntax:
+
+   .. code::
+
+      NSCF_KPOINT_PATH_SPACING [Physical]
+
+   :Example:
+
+   .. code::
+
+      NSCF_KPOINT_PATH_SPACING 0.05 1/bohr
+
+.. _nscf-kpoint-symmetry:
+
+NSCF_KPOINT_SYMMETRY
+--------------------
+
+:Type: Boolean
+:Default: FALSE
+:Unit: None
+:Level: Intermediate
+:Group: NSCF
+:Search: :searchlink:`NSCF_KPOINT_SYMMETRY`
+
+Reduce the NSCF k-point mesh by symmetry
+
+With NSCF_KPOINTS MESH, reduce the mesh by the symmetry operations of the calculation and time reversal, as for the ground state; by default the full mesh is used, with equal weights.
+
+.. note::
+   :collapsible: closed
+
+   :Syntax:
+
+   .. code::
+
+      NSCF_KPOINT_SYMMETRY [Logical]
+
+   :Example:
+
+   .. code::
+
+      NSCF_KPOINT_SYMMETRY T
+
+.. _nscf-projections:
+
+NSCF_PROJECTIONS
+----------------
+
+:Type: String
+:Default: 'NONE'
+:Unit: None
+:Level: Intermediate
+:Group: NSCF
+:Search: :searchlink:`NSCF_PROJECTIONS`
+
+Band weights along the NSCF path
+
+With NSCF_KPOINTS PATH, MESH or LIST, the weights of each atom or pseudoatomic orbital in each band at each k-point, written to <root>_BS.pdos_weights. One of NONE, ATOM_MULLIKEN, ATOM_LOWDIN (Mulliken or Lowdin populations of the NGWFs on each atom), PAO_LOWDIN or PAO_MULLIKEN (projections onto the pseudoatomic orbitals of the species_cond block), or PAO_LOWDIN_AMPLITUDES (PAO_LOWDIN, and the complex amplitudes in <root>_BS.pao_amplitudes). See :ref:`bandstructure_pw`.
+
+.. note::
+   :collapsible: closed
+
+   :Syntax:
+
+   .. code::
+
+      NSCF_PROJECTIONS [Text]
+
+   :Example:
+
+   .. code::
+
+      NSCF_PROJECTIONS PAO_LOWDIN
+
+.. _nscf-write-agr:
+
+NSCF_WRITE_AGR
+--------------
+
+:Type: Boolean
+:Default: FALSE
+:Unit: None
+:Level: Intermediate
+:Group: NSCF
+:Search: :searchlink:`NSCF_WRITE_AGR`
+
+Write the NSCF bands in xmgrace format
+
+With NSCF_KPOINTS PATH, write the bands to <root>_BS.agr, in xmgrace format, as well as to <root>_BS.bands. See :ref:`bandstructure_pw`.
+
+.. note::
+   :collapsible: closed
+
+   :Syntax:
+
+   .. code::
+
+      NSCF_WRITE_AGR [Boolean]
+
+   :Example:
+
+   .. code::
+
+      NSCF_WRITE_AGR T
+
 .. _num-acc-queues:
 
 NUM_ACC_QUEUES
@@ -20277,7 +20568,7 @@ TASK
 
 Type of calculation
 
-Specifies the :ref:`task` to be carried out, currently one of: SINGLEPOINT - single point energy calculation COND - Conduction NGWF optimisation calculation PROPERTIES - properties using results from a previous calculation of the ground state. PROPERTIES_COND - properties using results from a previous calculation of the conduction NGWFs. GEOMETRYOPTIMIZATION - geometry optimization using Cartesian or delocalized internal coordinates. MOLECULARDYNAMICS - molecular dynamics simulation. TRANSITIONSTATESEARCH - transition state search PHONON - a phonon frequencies and thermodynamics calculation. HUBBARDSCF - a projector-self-consistent DFT+U calculation. BANDSTRUCTURE - optimisation of NGWFs at the k-points of a bandstructure path, with k-points in PW mode (see :ref:`bandstructure_pw`). PROPERTIES_BANDSTRUCTURE - bandstructure output using results from a previous BANDSTRUCTURE calculation.
+Specifies the :ref:`task` to be carried out, currently one of: SINGLEPOINT - single point energy calculation COND - Conduction NGWF optimisation calculation PROPERTIES - properties using results from a previous calculation of the ground state. PROPERTIES_COND - properties using results from a previous calculation of the conduction NGWFs. NSCF - the non-self-consistent stage: NGWFs optimised at the k-points chosen by NSCF_KPOINTS in the fixed ground-state density, for conduction states (NSCF_KPOINTS SCF, as task COND) or a bandstructure along a path (NSCF_KPOINTS PATH, see :ref:`bandstructure_pw`). PROPERTIES_NSCF - output using the NGWFs of a previous NSCF task (with NSCF_KPOINTS SCF, as task PROPERTIES_COND). GEOMETRYOPTIMIZATION - geometry optimization using Cartesian or delocalized internal coordinates. MOLECULARDYNAMICS - molecular dynamics simulation. TRANSITIONSTATESEARCH - transition state search PHONON - a phonon frequencies and thermodynamics calculation. HUBBARDSCF - a projector-self-consistent DFT+U calculation.
 
 .. note::
    :collapsible: closed

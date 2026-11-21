@@ -502,8 +502,8 @@ The following are supported with more than one k-point:
 - Forces and geometry optimisation (but no cell optimisation).
 - Conduction NGWF optimisation (``task : COND``), in PW mode only.
 - Bandstructures along a path in PW mode, with NGWFs optimised at each
-  k-point of the path (tasks ``BANDSTRUCTURE`` and
-  ``PROPERTIES_BANDSTRUCTURE``, see :doc:`bandstructure_pw`).
+  k-point of the path (tasks ``NSCF`` and ``PROPERTIES_NSCF`` with
+  ``nscf_kpoints : PATH``, see :doc:`bandstructure_pw`).
 - In the properties module:
 
   - charge density, spin density and potential outputs, and the electric
@@ -516,7 +516,10 @@ The following are supported with more than one k-point:
     dielectric function) from conduction calculations, and optical matrix
     elements for OptaDOS, including the PAW terms;
   - EELS matrix elements for OptaDOS; with ``use_symmetry``, these are
-    unfolded onto the full k-point mesh, as OptaDOS requires.
+    unfolded onto the full k-point mesh, as OptaDOS requires;
+  - spectral function unfolding (:ref:`bsunfold`), with k-points along the
+    lattice vectors along which the NGWFs are extended and the supercell
+    along the others, with ``NUM_KPARS`` 1 if ``BSUNFLD_RESTART`` is used.
 
 The following are not yet available with more than one k-point, and either
 stop with an error or are skipped:
@@ -528,8 +531,8 @@ stop with an error or are skipped:
 - LR-TDDFT, RT-TDDFT, linear-response phonons and DMFT;
 - in the properties module: Mulliken bond populations, NGWF analysis and
   spreads, polarisation, the Hubbard-projected local density of states, the
-  bandstructure in the ground-state NGWF basis (``bs_method``) and its
-  unfolding, NBO and NPA, distributed multipole analysis, and electronic
+  bandstructure in the ground-state NGWF basis (``bs_method``), NBO and
+  NPA, distributed multipole analysis, and electronic
   transport.
 
 Keywords
